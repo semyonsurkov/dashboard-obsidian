@@ -8,6 +8,17 @@ import { createSprintNote, openSprintNote } from './sprintNote'
 
 const VIEW_TYPE = 'dashboard-obsidian-view'
 
+function isoWeekDates(weekNumber: number, year: number): { start: string; end: string } {
+  const jan4 = new Date(year, 0, 4)
+  const dow   = (jan4.getDay() + 6) % 7
+  const mon   = new Date(jan4)
+  mon.setDate(jan4.getDate() - dow + (weekNumber - 1) * 7)
+  const sun = new Date(mon)
+  sun.setDate(mon.getDate() + 6)
+  const fmt = (d: Date) => d.toISOString().slice(0, 10)
+  return { start: fmt(mon), end: fmt(sun) }
+}
+
 // ─── ItemView ──────────────────────────────────────────────────────────────────
 
 class DashboardView extends ItemView {
@@ -66,7 +77,8 @@ class DashboardView extends ItemView {
         settings: plugin.settings,
 
         onCreateSprint: async (weekNumber: number, year: number) => {
-          await createSprintNote(this.app, weekNumber, year, plugin.settings)
+          const { start, end } = isoWeekDates(weekNumber, year)
+          await createSprintNote(this.app, weekNumber, year, plugin.settings, start, end)
           await this.refresh()
         },
 
@@ -93,31 +105,67 @@ class DashboardView extends ItemView {
           const file   = await this.app.vault.create(`${folderPath}/Заметка ${today2}.md`, '')
           await this.app.workspace.getLeaf('tab').openFile(file)
         },
+
+        onNewProject: async (name: string, folder: string, deadline?: string) => {
+          const id = `project-${Date.now()}`
+          plugin.settings.projects.push({ id, name, folder, since: today, deadline })
+          await plugin.saveSettings()
+          await this.refresh()
+        },
+
+        onProjectUpdate: async (id: string, patch: Partial<{ since: string; deadline: string }>) => {
+          const proj = plugin.settings.projects.find(p => p.id === id)
+          if (!proj) return
+          Object.assign(proj, patch)
+          await plugin.saveSettings()
+          await this.refresh()
+        },
       }),
     )
   }
 
   // ─── Daily note creation ─────────────────────────────────────────────────────
 
+  private async renderTemplate(templatePath: string, vars: Record<string, string>): Promise<string | null> {
+    const file = this.app.vault.getAbstractFileByPath(templatePath)
+    if (!(file instanceof TFile)) return null
+    let content = await this.app.vault.cachedRead(file)
+    for (const [key, val] of Object.entries(vars)) {
+      content = content.split(`{{${key}}}`).join(val)
+    }
+    return content
+  }
+
   private async createDailyNote(date: string, trackerId: string) {
     const [y, mo, d] = date.split('-')
-    const filename = `${d}-${mo}-${y}.md`
+    const filename   = `${d}-${mo}-${y}.md`
+    const now        = new Date()
+    const time       = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+    const vars       = { date, title: filename.replace('.md', ''), time }
 
-    let folder: string
-    let template: string
+    let folder:   string
+    let tplPath:  string
+    let fallback: string
 
     if (trackerId === 'personal') {
       folder   = this.plugin.settings.personalFolder
-      template = `---\ntype: daily\ndate: ${date}\n---\n\n## Заметки\n\n## Итог дня\n`
+      tplPath  = this.plugin.settings.personalTemplate
+      fallback = `---\ntype: daily\ndate: ${date}\n---\n\n## Заметки\n\n## Итог дня\n`
     } else if (trackerId === 'work') {
       folder   = this.plugin.settings.workFolder
-      template = `# Отчёт за ${date}\n\n## Что сделано\n\n## Блокеры\n\n## Планы на завтра\n`
+      tplPath  = this.plugin.settings.workTemplate
+      fallback = `# Отчёт за ${date}\n\n## Что сделано\n\n## Блокеры\n\n## Планы на завтра\n`
     } else if (trackerId.startsWith('project:')) {
-      folder   = this.plugin.settings.verbaFolder
-      template = `# ${date}\n\n`
+      const projId = trackerId.slice('project:'.length)
+      const proj   = this.plugin.settings.projects.find(p => p.id === projId)
+      folder   = proj?.folder ?? this.plugin.settings.projects[0]?.folder ?? ''
+      tplPath  = this.plugin.settings.projectTemplate
+      fallback = `# ${date}\n\n`
     } else {
       return
     }
+
+    if (!folder) return
 
     if (!this.app.vault.getAbstractFileByPath(folder)) {
       await this.app.vault.createFolder(folder)
@@ -126,7 +174,10 @@ class DashboardView extends ItemView {
     const path = `${folder}/${filename}`
     let file = this.app.vault.getAbstractFileByPath(path)
     if (!(file instanceof TFile)) {
-      file = await this.app.vault.create(path, template)
+      const content = tplPath
+        ? (await this.renderTemplate(tplPath, vars)) ?? fallback
+        : fallback
+      file = await this.app.vault.create(path, content)
     }
 
     if (file instanceof TFile) {

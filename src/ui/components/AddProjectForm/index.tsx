@@ -1,7 +1,10 @@
-import { useState, useRef, useCallback } from 'react'
-import { Plus, FolderOpen } from 'lucide-react'
+import { useState } from 'react'
+import { Plus, FolderOpen, ChevronsUpDown, Check } from 'lucide-react'
 import DatePickerPopover from '../DatePickerPopover'
 import { Button } from '@/ui/components/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@/ui/components/ui/popover'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/ui/components/ui/command'
+import { cn } from '@/lib/utils'
 import styles from './styles.module.css'
 
 interface Props {
@@ -10,39 +13,20 @@ interface Props {
 }
 
 export default function AddProjectForm({ onAdd, folders }: Props) {
-  const [open, setOpen]               = useState(false)
-  const [name, setName]               = useState('')
-  const [folderSearch, setFolderSearch] = useState('')
-  const [showList, setShowList]       = useState(false)
-  const [deadline, setDeadline]       = useState('')
-  const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const filtered = folderSearch
-    ? folders.filter(f => f.toLowerCase().includes(folderSearch.toLowerCase())).slice(0, 8)
-    : folders.slice(0, 8)
-
-  const selectFolder = useCallback((path: string) => {
-    setFolderSearch(path)
-    setShowList(false)
-  }, [])
-
-  function handleFolderFocus() {
-    if (blurTimer.current) clearTimeout(blurTimer.current)
-    setShowList(true)
-  }
-
-  function handleFolderBlur() {
-    blurTimer.current = setTimeout(() => setShowList(false), 150)
-  }
+  const [open, setOpen]         = useState(false)
+  const [name, setName]         = useState('')
+  const [folder, setFolder]     = useState('')
+  const [folderOpen, setFolderOpen] = useState(false)
+  const [deadline, setDeadline] = useState('')
 
   function submit() {
-    if (!name.trim() || !folderSearch.trim()) return
-    onAdd(name.trim(), folderSearch.trim(), deadline || undefined)
-    setName(''); setFolderSearch(''); setDeadline(''); setOpen(false)
+    if (!name.trim() || !folder.trim()) return
+    onAdd(name.trim(), folder.trim(), deadline || undefined)
+    setName(''); setFolder(''); setDeadline(''); setOpen(false)
   }
 
   function cancel() {
-    setName(''); setFolderSearch(''); setDeadline(''); setOpen(false)
+    setName(''); setFolder(''); setDeadline(''); setOpen(false)
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -58,7 +42,7 @@ export default function AddProjectForm({ onAdd, folders }: Props) {
     )
   }
 
-  const canSubmit = name.trim().length > 0 && folderSearch.trim().length > 0
+  const canSubmit = name.trim().length > 0 && folder.trim().length > 0
 
   return (
     <div className={styles.form} onKeyDown={handleKeyDown}>
@@ -77,56 +61,59 @@ export default function AddProjectForm({ onAdd, folders }: Props) {
       </div>
 
       <div className={styles.field}>
-        <label className={styles.label} htmlFor="apf_folder">Папка в Vault</label>
-        <div className={styles.folder_wrap}>
-          <FolderOpen size={13} className={styles.folder_icon} aria-hidden />
-          <input
-            id="apf_folder"
-            className={`db_input ${styles.input} ${styles.folder_input}`}
-            placeholder="Начните вводить путь…"
-            value={folderSearch}
-            onChange={e => { setFolderSearch(e.target.value); setShowList(true) }}
-            onFocus={handleFolderFocus}
-            onBlur={handleFolderBlur}
-            autoComplete="off"
-          />
-          {showList && filtered.length > 0 && (
-            <div className={styles.folder_list}>
-              {filtered.map(f => (
-                <button
-                  key={f}
-                  className={styles.folder_opt}
-                  onMouseDown={e => { e.preventDefault(); selectFolder(f) }}
-                >
-                  {f}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        <label className={styles.label}>Папка в Vault</label>
+        <Popover open={folderOpen} onOpenChange={setFolderOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={folderOpen}
+              className="tw-w-full tw-justify-between tw-font-normal"
+            >
+              <FolderOpen size={13} className="tw-shrink-0 tw-opacity-50" />
+              <span className="tw-flex-1 tw-text-left tw-truncate">
+                {folder || 'Начните вводить путь…'}
+              </span>
+              <ChevronsUpDown size={11} className="tw-shrink-0 tw-opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="tw-w-[--radix-popover-trigger-width] tw-p-0" align="start">
+            <Command>
+              <CommandInput
+                placeholder="Поиск папки…"
+                value={folder}
+                onValueChange={setFolder}
+              />
+              <CommandList>
+                <CommandEmpty>Папка не найдена</CommandEmpty>
+                <CommandGroup>
+                  {folders.map(f => (
+                    <CommandItem
+                      key={f}
+                      value={f}
+                      onSelect={() => { setFolder(f); setFolderOpen(false) }}
+                    >
+                      <Check className={cn('tw-mr-2 tw-h-4 tw-w-4', folder === f ? 'tw-opacity-100' : 'tw-opacity-0')} />
+                      {f}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
       </div>
 
       <div className={styles.field}>
         <span className={styles.label}>
           Дедлайн <span className={styles.optional}>— необязательно</span>
         </span>
-        <DatePickerPopover
-          value={deadline}
-          onChange={setDeadline}
-          placeholder="Без дедлайна"
-          allowFuture
-        />
+        <DatePickerPopover value={deadline} onChange={setDeadline} placeholder="Без дедлайна" allowFuture />
       </div>
 
       <div className={styles.actions}>
         <Button variant="ghost" size="sm" onClick={cancel}>Отмена</Button>
-        <Button
-          size="sm"
-          onClick={submit}
-          disabled={!canSubmit}
-        >
-          Создать проект
-        </Button>
+        <Button size="sm" onClick={submit} disabled={!canSubmit}>Создать проект</Button>
       </div>
     </div>
   )

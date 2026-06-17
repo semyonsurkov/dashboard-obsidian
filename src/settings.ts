@@ -1,41 +1,79 @@
-import { App, PluginSettingTab, Setting } from 'obsidian'
+import { App, AbstractInputSuggest, PluginSettingTab, Setting, TFile } from 'obsidian'
 import type DashboardPlugin from './main'
+import type { ProjectConfig } from './types'
+
+// ─── File suggest (autocomplete for template paths) ────────────────────────────
+
+class FileSuggest extends AbstractInputSuggest<TFile> {
+  private el: HTMLInputElement
+
+  constructor(app: App, inputEl: HTMLInputElement) {
+    super(app, inputEl)
+    this.el = inputEl
+  }
+
+  getSuggestions(query: string): TFile[] {
+    const lower = query.toLowerCase()
+    return this.app.vault.getMarkdownFiles()
+      .filter(f => f.path.toLowerCase().includes(lower))
+      .sort((a, b) => a.path.localeCompare(b.path))
+      .slice(0, 20)
+  }
+
+  renderSuggestion(file: TFile, el: HTMLElement): void {
+    el.setText(file.path)
+  }
+
+  selectSuggestion(file: TFile): void {
+    this.el.value = file.path
+    this.el.dispatchEvent(new Event('input'))
+    this.close()
+  }
+}
+
+// ─── Types ─────────────────────────────────────────────────────────────────────
 
 export interface DashboardSettings {
-  personalFolder:  string
-  workFolder:      string
-  workWeekendsOff: boolean
+  personalFolder:   string
+  workFolder:       string
+  workWeekendsOff:  boolean
+  personalTemplate: string
+  workTemplate:     string
 
-  verbaFolder:     string
-  verbaSince:      string
-  verbaDeadline:   string
+  projects:         ProjectConfig[]
+  projectTemplate:  string
 
-  weeklyFolder:    string
+  weeklyFolder:     string
+  sprintTemplate:   string
 
-  goFolder:        string
-  englishFolder:   string
+  goFolder:         string
+  englishFolder:    string
 
-  mainBlockOrder:  string[]
-  sideBlockOrder:  string[]
+  mainBlockOrder:   string[]
+  sideBlockOrder:   string[]
 }
 
 export const DEFAULT_SETTINGS: DashboardSettings = {
-  personalFolder:  '1 ⚙️ Base/daily',
-  workFolder:      '2 💻 Work/Отчет за каждый день',
-  workWeekendsOff: true,
+  personalFolder:   '1 ⚙️ Base/daily',
+  workFolder:       '2 💻 Work/Отчет за каждый день',
+  workWeekendsOff:  true,
+  personalTemplate: '',
+  workTemplate:     '',
 
-  verbaFolder:     '2 💻 Work/Verba',
-  verbaSince:      '2026-01-01',
-  verbaDeadline:   '2026-09-01',
+  projects:         [{ id: 'verba', name: 'Verba', folder: '2 💻 Work/Verba', since: '2026-01-01', deadline: '2026-09-01' }],
+  projectTemplate:  '',
 
-  weeklyFolder:    '1 ⚙️ Base/periodic/weekly',
+  weeklyFolder:     '1 ⚙️ Base/periodic/weekly',
+  sprintTemplate:   '',
 
-  goFolder:        '1 ⚙️ Base/GO',
-  englishFolder:   '1 ⚙️ Base/English',
+  goFolder:         '1 ⚙️ Base/GO',
+  englishFolder:    '1 ⚙️ Base/English',
 
-  mainBlockOrder:  ['tracker', 'history'],
-  sideBlockOrder:  ['go', 'english'],
+  mainBlockOrder:   ['tracker', 'history'],
+  sideBlockOrder:   ['go', 'english'],
 }
+
+// ─── Setting tab ───────────────────────────────────────────────────────────────
 
 export class DashboardSettingTab extends PluginSettingTab {
   constructor(app: App, private plugin: DashboardPlugin) {
@@ -45,13 +83,15 @@ export class DashboardSettingTab extends PluginSettingTab {
   display(): void {
     const { containerEl } = this
     containerEl.empty()
-    containerEl.createEl('h2', { text: 'Dashboard — Настройки' })
+    containerEl.createEl('h2', { text: 'Dashboard' })
+
+    // ── Трекеры ──────────────────────────────────────────────────────────────
 
     containerEl.createEl('h3', { text: 'Трекеры' })
 
     new Setting(containerEl)
-      .setName('Личный дневник (папка)')
-      .setDesc('Заметки формата DD-MM-YYYY.md')
+      .setName('Личный дневник — папка')
+      .setDesc('Файлы формата DD-MM-YYYY.md')
       .addText(t => t
         .setPlaceholder('1 ⚙️ Base/daily')
         .setValue(this.plugin.settings.personalFolder)
@@ -59,13 +99,35 @@ export class DashboardSettingTab extends PluginSettingTab {
       )
 
     new Setting(containerEl)
-      .setName('Рабочий дневник (папка)')
-      .setDesc('Заметки формата DD-MM-YYYY.md')
+      .setName('Личный дневник — шаблон')
+      .setDesc('Переменные: {{date}}, {{title}}, {{time}}')
+      .addText(t => {
+        t.setPlaceholder('templates/Daily.md')
+          .setValue(this.plugin.settings.personalTemplate)
+          .onChange(async v => { this.plugin.settings.personalTemplate = v.trim(); await this.plugin.saveSettings() })
+        new FileSuggest(this.app, t.inputEl)
+        return t
+      })
+
+    new Setting(containerEl)
+      .setName('Рабочий дневник — папка')
+      .setDesc('Файлы формата DD-MM-YYYY.md')
       .addText(t => t
         .setPlaceholder('2 💻 Work/Отчет за каждый день')
         .setValue(this.plugin.settings.workFolder)
         .onChange(async v => { this.plugin.settings.workFolder = v; await this.plugin.saveSettings() }),
       )
+
+    new Setting(containerEl)
+      .setName('Рабочий дневник — шаблон')
+      .setDesc('Переменные: {{date}}, {{title}}, {{time}}')
+      .addText(t => {
+        t.setPlaceholder('templates/WorkReport.md')
+          .setValue(this.plugin.settings.workTemplate)
+          .onChange(async v => { this.plugin.settings.workTemplate = v.trim(); await this.plugin.saveSettings() })
+        new FileSuggest(this.app, t.inputEl)
+        return t
+      })
 
     new Setting(containerEl)
       .setName('Рабочий трекер: выходные выключены')
@@ -74,47 +136,51 @@ export class DashboardSettingTab extends PluginSettingTab {
         .onChange(async v => { this.plugin.settings.workWeekendsOff = v; await this.plugin.saveSettings() }),
       )
 
+    // ── Спринты ───────────────────────────────────────────────────────────────
+
     containerEl.createEl('h3', { text: 'Спринты' })
 
     new Setting(containerEl)
       .setName('Папка недельных заметок')
-      .setDesc('Куда создаются заметки спринта (формат YYYY-WNN.md)')
+      .setDesc('Формат: YYYY-WNN.md')
       .addText(t => t
         .setPlaceholder('1 ⚙️ Base/periodic/weekly')
         .setValue(this.plugin.settings.weeklyFolder)
         .onChange(async v => { this.plugin.settings.weeklyFolder = v; await this.plugin.saveSettings() }),
       )
 
-    containerEl.createEl('h3', { text: 'Проект Verba' })
+    new Setting(containerEl)
+      .setName('Спринт — шаблон')
+      .setDesc('Переменные: {{week}}, {{year}}, {{date_start}}, {{date_end}}')
+      .addText(t => {
+        t.setPlaceholder('templates/Sprint.md')
+          .setValue(this.plugin.settings.sprintTemplate)
+          .onChange(async v => { this.plugin.settings.sprintTemplate = v.trim(); await this.plugin.saveSettings() })
+        new FileSuggest(this.app, t.inputEl)
+        return t
+      })
+
+    // ── Проекты ───────────────────────────────────────────────────────────────
+
+    containerEl.createEl('h3', { text: 'Проекты' })
 
     new Setting(containerEl)
-      .setName('Verba (папка)')
-      .addText(t => t
-        .setPlaceholder('2 💻 Work/Verba')
-        .setValue(this.plugin.settings.verbaFolder)
-        .onChange(async v => { this.plugin.settings.verbaFolder = v; await this.plugin.saveSettings() }),
-      )
+      .setName('Шаблон отчёта по проекту')
+      .setDesc('Переменные: {{date}}, {{title}}, {{time}}')
+      .addText(t => {
+        t.setPlaceholder('templates/ProjectReport.md')
+          .setValue(this.plugin.settings.projectTemplate)
+          .onChange(async v => { this.plugin.settings.projectTemplate = v.trim(); await this.plugin.saveSettings() })
+        new FileSuggest(this.app, t.inputEl)
+        return t
+      })
 
-    new Setting(containerEl)
-      .setName('Verba: начало проекта (ISO)')
-      .addText(t => t
-        .setPlaceholder('2026-01-01')
-        .setValue(this.plugin.settings.verbaSince)
-        .onChange(async v => { this.plugin.settings.verbaSince = v; await this.plugin.saveSettings() }),
-      )
-
-    new Setting(containerEl)
-      .setName('Verba: дедлайн (ISO)')
-      .addText(t => t
-        .setPlaceholder('2026-09-01')
-        .setValue(this.plugin.settings.verbaDeadline)
-        .onChange(async v => { this.plugin.settings.verbaDeadline = v; await this.plugin.saveSettings() }),
-      )
+    // ── Быстрые заметки ───────────────────────────────────────────────────────
 
     containerEl.createEl('h3', { text: 'Быстрые заметки' })
 
     new Setting(containerEl)
-      .setName('Go (папка)')
+      .setName('Go — папка')
       .addText(t => t
         .setPlaceholder('1 ⚙️ Base/GO')
         .setValue(this.plugin.settings.goFolder)
@@ -122,7 +188,7 @@ export class DashboardSettingTab extends PluginSettingTab {
       )
 
     new Setting(containerEl)
-      .setName('English (папка)')
+      .setName('English — папка')
       .addText(t => t
         .setPlaceholder('1 ⚙️ Base/English')
         .setValue(this.plugin.settings.englishFolder)

@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { CalendarDays, CheckCircle, XCircle, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/ui/components/ui/button'
+import { ToggleGroup, ToggleGroupItem } from '@/ui/components/ui/toggle-group'
 import { groupByMonth } from '../../../stats'
 import type { HistoryDay, Preset } from '../../../types'
 import styles from './styles.module.css'
@@ -64,17 +65,15 @@ export default function TimelineBlock({ sourceDays, onOpenDay }: Props) {
   const dayMap = useMemo(() => new Map(sourceDays.map(d => [d.date, d])), [sourceDays])
 
   const allDays = useMemo<HistoryDay[]>(() => {
-    let from: string
-    let to: string
+    let from: string, to: string
 
     if (preset === 'week') {
-      from = daysAgo(6)
-      to   = today
+      from = daysAgo(6); to = today
     } else if (preset === 'month') {
       const y = viewYear, m = viewMonth
       from = `${y}-${String(m + 1).padStart(2, '0')}-01`
       const lastDay = new Date(y, m + 1, 0).getDate()
-      to   = `${y}-${String(m + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
+      to = `${y}-${String(m + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
       if (to > today) to = today
     } else {
       from = sourceDays.length > 0 ? sourceDays[0].date : daysAgo(90)
@@ -123,25 +122,26 @@ export default function TimelineBlock({ sourceDays, onOpenDay }: Props) {
       </div>
 
       <div className={styles.preset_row}>
-        {(['week', 'month', 'all'] as Preset[]).map(p => (
-          <button
-            key={p}
-            className={`btn btn--seg btn--sm btn--pill${preset === p ? ' is_active' : ''}`}
-            onClick={() => setPreset(p)}
-          >
-            {p === 'week' ? 'Неделя' : p === 'month' ? 'Месяц' : 'Всё время'}
-          </button>
-        ))}
+        <ToggleGroup
+          type="single"
+          value={preset}
+          onValueChange={v => { if (v) setPreset(v as Preset) }}
+        >
+          <ToggleGroupItem value="week"  size="sm" className="tw-rounded-full">Неделя</ToggleGroupItem>
+          <ToggleGroupItem value="month" size="sm" className="tw-rounded-full">Месяц</ToggleGroupItem>
+          <ToggleGroupItem value="all"   size="sm" className="tw-rounded-full">Всё время</ToggleGroupItem>
+        </ToggleGroup>
 
         {preset === 'month' && (
           <div className={styles.month_nav}>
-            <Button variant="ghost" size="sm" onClick={() => shiftMonth(-1)} aria-label="Предыдущий месяц">
+            <Button variant="ghost" size="icon" className="tw-h-7 tw-w-7" onClick={() => shiftMonth(-1)} aria-label="Предыдущий месяц">
               <ChevronLeft size={13} aria-hidden />
             </Button>
             <span className={styles.month_label}>{monthLabel}</span>
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
+              className="tw-h-7 tw-w-7"
               onClick={() => shiftMonth(1)}
               disabled={isCurrentMonth}
               aria-label="Следующий месяц"
@@ -175,7 +175,6 @@ export default function TimelineBlock({ sourceDays, onOpenDay }: Props) {
             </div>
           </div>
         </div>
-
       </div>
 
       <div className={styles.meta}>

@@ -1,10 +1,11 @@
-import { useState, useMemo } from 'react'
-import { Layers, Clock, ChevronDown } from 'lucide-react'
+import { useMemo } from 'react'
+import { Layers, Clock } from 'lucide-react'
 import CalendarHeatmap from '../CalendarHeatmap'
 import StatsCards from '../StatsCards'
 import ProgressBar from '../ProgressBar'
 import DatePickerPopover from '../DatePickerPopover'
 import AddProjectForm from '../AddProjectForm'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/components/ui/select'
 import { daysLeftUntil, deadlineProgress } from '../../../stats'
 import type { Project, RangeMode } from '../../../types'
 import styles from './styles.module.css'
@@ -33,7 +34,6 @@ export default function ProjectsPanel({
   onSelect, onSinceChange, onDeadlineChange, onAdd, onCreateReport,
 }: Props) {
   const today   = todayStr()
-  const [dropOpen, setDropOpen] = useState(false)
   const project = useMemo(
     () => projects.find(p => p.id === activeId) ?? projects[0],
     [projects, activeId],
@@ -57,32 +57,16 @@ export default function ProjectsPanel({
   return (
     <div>
       <div className={styles.header}>
-        <div className={styles.proj_wrap}>
-          <button
-            className={styles.proj_btn}
-            onClick={() => setDropOpen(v => !v)}
-            aria-expanded={dropOpen}
-            aria-haspopup="listbox"
-          >
-            <span>{project?.name ?? 'Проект'}</span>
-            <ChevronDown size={12} className={dropOpen ? styles.chevron_open : styles.chevron} />
-          </button>
-          {dropOpen && projects.length > 0 && (
-            <div className={styles.proj_list} role="listbox">
-              {projects.map(p => (
-                <button
-                  key={p.id}
-                  role="option"
-                  aria-selected={p.id === activeId}
-                  className={`${styles.proj_opt}${p.id === activeId ? ` ${styles.proj_opt_active}` : ''}`}
-                  onMouseDown={() => { onSelect(p.id); setDropOpen(false) }}
-                >
-                  {p.name}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        <Select value={activeId} onValueChange={onSelect}>
+          <SelectTrigger className="tw-w-[180px]">
+            <SelectValue placeholder="Проект" />
+          </SelectTrigger>
+          <SelectContent>
+            {projects.map(p => (
+              <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <AddProjectForm onAdd={onAdd} folders={folders} />
       </div>
 

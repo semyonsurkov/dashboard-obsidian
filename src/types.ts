@@ -40,6 +40,15 @@ export interface Project {
   deadline?: string    // ISO YYYY-MM-DD, optional
 }
 
+export interface ProjectConfig {
+  id:        string
+  name:      string
+  folder:    string
+  since:     string
+  deadline?: string
+  template?: string
+}
+
 export interface Sprint {
   weekNumber:    number
   year:          number

@@ -1,6 +1,7 @@
-import { useState } from 'react'
 import { PenLine, CheckCircle, Zap, ChevronLeft, ChevronRight, ChevronDown, Plus, AlertCircle } from 'lucide-react'
 import { Button } from '@/ui/components/ui/button'
+import { Badge } from '@/ui/components/ui/badge'
+import { Popover, PopoverContent, PopoverTrigger } from '@/ui/components/ui/popover'
 import ProgressBar from '../ProgressBar'
 import type { Tracker, Sprint } from '../../../types'
 import type { SprintInfo } from '../../../stats'
@@ -44,7 +45,6 @@ export default function SprintHero({
   sprint, sprints, trackers,
   onWrite, onPrev, onNext, onSelectSprint, onCreateSprint, onOpenNote,
 }: Props) {
-  const [listOpen, setListOpen] = useState(false)
   const today     = new Date().toISOString().slice(0, 10)
   const isWeekend = [0, 6].includes(new Date().getDay())
 
@@ -68,21 +68,45 @@ export default function SprintHero({
       {/* ── Header ── */}
       <div className={styles.top}>
         <div className={styles.nav}>
-          <button className={styles.icon_btn} onClick={onPrev} aria-label="Предыдущий спринт">
+          <Button variant="ghost" size="icon" className="tw-h-7 tw-w-7" onClick={onPrev} aria-label="Предыдущий спринт">
             <ChevronLeft size={14} />
-          </button>
+          </Button>
 
           <div className={styles.meta}>
             <Zap size={14} aria-hidden className="icon_purple" />
-            <button
-              className={styles.name_btn}
-              onClick={() => setListOpen(v => !v)}
-              aria-expanded={listOpen}
-              aria-label="Список спринтов"
-            >
-              <span className={styles.name}>Спринт W{sprint.weekNumber}</span>
-              <ChevronDown size={11} className={listOpen ? styles.chevron_open : styles.chevron} />
-            </button>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="sm" className={styles.name_btn} aria-label="Список спринтов">
+                  <span className={styles.name}>Спринт W{sprint.weekNumber}</span>
+                  <ChevronDown size={11} />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="tw-w-56 tw-p-1" align="start">
+                <div className={styles.list}>
+                  {[...sprints].reverse().map(s => {
+                    const isViewing     = s.weekNumber === sprint.weekNumber && s.year === sprint.year
+                    const isCurrentWeek = s.start <= today && today <= s.end
+                    const itemState     = sprintItemState(s, today)
+                    const hasSumm       = !!(s.summary || s.retro)
+                    const badge         = itemState === 'past' ? (hasSumm ? '✓' : '⚠') : ''
+                    return (
+                      <button
+                        key={`${s.year}-${s.weekNumber}`}
+                        className={`${styles.list_item}${isViewing ? ` ${styles.list_current}` : ''}`}
+                        onClick={() => onSelectSprint(s.weekNumber, s.year)}
+                      >
+                        <span className={styles.list_name}>W{s.weekNumber}</span>
+                        <span className={styles.list_range}>{fmtShort(s.start)} — {fmtShort(s.end)}</span>
+                        {isCurrentWeek && <span className={styles.list_tag}>текущий</span>}
+                        {badge && <span className={styles.list_badge}>{badge}</span>}
+                      </button>
+                    )
+                  })}
+                </div>
+              </PopoverContent>
+            </Popover>
+
             <span className={styles.sep}>·</span>
             <span className={styles.range}>{fmtShort(sprint.start)} — {fmtShort(sprint.end)}</span>
             {isActive && (
@@ -97,9 +121,9 @@ export default function SprintHero({
             )}
           </div>
 
-          <button className={styles.icon_btn} onClick={onNext} aria-label="Следующий спринт">
+          <Button variant="ghost" size="icon" className="tw-h-7 tw-w-7" onClick={onNext} aria-label="Следующий спринт">
             <ChevronRight size={14} />
-          </button>
+          </Button>
         </div>
 
         {isActive && (
@@ -120,32 +144,7 @@ export default function SprintHero({
         )}
       </div>
 
-      {/* ── Sprint list dropdown ── */}
-      {listOpen && (
-        <div className={styles.list}>
-          {[...sprints].reverse().map(s => {
-            const isViewing     = s.weekNumber === sprint.weekNumber && s.year === sprint.year
-            const isCurrentWeek = s.start <= today && today <= s.end
-            const itemState     = sprintItemState(s, today)
-            const hasSumm       = !!(s.summary || s.retro)
-            const badge         = itemState === 'past' && hasSumm ? '✓' : itemState === 'past' ? '⚠' : ''
-            return (
-              <button
-                key={`${s.year}-${s.weekNumber}`}
-                className={`${styles.list_item}${isViewing ? ` ${styles.list_current}` : ''}`}
-                onClick={() => { onSelectSprint(s.weekNumber, s.year); setListOpen(false) }}
-              >
-                <span className={styles.list_name}>W{s.weekNumber}</span>
-                <span className={styles.list_range}>{fmtShort(s.start)} — {fmtShort(s.end)}</span>
-                {isCurrentWeek && <span className={styles.list_tag}>текущий</span>}
-                {badge && <span className={styles.list_badge}>{badge}</span>}
-              </button>
-            )
-          })}
-        </div>
-      )}
-
-      {/* ── Progress bar (active + past) ── */}
+      {/* ── Progress bar ── */}
       {!isFuture && (
         <div className={styles.bar_row}>
           <ProgressBar pct={sprint.progress} />
@@ -194,7 +193,7 @@ export default function SprintHero({
         )
       )}
 
-      {/* ── Goals (active / future created / past with summary) ── */}
+      {/* ── Goals ── */}
       {showGoals && (
         <div className={styles.goals}>
           <button className={styles.goals_hdr_btn} onClick={() => onOpenNote('goals')}>
@@ -205,7 +204,9 @@ export default function SprintHero({
               <div className={styles.goal_col}>
                 <span className={styles.goal_section}>Личное</span>
                 <div className={styles.goal_chips}>
-                  {sprint.goalsPersonal.map(g => <span key={g} className={styles.chip}>{g}</span>)}
+                  {sprint.goalsPersonal.map(g => (
+                    <Badge key={g} variant="outline" className="tw-font-normal">{g}</Badge>
+                  ))}
                 </div>
               </div>
             )}
@@ -213,7 +214,9 @@ export default function SprintHero({
               <div className={styles.goal_col}>
                 <span className={styles.goal_section}>Работа</span>
                 <div className={styles.goal_chips}>
-                  {sprint.goalsWork.map(g => <span key={g} className={styles.chip}>{g}</span>)}
+                  {sprint.goalsWork.map(g => (
+                    <Badge key={g} variant="outline" className="tw-font-normal">{g}</Badge>
+                  ))}
                 </div>
               </div>
             )}

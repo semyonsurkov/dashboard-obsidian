@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { DashboardApp } from '../ui/App'
 import { sprintByOffset } from '../stats'
 import type { DashboardData } from '../vault'
-import type { Sprint, HistoryDay, QuickNote } from '../types'
+import type { Sprint, HistoryDay, Project } from '../types'
 
 function localISO(d: Date): string {
   const y = d.getFullYear()
@@ -66,30 +66,35 @@ function makeSprint(offset: number): Sprint {
 
 const sprints: Sprint[] = [-3, -2, -1, 0, 1].map(makeSprint)
 
-const goNotes: QuickNote[] = [
-  { name: 'Заметка 2026-06-17', path: '1 ⚙️ Base/GO/Заметка 2026-06-17.md' },
-  { name: 'Промпт для понимания темы в гошке', path: '1 ⚙️ Base/GO/Промпт для понимания темы в гошке.md' },
-  { name: 'Вопросы по бэку', path: '1 ⚙️ Base/GO/Вопросы по бэку.md' },
-  { name: 'Промпт для подготовки к собеседованиям', path: '1 ⚙️ Base/GO/Промпт для подготовки к собеседованиям.md' },
-]
-
-const englishNotes: QuickNote[] = [
-  { name: 'Education\'s log - Topics', path: '1 ⚙️ Base/English/Education\'s log - Topics.md' },
-  { name: 'English Progress Log', path: '1 ⚙️ Base/English/English Progress Log.md' },
-  { name: 'Weekly Plan', path: '1 ⚙️ Base/English/Weekly Plan.md' },
-  { name: 'Questions with DO', path: '1 ⚙️ Base/English/Questions with DO.md' },
-  { name: 'How to think in English', path: '1 ⚙️ Base/English/How to think in English.md' },
+const projects: Project[] = [
+  {
+    id:       'verba',
+    name:     'Verba',
+    folder:   '2 💻 Work/Verba',
+    since:    '2026-01-01',
+    deadline: '2026-09-01',
+    days:     verbaDays,
+  },
 ]
 
 const mockData: DashboardData = {
   personalDays,
   workDays,
-  verbaDays,
-  verbaSince:    '2026-01-01',
-  verbaDeadline: '2026-09-01',
+  projects,
   sprints,
-  goNotes,
-  englishNotes,
+  goNotes: [
+    { name: 'Заметка 2026-06-17', path: '1 ⚙️ Base/GO/Заметка 2026-06-17.md' },
+    { name: 'Промпт для понимания темы в гошке', path: '1 ⚙️ Base/GO/Промпт для понимания темы в гошке.md' },
+    { name: 'Вопросы по бэку', path: '1 ⚙️ Base/GO/Вопросы по бэку.md' },
+    { name: 'Промпт для подготовки к собеседованиям', path: '1 ⚙️ Base/GO/Промпт для подготовки к собеседованиям.md' },
+  ],
+  englishNotes: [
+    { name: 'Education\'s log - Topics', path: '1 ⚙️ Base/English/Education\'s log - Topics.md' },
+    { name: 'English Progress Log', path: '1 ⚙️ Base/English/English Progress Log.md' },
+    { name: 'Weekly Plan', path: '1 ⚙️ Base/English/Weekly Plan.md' },
+    { name: 'Questions with DO', path: '1 ⚙️ Base/English/Questions with DO.md' },
+    { name: 'How to think in English', path: '1 ⚙️ Base/English/How to think in English.md' },
+  ],
   folders: [
     '1 ⚙️ Base', '1 ⚙️ Base/GO', '1 ⚙️ Base/English', '1 ⚙️ Base/daily',
     '1 ⚙️ Base/periodic/weekly', '1 ⚙️ Base/periodic/monthly',
@@ -99,17 +104,19 @@ const mockData: DashboardData = {
 }
 
 const settings = {
-  personalFolder:  '1 ⚙️ Base/daily',
-  workFolder:      '2 💻 Work/Отчет за каждый день',
-  workWeekendsOff: true,
-  verbaFolder:     '2 💻 Work/Verba',
-  verbaSince:      '2026-01-01',
-  verbaDeadline:   '2026-09-01',
-  weeklyFolder:    '1 ⚙️ Base/periodic/weekly',
-  goFolder:        '1 ⚙️ Base/GO',
-  englishFolder:   '1 ⚙️ Base/English',
-  mainBlockOrder:  ['tracker', 'history'] as string[],
-  sideBlockOrder:  ['go', 'english'] as string[],
+  personalFolder:   '1 ⚙️ Base/daily',
+  workFolder:       '2 💻 Work/Отчет за каждый день',
+  workWeekendsOff:  true,
+  personalTemplate: '',
+  workTemplate:     '',
+  projects:         [{ id: 'verba', name: 'Verba', folder: '2 💻 Work/Verba', since: '2026-01-01', deadline: '2026-09-01' }],
+  projectTemplate:  '',
+  weeklyFolder:     '1 ⚙️ Base/periodic/weekly',
+  sprintTemplate:   '',
+  goFolder:         '1 ⚙️ Base/GO',
+  englishFolder:    '1 ⚙️ Base/English',
+  mainBlockOrder:   ['tracker', 'history'] as string[],
+  sideBlockOrder:   ['go', 'english'] as string[],
 }
 
 const el = document.getElementById('app')!
@@ -117,7 +124,7 @@ el.className = 'dashboard-view-root'
 
 createRoot(el).render(
   React.createElement(DashboardApp, {
-    data:     mockData,
+    data:            mockData,
     today,
     settings,
     onCreateSprint:  async (wn, y)       => console.log('create sprint', wn, y),
@@ -125,5 +132,7 @@ createRoot(el).render(
     onCreateReport:  async (date, id)    => console.log('create report', date, id),
     onOpenQuickNote: async (path)        => console.log('open note', path),
     onNewQuickNote:  async (folder)      => console.log('new note in', folder),
+    onNewProject:    async (name, folder, deadline) => console.log('new project', name, folder, deadline),
+    onProjectUpdate: async (id, patch)   => console.log('update project', id, patch),
   }),
 )

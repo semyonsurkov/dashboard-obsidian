@@ -9,6 +9,8 @@ import {
 } from '@dnd-kit/sortable'
 import { GripVertical, BookOpen, Globe, NotebookPen, Briefcase } from 'lucide-react'
 import { Button } from './components/ui/button'
+import { Toaster } from './components/ui/sonner'
+import { toast } from 'sonner'
 import { sprintByOffset } from '../stats'
 import type { Tracker, Project, TrackerId, BlockId, HistoryDay } from '../types'
 import type { DashboardData } from '../vault'
@@ -37,6 +39,8 @@ interface Props {
   onCreateReport:  (date: string, trackerId: string) => Promise<void>
   onOpenQuickNote: (notePath: string) => Promise<void>
   onNewQuickNote:  (folderPath: string) => Promise<void>
+  onNewProject:    (name: string, folder: string, deadline?: string) => Promise<void>
+  onProjectUpdate: (id: string, patch: Partial<Project>) => Promise<void>
 }
 
 // ─── App ──────────────────────────────────────────────────────────────────────
@@ -44,11 +48,11 @@ interface Props {
 export function DashboardApp({
   data, today, settings,
   onCreateSprint, onOpenNote, onCreateReport, onOpenQuickNote, onNewQuickNote,
+  onNewProject, onProjectUpdate,
 }: Props) {
   const [editMode, setEditMode]     = useState(false)
   const [mainOrder, setMainOrder]   = useState<BlockId[]>((settings.mainBlockOrder as BlockId[]) ?? ['tracker', 'history'])
   const [sideOrder, setSideOrder]   = useState<string[]>(settings.sideBlockOrder ?? ['go', 'english'])
-  const [toastMsg, setToastMsg]     = useState<string | null>(null)
   const [weekOffset, setWeekOffset] = useState(0)
   const [activeDays, setActiveDays] = useState<HistoryDay[]>(data.personalDays)
 
@@ -65,15 +69,6 @@ export function DashboardApp({
     },
   ], [data.personalDays, data.workDays, settings.workWeekendsOff, today])
 
-  const projects = useMemo<Project[]>(() => [{
-    id:       'verba',
-    name:     'Verba',
-    folder:   settings.verbaFolder,
-    since:    data.verbaSince,
-    days:     data.verbaDays,
-    deadline: data.verbaDeadline,
-  }], [data.verbaDays, data.verbaSince, data.verbaDeadline, settings.verbaFolder])
-
   const sprintInfo = useMemo(() => sprintByOffset(today, weekOffset), [today, weekOffset])
   const sprintMock = useMemo(
     () => data.sprints.find(s => s.weekNumber === sprintInfo.weekNumber && s.year === sprintInfo.year),
@@ -87,11 +82,6 @@ export function DashboardApp({
     retro:         sprintMock?.retro,
     created:       sprintMock?.created ?? false,
   }), [sprintInfo, sprintMock])
-
-  function showToast(msg: string) {
-    setToastMsg(msg)
-    setTimeout(() => setToastMsg(null), 2800)
-  }
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -125,7 +115,7 @@ export function DashboardApp({
 
   async function handleCreateSprint() {
     await onCreateSprint(sprint.weekNumber, sprint.year)
-    showToast(`Спринт W${sprint.weekNumber} создан`)
+    toast(`Спринт W${sprint.weekNumber} создан`)
   }
 
   async function handleOpenNote(section: 'goals' | 'summary' | 'retro') {
@@ -143,13 +133,13 @@ export function DashboardApp({
     tracker: (
       <TrackerBlock
         trackers={trackers}
-        projects={projects}
+        projects={data.projects}
         editMode={editMode}
         sprint={sprint}
         folders={data.folders}
         onSinceChange={(_id: TrackerId, _since: string) => {}}
-        onProjectUpdate={() => {}}
-        onAddProject={() => {}}
+        onProjectUpdate={onProjectUpdate}
+        onAddProject={onNewProject}
         onActiveDaysChange={setActiveDays}
         onCreateReport={handleCreateReport}
       />
@@ -242,7 +232,7 @@ export function DashboardApp({
         </DndContext>
       </div>
 
-      {toastMsg && <div className="db_toast" role="status">{toastMsg}</div>}
+      <Toaster position="bottom-right" richColors />
     </div>
   )
 }

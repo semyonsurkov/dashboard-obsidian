@@ -4,6 +4,7 @@ import CalendarHeatmap from '../CalendarHeatmap'
 import StatsCards from '../StatsCards'
 import DatePickerPopover from '../DatePickerPopover'
 import ProjectsPanel from '../ProjectsPanel'
+import { ToggleGroup, ToggleGroupItem } from '@/ui/components/ui/toggle-group'
 import type { Tracker, Project, TrackerId, MainTab, RangeMode, HistoryDay } from '../../../types'
 import type { SprintInfo } from '../../../stats'
 import styles from './styles.module.css'
@@ -25,9 +26,9 @@ export default function TrackerBlock({
   trackers, projects, editMode, sprint, folders,
   onSinceChange, onProjectUpdate, onAddProject, onActiveDaysChange, onCreateReport,
 }: Props) {
-  const [activeTab, setActiveTab]           = useState<MainTab>(trackers[0].id)
+  const [activeTab, setActiveTab]             = useState<MainTab>(trackers[0].id)
   const [activeProjectId, setActiveProjectId] = useState(projects[0]?.id ?? '')
-  const [rangeMode, setRangeMode]           = useState<RangeMode>('all')
+  const [rangeMode, setRangeMode]             = useState<RangeMode>('all')
 
   const isProjects    = activeTab === 'projects'
   const activeTracker = !isProjects ? (trackers.find(t => t.id === activeTab) ?? trackers[0]) : null
@@ -39,7 +40,6 @@ export default function TrackerBlock({
     [isProjects, activeProjectId, projects, activeTracker],
   )
 
-  // Fix: use useEffect for the side effect (was wrongly useMemo in preview)
   useEffect(() => {
     onActiveDaysChange(activeDays)
   }, [activeDays]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -62,36 +62,32 @@ export default function TrackerBlock({
   return (
     <div className="db_card">
       <div className={styles.tabs}>
-        <button
-          className={`btn btn--seg${activeTab === 'personal' ? ' is_active' : ''}`}
-          onClick={() => switchTab('personal')}
+        <ToggleGroup
+          type="single"
+          value={activeTab}
+          onValueChange={v => { if (v) switchTab(v as MainTab) }}
+          className="tw-justify-start"
         >
-          <NotebookPen size={13} aria-hidden /> Личный отчёт
-        </button>
-        <button
-          className={`btn btn--seg${activeTab === 'work' ? ' is_active' : ''}`}
-          onClick={() => switchTab('work')}
-        >
-          <Briefcase size={13} aria-hidden /> Рабочий отчёт
-        </button>
-        <button
-          className={`btn btn--seg${isProjects ? ' is_active' : ''}`}
-          onClick={() => switchTab('projects')}
-        >
-          <Layers size={13} aria-hidden /> Проекты
-        </button>
+          <ToggleGroupItem value="personal" className="tw-gap-1.5">
+            <NotebookPen size={13} aria-hidden /> Личный отчёт
+          </ToggleGroupItem>
+          <ToggleGroupItem value="work" className="tw-gap-1.5">
+            <Briefcase size={13} aria-hidden /> Рабочий отчёт
+          </ToggleGroupItem>
+          <ToggleGroupItem value="projects" className="tw-gap-1.5">
+            <Layers size={13} aria-hidden /> Проекты
+          </ToggleGroupItem>
+        </ToggleGroup>
 
-        <div className={styles.range_toggle}>
-          {(['all','sprint'] as RangeMode[]).map(m => (
-            <button
-              key={m}
-              className={`btn btn--seg btn--sm btn--pill${rangeMode === m ? ' is_active' : ''}`}
-              onClick={() => setRangeMode(m)}
-            >
-              {m === 'all' ? 'Всё время' : 'Спринт'}
-            </button>
-          ))}
-        </div>
+        <ToggleGroup
+          type="single"
+          value={rangeMode}
+          onValueChange={v => { if (v) setRangeMode(v as RangeMode) }}
+          className={styles.range_toggle}
+        >
+          <ToggleGroupItem value="all" size="sm" className="tw-rounded-full">Всё время</ToggleGroupItem>
+          <ToggleGroupItem value="sprint" size="sm" className="tw-rounded-full">Спринт</ToggleGroupItem>
+        </ToggleGroup>
       </div>
 
       {isProjects ? (

@@ -1,5 +1,5 @@
 import { App, TFile, TFolder } from 'obsidian'
-import type { HistoryDay, Sprint } from './types'
+import type { HistoryDay, Project, Sprint } from './types'
 import { sprintByOffset } from './stats'
 import { weeklyNotePath, parseSprintNote } from './sprintNote'
 import type { DashboardSettings } from './settings'
@@ -14,9 +14,7 @@ export interface QuickNote {
 export interface DashboardData {
   personalDays:   HistoryDay[]
   workDays:       HistoryDay[]
-  verbaDays:      HistoryDay[]
-  verbaSince:     string
-  verbaDeadline:  string
+  projects:       Project[]
   sprints:        Sprint[]
   goNotes:        QuickNote[]
   englishNotes:   QuickNote[]
@@ -31,8 +29,6 @@ export function getAllFolderPaths(app: App): string[] {
 }
 
 // ─── Date tracker ──────────────────────────────────────────────────────────────
-// Reads all DD-MM-YYYY.md files from a folder → HistoryDay[].
-// reported = file exists; text = first non-empty body line after a ## header.
 
 export async function readDateTracker(app: App, folderPath: string): Promise<HistoryDay[]> {
   const folder = app.vault.getAbstractFileByPath(folderPath)
@@ -95,8 +91,6 @@ export function readQuickNotes(app: App, folderPath: string): QuickNote[] {
 }
 
 // ─── Sprints ───────────────────────────────────────────────────────────────────
-// Builds Sprint[] for weeks (offset -4…+1) around today.
-// For each week: checks if the weekly note exists, parses goals/summary/retro.
 
 const SPRINT_RANGE = 4
 
@@ -144,26 +138,26 @@ export async function buildDashboardData(
   today: string,
   settings: DashboardSettings,
 ): Promise<DashboardData> {
-  const [personalDays, workDays, verbaDays, sprints] = await Promise.all([
+  const [personalDays, workDays, sprints] = await Promise.all([
     readDateTracker(app, settings.personalFolder),
     readDateTracker(app, settings.workFolder),
-    readDateTracker(app, settings.verbaFolder),
     buildSprints(app, today, settings),
   ])
+
+  const projects: Project[] = await Promise.all(
+    settings.projects.map(async cfg => ({
+      id:       cfg.id,
+      name:     cfg.name,
+      folder:   cfg.folder,
+      since:    cfg.since,
+      deadline: cfg.deadline,
+      days:     await readDateTracker(app, cfg.folder),
+    }))
+  )
 
   const goNotes      = readQuickNotes(app, settings.goFolder)
   const englishNotes = readQuickNotes(app, settings.englishFolder)
   const folders      = getAllFolderPaths(app)
 
-  return {
-    personalDays,
-    workDays,
-    verbaDays,
-    verbaSince:    settings.verbaSince,
-    verbaDeadline: settings.verbaDeadline,
-    sprints,
-    goNotes,
-    englishNotes,
-    folders,
-  }
+  return { personalDays, workDays, projects, sprints, goNotes, englishNotes, folders }
 }

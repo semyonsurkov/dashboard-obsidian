@@ -89,19 +89,37 @@ export async function createSprintNote(
   weekNumber: number,
   year: number,
   settings: DashboardSettings,
+  dateStart?: string,
+  dateEnd?: string,
 ): Promise<TFile> {
   const path = weeklyNotePath(weekNumber, year, settings)
 
   const existing = app.vault.getAbstractFileByPath(path)
   if (existing instanceof TFile) return existing
 
-  // Ensure parent folder exists
   const folder = settings.weeklyFolder
   if (!app.vault.getAbstractFileByPath(folder)) {
     await app.vault.createFolder(folder)
   }
 
-  return app.vault.create(path, sprintTemplate(weekNumber, year))
+  let content = sprintTemplate(weekNumber, year)
+
+  if (settings.sprintTemplate) {
+    const tplFile = app.vault.getAbstractFileByPath(settings.sprintTemplate)
+    if (tplFile instanceof TFile) {
+      const ww = String(weekNumber).padStart(2, '0')
+      let tpl  = await app.vault.cachedRead(tplFile)
+      tpl = tpl
+        .split('{{week}}').join(`W${ww}`)
+        .split('{{year}}').join(String(year))
+        .split('{{date_start}}').join(dateStart ?? '')
+        .split('{{date_end}}').join(dateEnd ?? '')
+        .split('{{date}}').join(dateStart ?? '')
+      content = tpl
+    }
+  }
+
+  return app.vault.create(path, content)
 }
 
 // ─── Open ──────────────────────────────────────────────────────────────────────

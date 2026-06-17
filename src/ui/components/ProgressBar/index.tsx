@@ -1,25 +1,24 @@
-import styles from './styles.module.css'
-import type React from 'react'
+import { Progress } from '@/ui/components/ui/progress'
+import { cn } from '@/lib/utils'
 
 interface Props {
-  pct:      number           // 0–100
+  pct:      number
   tone?:    'accent' | 'amber' | 'red'
   compact?: boolean
 }
 
+const toneMap: Record<string, string> = {
+  accent: 'tw-bg-[var(--accent)]',
+  amber:  'tw-bg-amber-500',
+  red:    'tw-bg-red-500',
+}
+
 export default function ProgressBar({ pct, tone = 'accent', compact = false }: Props) {
   return (
-    <div
-      className={`${styles.bar}${compact ? ` ${styles.bar_compact}` : ''}`}
-      role="progressbar"
-      aria-valuenow={pct}
-      aria-valuemin={0}
-      aria-valuemax={100}
-    >
-      <div
-        className={`${styles.fill} ${styles[`tone_${tone}`]}`}
-        style={{ '--db-pct': `${pct}%` } as React.CSSProperties}
-      />
-    </div>
+    <Progress
+      value={pct}
+      className={compact ? 'tw-h-1' : 'tw-h-2'}
+      indicatorClassName={toneMap[tone]}
+    />
   )
 }
