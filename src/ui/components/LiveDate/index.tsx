@@ -11,7 +11,6 @@ export default function LiveDate() {
   return (
     <div className={styles.live_date}>
       <span className={styles.greeting}>{greeting}</span>
-      <span className={styles.sep}>·</span>
       <span className={styles.dt}>
         {DOW_FULL[now.getDay()]}, {now.getDate()} {MONTHS_GEN[now.getMonth()]} {now.getFullYear()}
       </span>

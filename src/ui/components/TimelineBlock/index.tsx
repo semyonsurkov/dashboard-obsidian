@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { CalendarDays, CheckCircle, XCircle, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Button } from '@/ui/components/ui/button'
 import { groupByMonth } from '../../../stats'
 import type { HistoryDay, Preset } from '../../../types'
 import styles from './styles.module.css'
@@ -134,18 +135,19 @@ export default function TimelineBlock({ sourceDays, onOpenDay }: Props) {
 
         {preset === 'month' && (
           <div className={styles.month_nav}>
-            <button className="btn btn--ghost btn--sm" onClick={() => shiftMonth(-1)} aria-label="Предыдущий месяц">
+            <Button variant="ghost" size="sm" onClick={() => shiftMonth(-1)} aria-label="Предыдущий месяц">
               <ChevronLeft size={13} aria-hidden />
-            </button>
+            </Button>
             <span className={styles.month_label}>{monthLabel}</span>
-            <button
-              className="btn btn--ghost btn--sm"
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => shiftMonth(1)}
               disabled={isCurrentMonth}
               aria-label="Следующий месяц"
             >
               <ChevronRight size={13} aria-hidden />
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -174,17 +176,19 @@ export default function TimelineBlock({ sourceDays, onOpenDay }: Props) {
           </div>
         </div>
 
-        <div className={styles.meta}>
-          <span>{pct}% сдачи</span>
-          <button
-            className="btn btn--ghost btn--sm"
-            onClick={() => setNewestFirst(v => !v)}
-            aria-label="Изменить порядок"
-          >
-            <ArrowUpDown size={12} aria-hidden />
-            {newestFirst ? 'Новые сначала' : 'Старые сначала'}
-          </button>
-        </div>
+      </div>
+
+      <div className={styles.meta}>
+        <span>{pct}% сдачи</span>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setNewestFirst(v => !v)}
+          aria-label="Изменить порядок"
+        >
+          <ArrowUpDown size={12} aria-hidden />
+          {newestFirst ? 'Новые сначала' : 'Старые сначала'}
+        </Button>
       </div>
 
       <div className={styles.day_list} role="list">

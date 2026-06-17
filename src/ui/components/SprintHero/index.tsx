@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { PenLine, CheckCircle, Zap, ChevronLeft, ChevronRight, ChevronDown, Plus, AlertCircle } from 'lucide-react'
+import { Button } from '@/ui/components/ui/button'
 import ProgressBar from '../ProgressBar'
 import type { Tracker, Sprint } from '../../../types'
 import type { SprintInfo } from '../../../stats'
@@ -110,9 +111,9 @@ export default function SprintHero({
               </div>
             ) : (
               pending.map(t => (
-                <button key={t.id} className="btn btn--amber btn--sm" onClick={() => onWrite(t.id)}>
+                <Button key={t.id} variant="amber" size="sm" onClick={() => onWrite(t.id)}>
                   <PenLine size={12} aria-hidden /> {t.label.split(' ')[0]}
-                </button>
+                </Button>
               ))
             )}
           </div>
@@ -123,19 +124,20 @@ export default function SprintHero({
       {listOpen && (
         <div className={styles.list}>
           {[...sprints].reverse().map(s => {
-            const isCurrent = s.weekNumber === sprint.weekNumber && s.year === sprint.year
-            const itemState = sprintItemState(s, today)
-            const hasSumm   = !!(s.summary || s.retro)
-            const badge     = itemState === 'past' && hasSumm ? '✓' : itemState === 'past' ? '⚠' : ''
+            const isViewing     = s.weekNumber === sprint.weekNumber && s.year === sprint.year
+            const isCurrentWeek = s.start <= today && today <= s.end
+            const itemState     = sprintItemState(s, today)
+            const hasSumm       = !!(s.summary || s.retro)
+            const badge         = itemState === 'past' && hasSumm ? '✓' : itemState === 'past' ? '⚠' : ''
             return (
               <button
                 key={`${s.year}-${s.weekNumber}`}
-                className={`${styles.list_item}${isCurrent ? ` ${styles.list_current}` : ''}`}
+                className={`${styles.list_item}${isViewing ? ` ${styles.list_current}` : ''}`}
                 onClick={() => { onSelectSprint(s.weekNumber, s.year); setListOpen(false) }}
               >
                 <span className={styles.list_name}>W{s.weekNumber}</span>
                 <span className={styles.list_range}>{fmtShort(s.start)} — {fmtShort(s.end)}</span>
-                {isCurrent && <span className={styles.list_tag}>текущий</span>}
+                {isCurrentWeek && <span className={styles.list_tag}>текущий</span>}
                 {badge && <span className={styles.list_badge}>{badge}</span>}
               </button>
             )
@@ -155,9 +157,9 @@ export default function SprintHero({
       {isFuture && !sprint.created && (
         <div className={styles.future_body}>
           <p className={styles.future_hint}>Спринт ещё не создан — добавьте цели</p>
-          <button className="btn btn--primary" onClick={onCreateSprint}>
+          <Button onClick={onCreateSprint}>
             <Plus size={14} aria-hidden /> Создать спринт
-          </button>
+          </Button>
         </div>
       )}
 
@@ -177,17 +179,17 @@ export default function SprintHero({
                 <p className={styles.summary_text}>{sprint.retro}</p>
               </div>
             )}
-            <button className="btn btn--ghost btn--sm" onClick={() => onOpenNote('summary')}>
+            <Button variant="ghost" size="sm" onClick={() => onOpenNote('summary')}>
               Открыть заметку
-            </button>
+            </Button>
           </div>
         ) : (
           <div className={styles.retro_warn}>
             <AlertCircle size={13} className="icon_amber" aria-hidden />
             <span>Нужно написать итог и ретро</span>
-            <button className="btn btn--amber btn--sm" onClick={() => onOpenNote('summary')}>
+            <Button variant="amber" size="sm" onClick={() => onOpenNote('summary')}>
               Открыть заметку
-            </button>
+            </Button>
           </div>
         )
       )}

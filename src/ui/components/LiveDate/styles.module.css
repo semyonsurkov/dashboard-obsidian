@@ -1,19 +1,16 @@
 .live_date {
   display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 2px;
 }
 .greeting {
-  font-size: var(--fs-sm);
-  font-weight: 600;
+  font-size: var(--fs-md);
+  font-weight: 700;
   color: var(--text);
-}
-.sep {
-  color: var(--text-dim);
-  font-size: var(--fs-sm);
+  line-height: 1.1;
 }
 .dt {
   font-size: var(--fs-sm);
   color: var(--text-muted);
+  line-height: 1;
 }

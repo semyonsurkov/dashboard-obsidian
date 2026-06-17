@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Preview</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #0d0d0f; color: #e4e4e7; }
+    #app { max-width: 1400px; margin: 0 auto; min-height: 100vh; overflow-y: auto; }
+
+    /* Obsidian CSS variables for preview */
+    :root {
+      --background-primary:              #0d0d0f;
+      --background-secondary:            #18181b;
+      --background-secondary-alt:        #1f1f23;
+      --background-modifier-form-field:  #1c1c1f;
+      --background-modifier-border:      rgba(255,255,255,.07);
+      --background-modifier-border-hover: #3f3f46;
+      --background-modifier-border-focus: #7c3aed;
+      --text-normal:   #e4e4e7;
+      --text-muted:    #71717a;
+      --text-faint:    #52525b;
+      --interactive-accent:       #7c3aed;
+      --interactive-accent-hover: rgba(124,58,237,.35);
+      --color-green:  #22c55e;
+      --color-red:    #ef4444;
+      --color-orange: #f59e0b;
+      --radius-s:  6px;
+      --radius-m:  8px;
+      --radius-l:  12px;
+      --radius-xl: 16px;
+      --shadow-s: 0 2px 8px rgba(0,0,0,.25);
+      --shadow-l: 0 8px 24px rgba(0,0,0,.40);
+      --font-interface: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module" src="/src/preview/index.tsx"></script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { DayPicker } from 'react-day-picker'
 import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Button } from '@/ui/components/ui/button'
 import styles from './styles.module.css'
 
 const MONTHS_NOM = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь']
@@ -40,15 +41,16 @@ export default function DatePickerPopover({
   return (
     <div className={styles.wrap} ref={ref}>
       {label && <span className={styles.label}>{label}</span>}
-      <button
-        className="btn btn--ghost btn--sm"
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => setOpen(v => !v)}
         aria-expanded={open}
         aria-haspopup="dialog"
       >
         <CalendarDays size={11} aria-hidden />
         {value ? fmtShort(value) : placeholder}
-      </button>
+      </Button>
 
       {open && (
         <div className={styles.pop} role="dialog" aria-label="Выбрать дату">

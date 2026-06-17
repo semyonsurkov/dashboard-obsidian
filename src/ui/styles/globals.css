@@ -1,0 +1,45 @@
+@tailwind components;
+@tailwind utilities;
+
+/* shadcn/ui CSS vars — scoped to dashboard root, does not affect Obsidian */
+.dashboard-view-root {
+  /* base */
+  --background: 240 7% 6%;
+  --foreground: 240 5% 90%;
+
+  /* card */
+  --card: 240 6% 10%;
+  --card-foreground: 240 5% 90%;
+
+  /* popover */
+  --popover: 240 6% 12%;
+  --popover-foreground: 240 5% 90%;
+
+  /* primary = accent */
+  --primary: 263 69% 58%;
+  --primary-foreground: 0 0% 100%;
+
+  /* secondary */
+  --secondary: 240 5% 14%;
+  --secondary-foreground: 240 5% 80%;
+
+  /* muted */
+  --muted: 240 5% 14%;
+  --muted-foreground: 240 5% 45%;
+
+  /* accent */
+  --accent: 240 5% 16%;
+  --accent-foreground: 240 5% 90%;
+
+  /* destructive */
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+
+  /* borders */
+  --border: 240 5% 18%;
+  --input: 240 5% 14%;
+  --ring: 263 69% 58%;
+
+  /* radius — inherited from Obsidian */
+  --radius: 8px;
+}

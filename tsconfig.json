@@ -1,17 +1,21 @@
 {
   "compilerOptions": {
-    "target":    "ES2018",
-    "module":    "CommonJS",
-    "lib":       ["ES2018", "DOM"],
-    "jsx":       "react-jsx",
-    "strict":    true,
-    "noImplicitAny": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "moduleResolution": "node",
-    "baseUrl":   ".",
-    "outDir":    "dist"
+    "target":            "ES2020",
+    "module":            "ESNext",
+    "lib":               ["ES2020", "DOM", "DOM.Iterable"],
+    "jsx":               "react-jsx",
+    "strict":            true,
+    "noImplicitAny":     true,
+    "esModuleInterop":   true,
+    "skipLibCheck":      true,
+    "moduleResolution":  "bundler",
+    "baseUrl":           ".",
+    "outDir":            "dist",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "isolatedModules":   true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "vite.config.ts"],
   "exclude": ["node_modules"]
 }

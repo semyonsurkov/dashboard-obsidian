@@ -53,10 +53,15 @@ export async function readDateTracker(app: App, folderPath: string): Promise<His
     try {
       const content = await app.vault.cachedRead(child)
       const lines = content.split('\n')
-      let inBody = false
+      let inFrontmatter = false, pastFrontmatter = false, inBody = false
       for (const line of lines) {
         const trimmed = line.trim()
-        if (trimmed.startsWith('#') || trimmed === '---') { inBody = true; continue }
+        if (!pastFrontmatter && trimmed === '---') {
+          if (!inFrontmatter) { inFrontmatter = true; continue }
+          inFrontmatter = false; pastFrontmatter = true; continue
+        }
+        if (inFrontmatter) continue
+        if (trimmed.startsWith('#')) { inBody = true; continue }
         if (inBody && trimmed && !trimmed.startsWith('#')) {
           text = trimmed
             .replace(/\*\*([^*]+)\*\*/g, '$1')

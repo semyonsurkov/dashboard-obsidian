@@ -137,10 +137,10 @@
 .goals_hdr_btn { background: none; border: none; padding: 0; cursor: pointer; margin-bottom: var(--space-2); }
 .goals_hdr_btn:hover .goals_label { color: var(--accent); }
 .goals_hdr_btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.goals_label { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); font-weight: 600; transition: color .15s; }
+.goals_label { font-size: var(--fs-xs); color: var(--text-2); font-weight: 600; transition: color .15s; }
 .goals_cols  { display: flex; gap: var(--space-8); flex-wrap: wrap; }
 .goal_col    { display: flex; flex-direction: column; gap: var(--space-2); }
-.goal_section { font-size: 11px; color: var(--text-dim); font-weight: 500; }
+.goal_section { font-size: 11px; color: var(--text-muted); font-weight: 500; }
 .goal_chips  { display: flex; gap: var(--space-2); flex-wrap: wrap; }
 .chip        { display: inline-flex; align-items: center; font-size: var(--fs-xs); color: var(--text-2); background: var(--surface-2); border: 1px solid var(--border-2); border-radius: 20px; padding: 2px var(--space-2); }
 

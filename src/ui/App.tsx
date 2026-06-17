@@ -8,6 +8,7 @@ import {
   SortableContext, arrayMove, verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { GripVertical, BookOpen, Globe, NotebookPen, Briefcase } from 'lucide-react'
+import { Button } from './components/ui/button'
 import { sprintByOffset } from '../stats'
 import type { Tracker, Project, TrackerId, BlockId, HistoryDay } from '../types'
 import type { DashboardData } from '../vault'
@@ -19,6 +20,7 @@ import TimelineBlock from './components/TimelineBlock'
 import QuickBlock    from './components/QuickBlock'
 import SortableItem  from './components/SortableItem'
 import LiveDate      from './components/LiveDate'
+import './styles/globals.css'
 import './styles/tokens.css'
 import './styles/shared.css'
 import './styles/calendar.css'
@@ -161,11 +163,11 @@ export function DashboardApp({
         title="Go"
         icon={BookOpen}
         iconClass="icon_go"
-        hubNote={settings.goFolder + '/Go база'}
+        hubNote={settings.goFolder + '/Go база.md'}
+        onHubClick={() => onOpenQuickNote(`${settings.goFolder}/Go база.md`)}
         notes={goNoteNames}
         onNoteClick={name => onOpenQuickNote(`${settings.goFolder}/${name}.md`)}
         onNewNote={() => onNewQuickNote(settings.goFolder)}
-        onToast={showToast}
       />
     ),
     english: (
@@ -173,11 +175,11 @@ export function DashboardApp({
         title="English"
         icon={Globe}
         iconClass="icon_english"
-        hubNote={settings.englishFolder + '/English база'}
+        hubNote={settings.englishFolder + '/English база.md'}
+        onHubClick={() => onOpenQuickNote(`${settings.englishFolder}/English база.md`)}
         notes={engNoteNames}
         onNoteClick={name => onOpenQuickNote(`${settings.englishFolder}/${name}.md`)}
         onNewNote={() => onNewQuickNote(settings.englishFolder)}
-        onToast={showToast}
       />
     ),
   }
@@ -186,17 +188,18 @@ export function DashboardApp({
     <div className="db_root">
       <div className="db_toolbar">
         <div className="db_toolbar_left">
-          <span className="db_toolbar_title">Dashboard</span>
           <LiveDate />
         </div>
-        <button
-          className={`btn btn--ghost${editMode ? ' is_active' : ''}`}
+        <Button
+          variant="ghost"
+          size="sm"
+          className={editMode ? 'is_active' : ''}
           onClick={() => setEditMode(v => !v)}
           aria-pressed={editMode}
         >
           <GripVertical size={14} aria-hidden />
           {editMode ? 'Готово' : 'Настроить'}
-        </button>
+        </Button>
       </div>
 
       <SprintHero
