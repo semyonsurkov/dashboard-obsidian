@@ -1,0 +1,88 @@
+/* Shared utilities — scoped under .dashboard-view-root */
+
+/* ── Icon colors ─────────────────────────────────────────────────────────────── */
+.dashboard-view-root .icon_orange  { color: var(--orange); }
+.dashboard-view-root .icon_amber   { color: var(--amber); }
+.dashboard-view-root .icon_purple  { color: var(--accent); }
+.dashboard-view-root .icon_green   { color: var(--green); }
+.dashboard-view-root .icon_muted   { color: var(--text-muted); }
+.dashboard-view-root .icon_dim     { color: var(--text-dim); }
+.dashboard-view-root .icon_go      { color: #22d3ee; }
+.dashboard-view-root .icon_english { color: #a78bfa; }
+
+/* ── Dots ────────────────────────────────────────────────────────────────────── */
+.dashboard-view-root .dot       { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.dashboard-view-root .dot_green { background: var(--green); }
+.dashboard-view-root .dot_red   { background: var(--red); }
+.dashboard-view-root .dot_dim   { background: var(--border-2); }
+
+/* ── Button system ───────────────────────────────────────────────────────────── */
+.dashboard-view-root .btn {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  height: 32px; padding: 0 var(--space-4);
+  font-size: var(--fs-sm); font-family: inherit; font-weight: 500;
+  border-radius: var(--radius-md); border: 1px solid transparent;
+  cursor: pointer;
+  transition: background .15s ease-out, border-color .15s ease-out, color .15s ease-out, opacity .15s ease-out;
+  white-space: nowrap; text-decoration: none; flex-shrink: 0;
+  line-height: 1;
+}
+.dashboard-view-root .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.dashboard-view-root .btn:disabled      { opacity: .45; cursor: not-allowed; pointer-events: none; }
+
+.dashboard-view-root .btn--primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.dashboard-view-root .btn--primary:hover  { background: #6d28d9; border-color: #6d28d9; }
+.dashboard-view-root .btn--primary:active { background: #5b21b6; }
+
+.dashboard-view-root .btn--ghost { background: rgba(255,255,255,.05); border-color: var(--border-2); color: var(--text-muted); }
+.dashboard-view-root .btn--ghost:hover     { background: rgba(255,255,255,.1); color: var(--text); }
+.dashboard-view-root .btn--ghost:active    { background: rgba(255,255,255,.07); }
+.dashboard-view-root .btn--ghost.is_active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.dashboard-view-root .btn--amber { background: rgba(245,158,11,.1); border-color: rgba(245,158,11,.25); color: #fde68a; }
+.dashboard-view-root .btn--amber:hover { background: rgba(245,158,11,.18); }
+
+.dashboard-view-root .btn--seg { background: var(--surface-2); border-color: var(--border-2); color: var(--text-muted); }
+.dashboard-view-root .btn--seg:hover:not(.is_active) { border-color: var(--border-3); color: var(--text-2); }
+.dashboard-view-root .btn--seg.is_active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.dashboard-view-root .btn--sm    { height: 28px; padding: 0 var(--space-2); font-size: var(--fs-xs); }
+.dashboard-view-root .btn--pill  { border-radius: 20px; }
+.dashboard-view-root .btn--dashed { border-style: dashed; border-color: var(--border-2); background: transparent; color: var(--text-dim); }
+.dashboard-view-root .btn--dashed:hover { border-color: var(--border-3); color: var(--text-2); background: transparent; }
+
+/* ── Card ────────────────────────────────────────────────────────────────────── */
+.dashboard-view-root .db_card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: var(--space-4) var(--space-6);
+  box-shadow: var(--shadow-card);
+}
+
+/* ── Form inputs ─────────────────────────────────────────────────────────────── */
+.dashboard-view-root .db_input {
+  background: var(--surface); border: 1px solid var(--border-2);
+  border-radius: var(--radius-sm); padding: var(--space-1) var(--space-2);
+  font-size: var(--fs-sm); color: var(--text); font-family: inherit; width: 100%;
+}
+.dashboard-view-root .db_input::placeholder { color: var(--text-dim); }
+.dashboard-view-root .db_input:focus { outline: none; border-color: var(--accent); }
+
+/* ── Toast ───────────────────────────────────────────────────────────────────── */
+.dashboard-view-root .db_toast {
+  position: fixed; bottom: var(--space-6); left: 50%; transform: translateX(-50%);
+  background: var(--surface-2); border: 1px solid rgba(255,255,255,.12);
+  border-radius: var(--radius-lg); padding: var(--space-2) var(--space-4);
+  font-size: var(--fs-sm); color: var(--text);
+  box-shadow: var(--shadow-lg); z-index: 9999; white-space: nowrap;
+  animation: db_toast_in .2s ease-out;
+}
+@keyframes db_toast_in { from { opacity: 0; transform: translateX(-50%) translateY(8px); } }
+
+/* ── Responsive ──────────────────────────────────────────────────────────────── */
+@media (pointer: coarse) {
+  .dashboard-view-root .btn     { min-height: 44px; }
+  .dashboard-view-root .btn--sm { min-height: 36px; }
+}
+@container (max-width: 599px) {
+  .dashboard-view-root .db_toast { left: var(--space-4); right: var(--space-4); transform: none; white-space: normal; }
+}

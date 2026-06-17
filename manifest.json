@@ -1,0 +1,9 @@
+{
+  "id": "dashboard-obsidian",
+  "name": "Dashboard",
+  "version": "0.1.0",
+  "minAppVersion": "1.12.2",
+  "description": "Personal life dashboard: trackers, sprints, projects, quick notes.",
+  "author": "Semyon Surkov",
+  "isDesktopOnly": false
+}

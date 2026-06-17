@@ -1,0 +1,18 @@
+.bar {
+  height: 6px;
+  background: var(--border-2);
+  border-radius: 3px;
+  overflow: hidden;
+  width: 100%;
+}
+.bar_compact { height: 4px; }
+
+.fill {
+  height: 100%;
+  width: var(--db-pct, 0%);
+  border-radius: 3px;
+  transition: width .4s ease-out;
+}
+.tone_accent { background: var(--accent); }
+.tone_amber  { background: var(--amber); }
+.tone_red    { background: var(--red); }

@@ -1,0 +1,71 @@
+/* App layout — scoped under .dashboard-view-root */
+
+.dashboard-view-root .db_root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--space-4) var(--space-6) var(--space-16);
+  min-height: 100%;
+}
+
+/* ── Toolbar ────────────────────────────────────────────────────────────────── */
+.dashboard-view-root .db_toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.dashboard-view-root .db_toolbar_left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.dashboard-view-root .db_toolbar_title {
+  font-size: var(--fs-md);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+/* ── Bento grid ─────────────────────────────────────────────────────────────── */
+.dashboard-view-root .db_bento {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-4);
+  align-items: start;
+}
+@container (max-width: 900px) { .dashboard-view-root .db_bento { grid-template-columns: 1fr; } }
+
+.dashboard-view-root .db_main_col { display: flex; flex-direction: column; gap: var(--space-4); }
+.dashboard-view-root .db_sidebar  { display: flex; flex-direction: column; gap: var(--space-4); }
+
+/* ── Sortable ────────────────────────────────────────────────────────────────── */
+.dashboard-view-root .db_sortable_item           { position: relative; }
+.dashboard-view-root .db_sortable_item.is_dragging { opacity: .5; }
+
+.dashboard-view-root .db_drag_handle {
+  position: absolute; top: var(--space-2); right: var(--space-2); z-index: 10;
+  color: var(--text-dim); cursor: grab;
+  padding: var(--space-1); border-radius: var(--radius-sm);
+  transition: color .12s, background .12s;
+}
+.dashboard-view-root .db_drag_handle:hover  { color: var(--text-2); background: rgba(255,255,255,.06); }
+.dashboard-view-root .db_drag_handle:active { cursor: grabbing; }
+
+/* ── Empty state ─────────────────────────────────────────────────────────────── */
+.dashboard-view-root .db_empty_state {
+  display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2);
+  padding: var(--space-4) 0; color: var(--text-muted);
+}
+.dashboard-view-root .db_empty_icon { color: var(--text-dim); }
+.dashboard-view-root .db_empty_state p { font-size: var(--fs-sm); }
+
+/* ── Responsive ──────────────────────────────────────────────────────────────── */
+@container (max-width: 767px) {
+  .dashboard-view-root .db_bento { gap: var(--space-2); }
+}
+@container (max-width: 599px) {
+  .dashboard-view-root .db_root    { padding: var(--space-2) var(--space-2) var(--space-8); }
+  .dashboard-view-root .db_toolbar { margin-bottom: var(--space-2); }
+}

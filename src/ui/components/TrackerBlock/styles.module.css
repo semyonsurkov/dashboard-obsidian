@@ -1,0 +1,31 @@
+.tabs {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+  align-items: center;
+}
+.range_toggle {
+  display: flex;
+  gap: var(--space-1);
+  margin-left: auto;
+}
+
+.body {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+@container (max-width: 700px) { .body { grid-template-columns: 1fr; } }
+
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+@container (max-width: 599px) {
+  .tabs .btn { font-size: 11px; padding: 0 var(--space-2); height: 30px; }
+  .range_toggle { margin-left: 0; }
+}

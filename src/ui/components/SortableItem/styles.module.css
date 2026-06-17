@@ -1,0 +1,11 @@
+.item     { position: relative; }
+.dragging { opacity: .5; }
+
+.handle {
+  position: absolute; top: var(--space-2); right: var(--space-2); z-index: 10;
+  color: var(--text-dim); cursor: grab;
+  padding: var(--space-1); border-radius: var(--radius-sm);
+  transition: color .12s, background .12s;
+}
+.handle:hover  { color: var(--text-2); background: rgba(255,255,255,.06); }
+.handle:active { cursor: grabbing; }

@@ -1,0 +1,59 @@
+/* Design tokens — mapped to Obsidian's native CSS variables.
+   Colors/surfaces automatically adapt to the active Obsidian theme. */
+
+.dashboard-view-root {
+  /* Container context — @container queries in child styles measure pane width */
+  container-type: inline-size;
+
+  /* Spacing — 8-pt grid (no Obsidian equivalent) */
+  --space-1: 4px;   --space-2: 8px;   --space-4: 16px;
+  --space-6: 24px;  --space-8: 32px;  --space-12: 48px; --space-16: 64px;
+
+  /* Radii — use Obsidian's radius tokens */
+  --radius-sm: var(--radius-s, 4px);
+  --radius-md: var(--radius-m, 6px);
+  --radius-lg: var(--radius-l, 10px);
+  --radius-xl: var(--radius-xl, 14px);
+
+  /* Shadows */
+  --shadow-card: var(--shadow-s, 0 2px 8px rgba(0,0,0,.18));
+  --shadow-lg:   var(--shadow-l, 0 8px 24px rgba(0,0,0,.28));
+
+  /* Surfaces — Obsidian theme variables */
+  --bg:        var(--background-primary);
+  --surface:   var(--background-secondary);
+  --surface-2: var(--background-modifier-form-field, var(--background-secondary-alt, var(--background-secondary)));
+
+  /* Borders */
+  --border:    var(--background-modifier-border);
+  --border-2:  var(--background-modifier-border-hover, var(--background-modifier-border));
+  --border-3:  var(--background-modifier-border-focus, var(--interactive-accent));
+
+  /* Text */
+  --text:      var(--text-normal);
+  --text-2:    var(--text-muted);
+  --text-muted: var(--text-muted);
+  --text-dim:  var(--text-faint);
+
+  /* Accent & semantic */
+  --accent:     var(--interactive-accent);
+  --accent-dim: var(--interactive-accent-hover, color-mix(in srgb, var(--interactive-accent) 40%, transparent));
+  --green:      var(--color-green);
+  --red:        var(--color-red);
+  --amber:      var(--color-orange, #f59e0b);
+  --orange:     var(--color-orange, #f97316);
+
+  /* Type scale: 12 / 14 / 16 / 20 / 24 / 32 */
+  --fs-xs: 12px;  --fs-sm: 14px;  --fs-md: 16px;
+  --fs-lg: 20px;  --fs-xl: 24px;  --fs-2xl: 32px;
+
+  font-family: var(--font-interface, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  font-size: var(--fs-sm);
+  color: var(--text);
+  background: var(--bg);
+  box-sizing: border-box;
+}
+
+.dashboard-view-root *, .dashboard-view-root *::before, .dashboard-view-root *::after {
+  box-sizing: inherit;
+}

@@ -1,0 +1,74 @@
+/* react-day-picker v9 — full custom dark theme (scoped under .dashboard-view-root) */
+
+.dashboard-view-root .rdp-root {
+  position: relative; width: 100%; max-width: 256px;
+  --rdp-accent-color: var(--accent);
+}
+.dashboard-view-root .rdp-nav {
+  position: absolute; top: 0; left: 0; right: 0;
+  display: flex; justify-content: space-between; align-items: center;
+  height: 26px; pointer-events: none; z-index: 1;
+}
+.dashboard-view-root .rdp-button_previous,
+.dashboard-view-root .rdp-button_next {
+  pointer-events: all; background: none; border: none;
+  color: var(--text-dim); border-radius: var(--radius-sm);
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; padding: 0; transition: background .12s, color .12s;
+}
+.dashboard-view-root .rdp-button_previous:hover,
+.dashboard-view-root .rdp-button_next:hover { background: var(--surface-2); color: var(--text); }
+.dashboard-view-root .rdp-button_previous:disabled,
+.dashboard-view-root .rdp-button_next:disabled { opacity: .2; cursor: default; }
+
+.dashboard-view-root .rdp-months  { display: flex; }
+.dashboard-view-root .rdp-month   { flex: 1; }
+.dashboard-view-root .rdp-month_caption {
+  display: flex; align-items: center; justify-content: center;
+  height: 26px; margin-bottom: 6px; position: relative;
+}
+.dashboard-view-root .rdp-caption_label { font-size: var(--fs-sm); font-weight: 600; color: var(--text); user-select: none; }
+.dashboard-view-root .rdp-month_grid    { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.dashboard-view-root .rdp-weekday       { text-align: center; font-size: var(--fs-xs); color: var(--text-dim); font-weight: 500; padding-bottom: 3px; }
+.dashboard-view-root abbr[title]        { text-decoration: none; }
+.dashboard-view-root .rdp-day          { text-align: center; padding: 1px 0; }
+.dashboard-view-root .rdp-day_button {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: var(--radius-sm);
+  font-size: var(--fs-xs); font-family: inherit;
+  color: var(--text-2); background: none; border: none;
+  cursor: pointer; transition: background .12s, color .12s;
+}
+.dashboard-view-root .rdp-day_button:hover   { background: var(--surface-2); color: var(--text); }
+.dashboard-view-root .rdp-today .rdp-day_button  { color: #a5b4fc; font-weight: 700; box-shadow: inset 0 0 0 1.5px var(--accent); }
+.dashboard-view-root .rdp-selected .rdp-day_button { background: var(--accent); color: #fff; }
+.dashboard-view-root .rdp-disabled .rdp-day_button { color: #2d2d30; cursor: default; pointer-events: none; }
+.dashboard-view-root .rdp-outside .rdp-day_button  { visibility: hidden; }
+.dashboard-view-root .rdp-hidden { visibility: hidden; }
+.dashboard-view-root .rdp_chevron_dim { opacity: .25; }
+
+/* Heatmap modifiers */
+.dashboard-view-root .day_reported .rdp-day_button       { background: rgba(34,197,94,.22) !important; color: #86efac !important; }
+.dashboard-view-root .day_reported .rdp-day_button:hover { background: rgba(34,197,94,.35) !important; }
+.dashboard-view-root .day_missed .rdp-day_button         { background: rgba(239,68,68,.18) !important; color: #fca5a5 !important; cursor: pointer; }
+.dashboard-view-root .day_missed .rdp-day_button:hover   { background: rgba(239,68,68,.32) !important; }
+
+/* Clickable hint on missed days */
+.dashboard-view-root .day_missed .rdp-day_button::after {
+  content: '+';
+  position: absolute;
+  font-size: 9px;
+  top: 1px;
+  right: 2px;
+  opacity: 0;
+  transition: opacity .12s;
+  pointer-events: none;
+}
+.dashboard-view-root .day_missed .rdp-day_button:hover::after { opacity: .7; }
+.dashboard-view-root .rdp-day { position: relative; }
+
+/* Touch: bigger tap targets */
+@media (pointer: coarse) {
+  .dashboard-view-root .rdp-day_button { width: 36px !important; height: 36px !important; border-radius: var(--radius-md) !important; }
+}
