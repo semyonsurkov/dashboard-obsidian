@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef, type MouseEvent } from 'react'
+import { createPortal } from 'react-dom'
 import { Calendar } from '@mantine/dates'
 import { ActionIcon } from '@mantine/core'
 import { ChevronLeft } from 'lucide-react'
@@ -136,7 +137,7 @@ export default function CalendarHeatmap({ days, since, onCreateReport, onOpenRep
         <span className={styles.since}>с {fmtShort(since)}</span>
       </div>}
 
-      {ctxMenu && (
+      {ctxMenu && createPortal(
         <div
           ref={menuRef}
           className={styles.ctx_menu}
@@ -165,7 +166,8 @@ export default function CalendarHeatmap({ days, since, onCreateReport, onOpenRep
               Создать отчёт
             </button>
           )}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
