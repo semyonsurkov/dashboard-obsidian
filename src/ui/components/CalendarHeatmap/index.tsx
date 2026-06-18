@@ -93,10 +93,12 @@ export default function CalendarHeatmap({ days, since, onCreateReport, onOpenRep
         maxDate={now}
         size="xs"
         styles={{
-          calendarHeader: { maxWidth: 'none' },
+          calendarHeader: { maxWidth: 'none', width: '100%' },
           month:          { width: '100%', borderCollapse: 'separate', borderSpacing: '2px' },
           day:            { width: '100%', height: 'auto', aspectRatio: '1', fontSize: '11px' },
           weekday:        { fontSize: '10px' },
+          monthsList:     { width: '100%', borderCollapse: 'separate', borderSpacing: '4px' },
+          pickerControl:  { width: '100%', height: 36, fontSize: 'var(--mantine-font-size-sm)' },
         }}
         getDayProps={date => {
           const iso      = toISO(date)

@@ -204,6 +204,39 @@
   color: var(--mantine-color-dark-2);
 }
 
+.ctx_menu {
+  position: fixed;
+  z-index: 9999;
+  min-width: 160px;
+  background: var(--mantine-color-dark-6);
+  border: 1px solid var(--mantine-color-dark-4);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ctx_item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: left;
+  font-size: var(--mantine-font-size-sm);
+  color: var(--mantine-color-dark-1);
+  transition: background 0.15s ease-out;
+}
+
+.ctx_item:hover { background: var(--mantine-color-dark-5); }
+
+.ctx_item_danger { color: var(--mantine-color-red-4); }
+
 .day_text {
   margin: 0;
   margin-top: 6px;

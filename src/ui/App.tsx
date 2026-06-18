@@ -145,6 +145,8 @@ export function DashboardApp({
       <TimelineBlock
         sourceDays={activeDays}
         onOpenByDate={date => handleCreateReport(date, activeTrackerId)}
+        onOpenReport={(date, fp) => onOpenReport?.(date, fp, activeTrackerId)}
+        onDeleteReport={(date, fp) => onDeleteReport?.(date, fp, activeTrackerId)}
       />
     ),
   }

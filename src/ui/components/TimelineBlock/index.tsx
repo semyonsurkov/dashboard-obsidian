@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useEffect, type MouseEvent } from 'react'
+import { createPortal } from 'react-dom'
 import { CalendarDays, CheckCircle, XCircle, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Card, ActionIcon, SegmentedControl, UnstyledButton } from '@mantine/core'
 import { groupByMonth } from '../../../stats'
@@ -22,7 +23,15 @@ function toISO(d: Date) {
 function daysAgo(n: number) { const d = new Date(); d.setDate(d.getDate() - n); return toISO(d) }
 function fmtShort(iso: string) { const [, m, d] = iso.split('-').map(Number); return `${d} ${MONTHS_GEN[m - 1]}` }
 
-function DayRow({ entry, onOpenByDate }: { entry: HistoryDay; onOpenByDate?: (date: string) => void }) {
+interface CtxState { x: number; y: number; date: string; filePath: string | undefined; reported: boolean }
+
+interface DayRowProps {
+  entry:           HistoryDay
+  onOpenByDate?:   (date: string) => void
+  onContextMenu?:  (e: MouseEvent<HTMLDivElement>, date: string, filePath: string | undefined, reported: boolean) => void
+}
+
+function DayRow({ entry, onOpenByDate, onContextMenu }: DayRowProps) {
   const [y, m, d] = entry.date.split('-').map(Number)
   const label     = `${d} ${MONTHS_GEN[m - 1]}`
   const dow       = DOW[new Date(y, m - 1, d).getDay()]
@@ -31,6 +40,10 @@ function DayRow({ entry, onOpenByDate }: { entry: HistoryDay; onOpenByDate?: (da
   function handleClick() { onOpenByDate?.(entry.date) }
   function handleKey(e: React.KeyboardEvent) {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpenByDate?.(entry.date) }
+  }
+  function handleCtxMenu(e: MouseEvent<HTMLDivElement>) {
+    e.preventDefault()
+    onContextMenu?.(e, entry.date, entry.filePath, entry.reported)
   }
 
   const rowClass = `${styles.day_row}${clickable ? ` ${styles.day_row_clickable}` : ''}`
@@ -43,6 +56,7 @@ function DayRow({ entry, onOpenByDate }: { entry: HistoryDay; onOpenByDate?: (da
         tabIndex={clickable ? 0 : undefined}
         onClick={clickable ? handleClick : undefined}
         onKeyDown={clickable ? handleKey : undefined}
+        onContextMenu={handleCtxMenu}
         aria-label={clickable ? `Открыть заметку за ${label}` : undefined}
       >
         <div className={styles.day_reported}>
@@ -68,6 +82,7 @@ function DayRow({ entry, onOpenByDate }: { entry: HistoryDay; onOpenByDate?: (da
       tabIndex={clickable ? 0 : undefined}
       onClick={clickable ? handleClick : undefined}
       onKeyDown={clickable ? handleKey : undefined}
+      onContextMenu={handleCtxMenu}
       aria-label={clickable ? `Создать заметку за ${label}` : undefined}
     >
       <div className={styles.day_reported}>
@@ -83,13 +98,24 @@ function DayRow({ entry, onOpenByDate }: { entry: HistoryDay; onOpenByDate?: (da
 }
 
 interface Props {
-  sourceDays:    HistoryDay[]
-  onOpenByDate?: (date: string) => void
+  sourceDays:      HistoryDay[]
+  onOpenByDate?:   (date: string) => void
+  onOpenReport?:   (date: string, filePath: string) => void
+  onDeleteReport?: (date: string, filePath: string) => void
 }
 
-export default function TimelineBlock({ sourceDays, onOpenByDate }: Props) {
+export default function TimelineBlock({ sourceDays, onOpenByDate, onOpenReport, onDeleteReport }: Props) {
   const [preset, setPreset]           = useState<Preset>('month')
   const [newestFirst, setNewestFirst] = useState(true)
+  const [ctxMenu, setCtxMenu]         = useState<CtxState | null>(null)
+  const menuRef                       = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!ctxMenu) return
+    const close = () => setCtxMenu(null)
+    const t = setTimeout(() => document.addEventListener('mousedown', close), 0)
+    return () => { clearTimeout(t); document.removeEventListener('mousedown', close) }
+  }, [ctxMenu])
   const now = new Date()
   const [viewYear, setViewYear]   = useState(now.getFullYear())
   const [viewMonth, setViewMonth] = useState(now.getMonth())
@@ -119,7 +145,7 @@ export default function TimelineBlock({ sourceDays, onOpenByDate }: Props) {
     while (cur <= end) {
       const iso = toISO(cur)
       const r   = dayMap.get(iso)
-      result.push({ date: iso, reported: !!r?.reported, text: r?.text ?? '' })
+      result.push({ date: iso, reported: !!r?.reported, text: r?.text ?? '', filePath: r?.filePath })
       cur.setDate(cur.getDate() + 1)
     }
     return result.filter(d => d.reported || d.date < today)
@@ -139,6 +165,10 @@ export default function TimelineBlock({ sourceDays, onOpenByDate }: Props) {
     [allDays, newestFirst],
   )
 
+  function handleCtxMenu(e: MouseEvent<HTMLDivElement>, date: string, filePath: string | undefined, reported: boolean) {
+    setCtxMenu({ x: e.clientX, y: e.clientY, date, filePath, reported })
+  }
+
   function shiftMonth(delta: number) {
     const d = new Date(viewYear, viewMonth + delta, 1)
     setViewYear(d.getFullYear()); setViewMonth(d.getMonth())
@@ -148,6 +178,7 @@ export default function TimelineBlock({ sourceDays, onOpenByDate }: Props) {
   const isCurrentMonth = viewYear === now.getFullYear() && viewMonth === now.getMonth()
 
   return (
+    <>
     <Card withBorder p={0} radius="md">
       <div className={styles.header}>
         <CalendarDays size={14} aria-hidden style={{ color: 'var(--mantine-color-dark-2)' }} />
@@ -236,18 +267,43 @@ export default function TimelineBlock({ sourceDays, onOpenByDate }: Props) {
                     </div>
                   </div>
                   {groupDays.map(entry => (
-                    <DayRow key={entry.date} entry={entry} onOpenByDate={onOpenByDate} />
+                    <DayRow key={entry.date} entry={entry} onOpenByDate={onOpenByDate} onContextMenu={handleCtxMenu} />
                   ))}
                 </div>
               )
             })
           ) : (
             displayed.map(entry => (
-              <DayRow key={entry.date} entry={entry} onOpenByDate={onOpenByDate} />
+              <DayRow key={entry.date} entry={entry} onOpenByDate={onOpenByDate} onContextMenu={handleCtxMenu} />
             ))
           )}
         </div>
       </div>
     </Card>
+
+      {ctxMenu && createPortal(
+        <div
+          ref={menuRef}
+          className={styles.ctx_menu}
+          style={{ top: ctxMenu.y, left: Math.min(ctxMenu.x, window.innerWidth - 176) }}
+        >
+          {ctxMenu.reported && ctxMenu.filePath ? (
+            <>
+              <button className={styles.ctx_item} onClick={() => { onOpenReport?.(ctxMenu.date, ctxMenu.filePath!); setCtxMenu(null) }}>
+                Открыть заметку
+              </button>
+              <button className={`${styles.ctx_item} ${styles.ctx_item_danger}`} onClick={() => { onDeleteReport?.(ctxMenu.date, ctxMenu.filePath!); setCtxMenu(null) }}>
+                Удалить заметку
+              </button>
+            </>
+          ) : (
+            <button className={styles.ctx_item} onClick={() => { onOpenByDate?.(ctxMenu.date); setCtxMenu(null) }}>
+              Создать отчёт
+            </button>
+          )}
+        </div>,
+        document.body
+      )}
+    </>
   )
 }
