@@ -81,6 +81,11 @@ export default function CalendarHeatmap({ days, since, onCreateReport, onOpenRep
   if (calLevel !== 'month') {
     return (
       <div className={styles.root}>
+        <div className={styles.picker_close_row}>
+          <button className={styles.picker_close_btn} onClick={() => setCalLevel('month')} aria-label="Закрыть">
+            <X size={13} />
+          </button>
+        </div>
         <div className={styles.picker_header}>
           <button
             className={styles.picker_year_btn}
@@ -97,15 +102,6 @@ export default function CalendarHeatmap({ days, since, onCreateReport, onOpenRep
             aria-label="Следующий год"
             disabled={pickerYear >= now.getFullYear()}
           >›</button>
-          <ActionIcon
-            variant="subtle"
-            size="sm"
-            onClick={() => setCalLevel('month')}
-            aria-label="Закрыть"
-            className={styles.picker_close}
-          >
-            <X size={13} />
-          </ActionIcon>
         </div>
         <div className={styles.month_grid}>
           {MONTHS_SHORT.map((name, i) => {
