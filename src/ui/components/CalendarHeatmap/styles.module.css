@@ -1,5 +1,17 @@
 .root { position: relative; }
 
+.level_back {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px var(--space-2) 0;
+}
+
+.level_back_label {
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-dark-2);
+}
+
 /* Context menu */
 .ctx_menu {
   position: fixed;

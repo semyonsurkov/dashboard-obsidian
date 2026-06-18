@@ -1,5 +1,7 @@
 import { useState, useMemo, useEffect, useRef, type MouseEvent } from 'react'
 import { Calendar } from '@mantine/dates'
+import { ActionIcon } from '@mantine/core'
+import { ChevronLeft } from 'lucide-react'
 import { daysForMonth } from '../../../stats'
 import type { HistoryDay } from '../../../types'
 import styles from './styles.module.css'
@@ -36,6 +38,7 @@ interface Props {
 export default function CalendarHeatmap({ days, since, onCreateReport, onOpenReport, onDeleteReport }: Props) {
   const now  = new Date()
   const [displayMonth, setDisplayMonth] = useState(new Date(now.getFullYear(), now.getMonth(), 1))
+  const [calLevel, setCalLevel] = useState<'month' | 'year' | 'decade'>('month')
   const [ctxMenu, setCtxMenu] = useState<CtxState | null>(null)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -73,11 +76,20 @@ export default function CalendarHeatmap({ days, since, onCreateReport, onOpenRep
 
   return (
     <div className={styles.root}>
+      {calLevel !== 'month' && (
+        <div className={styles.level_back}>
+          <ActionIcon variant="subtle" size="sm" onClick={() => setCalLevel('month')} aria-label="Назад к дням">
+            <ChevronLeft size={14} />
+          </ActionIcon>
+          <span className={styles.level_back_label}>Назад</span>
+        </div>
+      )}
       <Calendar
         date={displayMonth}
         onDateChange={setDisplayMonth}
+        level={calLevel}
+        onLevelChange={setCalLevel}
         maxDate={now}
-        maxLevel="month"
         size="xs"
         styles={{
           calendarHeader: { maxWidth: 'none' },
@@ -110,7 +122,7 @@ export default function CalendarHeatmap({ days, since, onCreateReport, onOpenRep
         renderDay={date => <span>{date.getDate()}</span>}
       />
 
-      <div className={styles.legend}>
+      {calLevel === 'month' && <div className={styles.legend}>
         <div className={styles.legend_items}>
           <span className={styles.legend_item}>
             <span className={`${styles.legend_dot} ${styles.dot_reported}`} />
@@ -122,7 +134,7 @@ export default function CalendarHeatmap({ days, since, onCreateReport, onOpenRep
           </span>
         </div>
         <span className={styles.since}>с {fmtShort(since)}</span>
-      </div>
+      </div>}
 
       {ctxMenu && (
         <div

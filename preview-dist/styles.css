@@ -1,3 +1,262 @@
+/* ─── Obsidian portal bridge ────────────────────────────────────────────────────
+   Модалки и Popover-дропдауны рендерятся в body-портале вне .dashboard-view-root,
+   поэтому им нужны переменные на :root. Значения захардкожены (без var-цепочки
+   через --interactive-accent): в Obsidian тема перебивает этот var и accent
+   оставался синим вместо фиолетового.
+─────────────────────────────────────────────────────────────────────────── */
+
+:root[data-mantine-color-scheme],
+:root {
+  --mantine-color-body:           var(--background-primary, #0d0d0f);
+  --mantine-color-text:           #e4e4e7;
+  --mantine-color-default:        #18181b;
+  --mantine-color-default-hover:  #27272a;
+  --mantine-color-default-border: rgba(255, 255, 255, 0.07);
+  --mantine-color-default-color:  #e4e4e7;
+  --mantine-color-dimmed:         #71717a;
+  --mantine-color-placeholder:    #52525b;
+  --mantine-primary-color-filled:       #7c3aed;
+  --mantine-primary-color-filled-hover: #6d28d9;
+  --mantine-primary-color-contrast:     #ffffff;
+  --mantine-primary-color-light:        rgba(124, 58, 237, 0.10);
+  --mantine-primary-color-light-hover:  rgba(124, 58, 237, 0.12);
+  --mantine-primary-color-light-color:  #a78bfa;
+  --mantine-color-blue-4: #9775fa;
+  --mantine-color-blue-5: #7c3aed;
+  --mantine-color-blue-6: #6d28d9;
+}
+
+/* ─── Design tokens (CLAUDE.md canon, 8px grid) ─────────────────────────────── */
+
+:root {
+  /* Spacing */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-4:  16px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Shadows */
+  --shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md:   0 4px 12px rgba(0, 0, 0, 0.10);
+  --shadow-lg:   0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.07);
+
+  /* Card */
+  --card-padding: var(--space-4) var(--space-6);
+}
+
+/* ─── Dashboard panel root ───────────────────────────────────────────────────── */
+/* Applied by DashboardView.onOpen() via this.contentEl.addClass(...) */
+
+.dashboard-view-root {
+  /* ─── Mantine dark palette — прямые значения, без var-цепочки ──────────────
+     Mantine инжектирует palette как inline-style на <html>. Даже если мы
+     ставим --interactive-accent на этом элементе, Obsidian-тема перебивает
+     его у предков — и цепочка "blue-5 → interactive-accent" даёт синий.
+     Поэтому задаём финальные hex-значения напрямую: все потомки наследуют
+     нужный цвет без промежуточных var(). */
+  --mantine-color-dark-0: #e4e4e7;
+  --mantine-color-dark-1: #d4d4d8;
+  --mantine-color-dark-2: #a1a1aa;
+  --mantine-color-dark-3: #71717a;
+  --mantine-color-dark-4: rgba(255, 255, 255, 0.07);
+  --mantine-color-dark-5: #27272a;
+  --mantine-color-dark-6: #18181b;
+  --mantine-color-dark-7: #0d0d0f;
+  --mantine-color-dark-8: #0a0a0c;
+  --mantine-color-dark-9: #070709;
+
+  /* Purple accent (вместо синего из темы Obsidian) */
+  --mantine-color-blue-0: #f3f0ff;
+  --mantine-color-blue-1: #e9e3ff;
+  --mantine-color-blue-2: #d0bfff;
+  --mantine-color-blue-3: #b197fc;
+  --mantine-color-blue-4: #9775fa;
+  --mantine-color-blue-5: #7c3aed;
+  --mantine-color-blue-6: #6d28d9;
+  --mantine-color-blue-7: #5b21b6;
+  --mantine-color-blue-8: #4c1d95;
+  --mantine-color-blue-9: #3b0764;
+
+  --mantine-color-body:           #0d0d0f;
+  --mantine-color-text:           #e4e4e7;
+  --mantine-color-default:        #18181b;
+  --mantine-color-default-hover:  #27272a;
+  --mantine-color-default-border: rgba(255, 255, 255, 0.07);
+  --mantine-color-default-color:  #e4e4e7;
+  --mantine-color-dimmed:         #71717a;
+  --mantine-color-placeholder:    #52525b;
+  --mantine-primary-color-filled:       #7c3aed;
+  --mantine-primary-color-filled-hover: #6d28d9;
+  --mantine-primary-color-contrast:     #ffffff;
+  --mantine-primary-color-light:        rgba(124, 58, 237, 0.10);
+  --mantine-primary-color-light-hover:  rgba(124, 58, 237, 0.12);
+  --mantine-primary-color-light-color:  #a78bfa;
+
+  /* Obsidian vars — для компонентов, которые читают их напрямую */
+  --background-secondary: #18181b;
+  --interactive-accent:   #7c3aed;
+  --text-normal:  #e4e4e7;
+  --text-muted:   #71717a;
+
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  background: transparent;
+  color: var(--mantine-color-dark-0);
+  container-type: inline-size;
+  box-sizing: border-box;
+}
+
+.dashboard-view-root *,
+.dashboard-view-root *::before,
+.dashboard-view-root *::after {
+  box-sizing: inherit;
+}
+
+/* ─── Нейтрализация host-CSS Obsidian для контролов Mantine ─────────────────────
+   Obsidian's `button:not(.clickable-icon)` (специфичность 0,1,1) перебивает
+   классовые правила Mantine (0,1,0), ломая заливку/рамку/паддинги filled-кнопок.
+   Решение: таргетируем по хешированному классу + тегу → (0,1,1) ничья с
+   Obsidian, но tokens.css грузится ПОСЛЕ styles.css (Providers.tsx:7,10) →
+   побеждаем по порядку источника. При этом остаёмся НИЖЕ hover/disabled Mantine
+   (0,2,0), так что интерактивные состояния не ломаются.
+   Значения — ровно те кастом-проперти, что Mantine ставит на сам элемент через
+   JS (Button.mjs:49); фоллбэки дублируют дефолты из Button/ActionIcon/Input.css.
+   Хеши привязаны к @mantine/core 7.17.x — обновить при мажорном апгрейде.
+─────────────────────────────────────────────────────────────────────────────── */
+
+/* UnstyledButton — .m_87cf2631 (UnstyledButton.css:1)
+   ПЕРВЫМ: элементы Button и ActionIcon тоже несут этот класс, но их правила
+   ниже → при одинаковой специфичности (0,1,1) побеждают они, не это. */
+.dashboard-view-root button.m_87cf2631 {
+  background: transparent;
+  border:     0;
+  box-shadow: none;
+  padding:    0;
+}
+
+/* CloseButton (крестик модалки) — .m_86a44da5 (CloseButton.css:1) */
+.dashboard-view-root button.m_86a44da5 {
+  background: var(--cb-bg, transparent);
+  border:     0;
+  box-shadow: none;
+  padding:    0;
+}
+
+/* Button — .m_77c9d27d (Button.css:1)
+   ПОСЛЕ UnstyledButton → перебивает transparent для Button-элементов,
+   у которых одновременно есть оба класса. */
+.dashboard-view-root button.m_77c9d27d {
+  background:     var(--button-bg, var(--mantine-primary-color-filled));
+  border:         var(--button-bd, calc(0.0625rem * var(--mantine-scale)) solid transparent);
+  color:          var(--button-color, var(--mantine-color-white));
+  box-shadow:     none;
+  padding-block:  0;
+  padding-inline: var(--button-padding-x, var(--button-padding-x-sm));
+}
+
+/* ActionIcon — .m_8d3f4000 (ActionIcon.css:1)
+   ПОСЛЕ UnstyledButton → то же самое. */
+.dashboard-view-root button.m_8d3f4000 {
+  background: var(--ai-bg, var(--mantine-primary-color-filled));
+  border:     var(--ai-bd, calc(0.0625rem * var(--mantine-scale)) solid transparent);
+  color:      var(--ai-color, var(--mantine-color-white));
+  box-shadow: none;
+  padding:    0;
+}
+
+/* Input-элемент (TextInput / Select / DatePickerInput) — .m_8fb7ebe7 (Input.css:141)
+   Специфичность (0,2,0) — выше Obsidian (0,1,1) без привязки к тегу. */
+.dashboard-view-root .m_8fb7ebe7 {
+  background-color: var(--input-bg);
+  border:           calc(0.0625rem * var(--mantine-scale)) solid var(--input-bd);
+  color:            var(--input-color);
+  box-shadow:       none;
+}
+
+/* ─── Скрытые радио-инпуты SegmentedControl (.m_1714d588) и Chip (.m_bde07329) ──
+   Obsidian's input styles (height/width/opacity) могут делать их видимыми и
+   ломать расчёт позиции floating indicator. Фиксим с той же специфичностью
+   (0,2,0) что и .m_8fb7ebe7 выше. */
+.dashboard-view-root input.m_1714d588,
+.dashboard-view-root input.m_bde07329 {
+  width:      0;
+  height:     0;
+  position:   absolute;
+  opacity:    0;
+  padding:    0;
+  margin:     0;
+  border:     0;
+  appearance: none;
+}
+
+/* ─── Кнопки Calendar ─────────────────────────────────────────────────────────── */
+
+/* Calendar day — .m_396ce5cb (dates/styles.css:29)
+   Obsidian's button styles могут перебивать width/height заданные через --day-size.
+   Сохраняем точные размеры ячеек; display:inline-flex уже стоит в классе,
+   но Obsidian может его перекрыть. */
+.dashboard-view-root button.m_396ce5cb {
+  width:            var(--day-size, var(--day-size-sm));
+  height:           var(--day-size, var(--day-size-sm));
+  min-width:        unset;
+  min-height:       unset;
+  display:          inline-flex;
+  justify-content:  center;
+  align-items:      center;
+  padding:          0;
+  background-color: transparent;
+  border:           0;
+  box-shadow:       none;
+  line-height:      1;
+}
+
+/* Calendar header arrow (.m_2351eeb0) и month-label (.m_f6645d97) */
+.dashboard-view-root button.m_2351eeb0,
+.dashboard-view-root button.m_f6645d97 {
+  height:     var(--dch-control-size);
+  display:    flex;
+  align-items: center;
+  justify-content: center;
+  padding:    0;
+  background: transparent;
+  border:     0;
+  box-shadow: none;
+}
+
+.dashboard-view-root a {
+  color:           inherit;
+  text-decoration: none;
+}
+
+.dashboard-view-root svg {
+  display:    block;
+  flex-shrink: 0;
+}
+
+.dashboard-view-root p {
+  margin: 0;
+}
+
+.dashboard-view-root ul,
+.dashboard-view-root ol,
+.dashboard-view-root li {
+  list-style: none;
+  margin:     0;
+  padding:    0;
+}
+
+
 .m_b37d9ac7 {
   width: calc(100% - var(--mantine-spacing-md) * 2);
   position: fixed;
@@ -463,265 +722,6 @@
 .m_62ee059 {
   flex: 1;
   margin-inline-end: var(--mantine-spacing-md);
-}
-
-
-/* ─── Obsidian portal bridge ────────────────────────────────────────────────────
-   Модалки и Popover-дропдауны рендерятся в body-портале вне .dashboard-view-root,
-   поэтому им нужны переменные на :root. Значения захардкожены (без var-цепочки
-   через --interactive-accent): в Obsidian тема перебивает этот var и accent
-   оставался синим вместо фиолетового.
-─────────────────────────────────────────────────────────────────────────── */
-
-:root[data-mantine-color-scheme],
-:root {
-  --mantine-color-body:           var(--background-primary, #0d0d0f);
-  --mantine-color-text:           #e4e4e7;
-  --mantine-color-default:        #18181b;
-  --mantine-color-default-hover:  #27272a;
-  --mantine-color-default-border: rgba(255, 255, 255, 0.07);
-  --mantine-color-default-color:  #e4e4e7;
-  --mantine-color-dimmed:         #71717a;
-  --mantine-color-placeholder:    #52525b;
-  --mantine-primary-color-filled:       #7c3aed;
-  --mantine-primary-color-filled-hover: #6d28d9;
-  --mantine-primary-color-contrast:     #ffffff;
-  --mantine-primary-color-light:        rgba(124, 58, 237, 0.10);
-  --mantine-primary-color-light-hover:  rgba(124, 58, 237, 0.12);
-  --mantine-primary-color-light-color:  #a78bfa;
-  --mantine-color-blue-4: #9775fa;
-  --mantine-color-blue-5: #7c3aed;
-  --mantine-color-blue-6: #6d28d9;
-}
-
-/* ─── Design tokens (CLAUDE.md canon, 8px grid) ─────────────────────────────── */
-
-:root {
-  /* Spacing */
-  --space-1:  4px;
-  --space-2:  8px;
-  --space-4:  16px;
-  --space-6:  24px;
-  --space-8:  32px;
-  --space-12: 48px;
-  --space-16: 64px;
-
-  /* Radii */
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-
-  /* Shadows */
-  --shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md:   0 4px 12px rgba(0, 0, 0, 0.10);
-  --shadow-lg:   0 8px 24px rgba(0, 0, 0, 0.12);
-  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.07);
-
-  /* Card */
-  --card-padding: var(--space-4) var(--space-6);
-}
-
-/* ─── Dashboard panel root ───────────────────────────────────────────────────── */
-/* Applied by DashboardView.onOpen() via this.contentEl.addClass(...) */
-
-.dashboard-view-root {
-  /* ─── Mantine dark palette — прямые значения, без var-цепочки ──────────────
-     Mantine инжектирует palette как inline-style на <html>. Даже если мы
-     ставим --interactive-accent на этом элементе, Obsidian-тема перебивает
-     его у предков — и цепочка "blue-5 → interactive-accent" даёт синий.
-     Поэтому задаём финальные hex-значения напрямую: все потомки наследуют
-     нужный цвет без промежуточных var(). */
-  --mantine-color-dark-0: #e4e4e7;
-  --mantine-color-dark-1: #d4d4d8;
-  --mantine-color-dark-2: #a1a1aa;
-  --mantine-color-dark-3: #71717a;
-  --mantine-color-dark-4: rgba(255, 255, 255, 0.07);
-  --mantine-color-dark-5: #27272a;
-  --mantine-color-dark-6: #18181b;
-  --mantine-color-dark-7: #0d0d0f;
-  --mantine-color-dark-8: #0a0a0c;
-  --mantine-color-dark-9: #070709;
-
-  /* Purple accent (вместо синего из темы Obsidian) */
-  --mantine-color-blue-0: #f3f0ff;
-  --mantine-color-blue-1: #e9e3ff;
-  --mantine-color-blue-2: #d0bfff;
-  --mantine-color-blue-3: #b197fc;
-  --mantine-color-blue-4: #9775fa;
-  --mantine-color-blue-5: #7c3aed;
-  --mantine-color-blue-6: #6d28d9;
-  --mantine-color-blue-7: #5b21b6;
-  --mantine-color-blue-8: #4c1d95;
-  --mantine-color-blue-9: #3b0764;
-
-  --mantine-color-body:           #0d0d0f;
-  --mantine-color-text:           #e4e4e7;
-  --mantine-color-default:        #18181b;
-  --mantine-color-default-hover:  #27272a;
-  --mantine-color-default-border: rgba(255, 255, 255, 0.07);
-  --mantine-color-default-color:  #e4e4e7;
-  --mantine-color-dimmed:         #71717a;
-  --mantine-color-placeholder:    #52525b;
-  --mantine-primary-color-filled:       #7c3aed;
-  --mantine-primary-color-filled-hover: #6d28d9;
-  --mantine-primary-color-contrast:     #ffffff;
-  --mantine-primary-color-light:        rgba(124, 58, 237, 0.10);
-  --mantine-primary-color-light-hover:  rgba(124, 58, 237, 0.12);
-  --mantine-primary-color-light-color:  #a78bfa;
-
-  /* Obsidian vars — для компонентов, которые читают их напрямую */
-  --background-secondary: #18181b;
-  --interactive-accent:   #7c3aed;
-  --text-normal:  #e4e4e7;
-  --text-muted:   #71717a;
-
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 14px;
-  line-height: 1.5;
-  background: transparent;
-  color: var(--mantine-color-dark-0);
-  container-type: inline-size;
-  box-sizing: border-box;
-}
-
-.dashboard-view-root *,
-.dashboard-view-root *::before,
-.dashboard-view-root *::after {
-  box-sizing: inherit;
-}
-
-/* ─── Нейтрализация host-CSS Obsidian для контролов Mantine ─────────────────────
-   Obsidian's `button:not(.clickable-icon)` (специфичность 0,1,1) перебивает
-   классовые правила Mantine (0,1,0), ломая заливку/рамку/паддинги filled-кнопок.
-   Решение: таргетируем по хешированному классу + тегу → (0,1,1) ничья с
-   Obsidian, но tokens.css грузится ПОСЛЕ styles.css (Providers.tsx:7,10) →
-   побеждаем по порядку источника. При этом остаёмся НИЖЕ hover/disabled Mantine
-   (0,2,0), так что интерактивные состояния не ломаются.
-   Значения — ровно те кастом-проперти, что Mantine ставит на сам элемент через
-   JS (Button.mjs:49); фоллбэки дублируют дефолты из Button/ActionIcon/Input.css.
-   Хеши привязаны к @mantine/core 7.17.x — обновить при мажорном апгрейде.
-─────────────────────────────────────────────────────────────────────────────── */
-
-/* UnstyledButton — .m_87cf2631 (UnstyledButton.css:1)
-   ПЕРВЫМ: элементы Button и ActionIcon тоже несут этот класс, но их правила
-   ниже → при одинаковой специфичности (0,1,1) побеждают они, не это. */
-.dashboard-view-root button.m_87cf2631 {
-  background: transparent;
-  border:     0;
-  box-shadow: none;
-  padding:    0;
-}
-
-/* CloseButton (крестик модалки) — .m_86a44da5 (CloseButton.css:1) */
-.dashboard-view-root button.m_86a44da5 {
-  background: var(--cb-bg, transparent);
-  border:     0;
-  box-shadow: none;
-  padding:    0;
-}
-
-/* Button — .m_77c9d27d (Button.css:1)
-   ПОСЛЕ UnstyledButton → перебивает transparent для Button-элементов,
-   у которых одновременно есть оба класса. */
-.dashboard-view-root button.m_77c9d27d {
-  background:     var(--button-bg, var(--mantine-primary-color-filled));
-  border:         var(--button-bd, calc(0.0625rem * var(--mantine-scale)) solid transparent);
-  color:          var(--button-color, var(--mantine-color-white));
-  box-shadow:     none;
-  padding-block:  0;
-  padding-inline: var(--button-padding-x, var(--button-padding-x-sm));
-}
-
-/* ActionIcon — .m_8d3f4000 (ActionIcon.css:1)
-   ПОСЛЕ UnstyledButton → то же самое. */
-.dashboard-view-root button.m_8d3f4000 {
-  background: var(--ai-bg, var(--mantine-primary-color-filled));
-  border:     var(--ai-bd, calc(0.0625rem * var(--mantine-scale)) solid transparent);
-  color:      var(--ai-color, var(--mantine-color-white));
-  box-shadow: none;
-  padding:    0;
-}
-
-/* Input-элемент (TextInput / Select / DatePickerInput) — .m_8fb7ebe7 (Input.css:141)
-   Специфичность (0,2,0) — выше Obsidian (0,1,1) без привязки к тегу. */
-.dashboard-view-root .m_8fb7ebe7 {
-  background-color: var(--input-bg);
-  border:           calc(0.0625rem * var(--mantine-scale)) solid var(--input-bd);
-  color:            var(--input-color);
-  box-shadow:       none;
-}
-
-/* ─── Скрытые радио-инпуты SegmentedControl (.m_1714d588) и Chip (.m_bde07329) ──
-   Obsidian's input styles (height/width/opacity) могут делать их видимыми и
-   ломать расчёт позиции floating indicator. Фиксим с той же специфичностью
-   (0,2,0) что и .m_8fb7ebe7 выше. */
-.dashboard-view-root input.m_1714d588,
-.dashboard-view-root input.m_bde07329 {
-  width:      0;
-  height:     0;
-  position:   absolute;
-  opacity:    0;
-  padding:    0;
-  margin:     0;
-  border:     0;
-  appearance: none;
-}
-
-/* ─── Кнопки Calendar ─────────────────────────────────────────────────────────── */
-
-/* Calendar day — .m_396ce5cb (dates/styles.css:29)
-   Obsidian's button styles могут перебивать width/height заданные через --day-size.
-   Сохраняем точные размеры ячеек; display:inline-flex уже стоит в классе,
-   но Obsidian может его перекрыть. */
-.dashboard-view-root button.m_396ce5cb {
-  width:            var(--day-size, var(--day-size-sm));
-  height:           var(--day-size, var(--day-size-sm));
-  min-width:        unset;
-  min-height:       unset;
-  display:          inline-flex;
-  justify-content:  center;
-  align-items:      center;
-  padding:          0;
-  background-color: transparent;
-  border:           0;
-  box-shadow:       none;
-  line-height:      1;
-}
-
-/* Calendar header arrow (.m_2351eeb0) и month-label (.m_f6645d97) */
-.dashboard-view-root button.m_2351eeb0,
-.dashboard-view-root button.m_f6645d97 {
-  height:     var(--dch-control-size);
-  display:    flex;
-  align-items: center;
-  justify-content: center;
-  padding:    0;
-  background: transparent;
-  border:     0;
-  box-shadow: none;
-}
-
-.dashboard-view-root a {
-  color:           inherit;
-  text-decoration: none;
-}
-
-.dashboard-view-root svg {
-  display:    block;
-  flex-shrink: 0;
-}
-
-.dashboard-view-root p {
-  margin: 0;
-}
-
-.dashboard-view-root ul,
-.dashboard-view-root ol,
-.dashboard-view-root li {
-  list-style: none;
-  margin:     0;
-  padding:    0;
 }
 
 
@@ -8478,6 +8478,64 @@ fieldset:disabled .m_c9ade57f:where([data-inverted]),
 }
 
 
+.header_6a0d1a {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: 18px var(--space-6) var(--space-4);
+  border-bottom: 1px solid var(--mantine-color-dark-4);
+}
+
+@media (max-width: 599px) {
+  .header_6a0d1a { padding-inline: var(--space-4); padding-top: var(--space-4); }
+}
+
+.header_top_6a0d1a {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4) var(--space-4);
+}
+
+.header_title_6a0d1a {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.title_text_6a0d1a {
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+  color: var(--mantine-color-dark-0);
+}
+
+.content_6a0d1a {
+  padding: var(--space-6);
+}
+
+@media (max-width: 599px) {
+  .content_6a0d1a { padding: var(--space-4); }
+}
+
+.tracker_grid_6a0d1a {
+  display: grid;
+  grid-template-columns: minmax(0, 380px) 1fr;
+  gap: var(--space-6);
+}
+
+@media (max-width: 700px) {
+  .tracker_grid_6a0d1a { grid-template-columns: 1fr; }
+}
+
+.stats_col_6a0d1a {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+
 .root_180c08 {
   position: relative;
   transition: opacity 0.15s_180c08 ease-out;
@@ -8532,6 +8590,479 @@ fieldset:disabled .m_c9ade57f:where([data-inverted]),
 }
 
 
+.grid_02ebad {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.card_02ebad {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  background: var(--mantine-color-dark-6);
+  border: 1px solid var(--mantine-color-dark-4);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+}
+
+.card_header_02ebad {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.label_02ebad {
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 500;
+  color: var(--mantine-color-dark-2);
+}
+
+.value_02ebad {
+  font-size: 1.5rem_02ebad;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--mantine-color-dark-0);
+}
+
+.value_green_02ebad  { color: var(--mantine-color-green-4); }
+.value_orange_02ebad { color: #f97316; }
+.value_amber_02ebad  { color: var(--mantine-color-amber-4); }
+
+.sub_02ebad {
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-dark-2);
+}
+
+
+.header_912cbe {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 18px var(--space-6) var(--space-4);
+  border-bottom: 1px solid var(--mantine-color-dark-4);
+}
+
+@media (max-width: 599px) {
+  .header_912cbe { padding-inline: var(--space-4); padding-top: var(--space-4); }
+}
+
+.header_title_912cbe {
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+  color: var(--mantine-color-dark-0);
+}
+
+.content_912cbe {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-6);
+}
+
+@media (max-width: 599px) {
+  .content_912cbe { padding: var(--space-4); gap: var(--space-4); }
+}
+
+.toolbar_912cbe {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.month_nav_912cbe {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+@media (max-width: 599px) {
+  .month_nav_912cbe { flex: 1; justify-content: center; }
+}
+
+.month_label_912cbe {
+  min-width: 128px;
+  text-align: center;
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 500;
+  color: var(--mantine-color-dark-2);
+}
+
+.stats_grid_912cbe {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+@media (max-width: 599px) {
+  .stats_grid_912cbe { grid-template-columns: 1fr; }
+}
+
+.stat_card_912cbe {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  background: var(--mantine-color-dark-6);
+  border: 1px solid var(--mantine-color-dark-4);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+}
+
+.stat_card_text_912cbe {}
+
+.stat_value_912cbe {
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+  color: var(--mantine-color-dark-0);
+}
+
+.stat_sub_912cbe {
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-dark-2);
+}
+
+.sort_row_912cbe {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-dark-2);
+}
+
+.list_912cbe {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 384px;
+  overflow-y: auto;
+}
+
+.month_group_912cbe { display: grid; gap: var(--space-2); }
+
+.month_heading_wrap_912cbe {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  /* Transparent backing clears content underneath when sticky */
+  background: transparent;
+  padding-block: 4px;
+}
+
+.month_heading_912cbe {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 4px var(--space-2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--mantine-color-dark-4);
+  background: var(--mantine-color-dark-6);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--mantine-color-dark-2);
+  /* Chip stays as wide as its content */
+  width: fit-content;
+  max-width: 100%;
+}
+
+.month_count_912cbe {
+  font-weight: 400;
+  color: var(--mantine-color-dark-3);
+}
+
+/* Day rows */
+.day_row_912cbe {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--mantine-color-dark-5);
+  background: var(--mantine-color-dark-7);
+  padding: 10px var(--space-4);
+  transition: background 0.15s_912cbe ease-out, color 0.15s_912cbe ease-out;
+}
+
+.day_row_clickable_912cbe {
+  cursor: pointer;
+}
+
+.day_row_clickable_912cbe:hover {
+  background: var(--mantine-color-dark-5);
+  color: var(--mantine-color-dark-0);
+}
+
+.day_row_912cbe:focus-visible { outline: 2px solid var(--mantine-color-blue-5); outline-offset: 1px; }
+
+.day_reported_912cbe {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.day_meta_912cbe {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.day_dot_912cbe {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dot_green_912cbe { background: var(--mantine-color-green-5); }
+.dot_red_912cbe   { background: var(--mantine-color-red-5); }
+
+.day_date_912cbe {
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 600;
+  color: var(--mantine-color-dark-0);
+}
+
+.day_dow_912cbe {
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-dark-3);
+}
+
+.day_missed_label_912cbe {
+  font-size: var(--mantine-font-size-xs);
+  color: rgba(248, 113, 113, 0.7_912cbe);
+}
+
+.day_missed_name_912cbe {
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 500;
+  color: var(--mantine-color-dark-2);
+}
+
+.day_text_912cbe {
+  margin: 0;
+  margin-top: 6px;
+  padding-left: var(--space-4);
+  font-size: var(--mantine-font-size-xs);
+  line-height: 1.5_912cbe;
+  color: var(--mantine-color-dark-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+
+.header_4b2480 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 18px var(--space-6) var(--space-4);
+  border-bottom: 1px solid var(--mantine-color-dark-4);
+}
+
+@media (max-width: 599px) {
+  .header_4b2480 { padding-inline: var(--space-4); padding-top: var(--space-4); }
+}
+
+.header_title_4b2480 {
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+  color: var(--mantine-color-dark-0);
+}
+
+.content_4b2480 {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+}
+
+@media (max-width: 599px) {
+  .content_4b2480 { padding: var(--space-4); }
+}
+
+/* Rollup badges row */
+.rollup_4b2480 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.rollup_badge_4b2480 {
+  border-radius: 999px;
+  border: 1px solid var(--mantine-color-dark-4);
+  background: var(--mantine-color-dark-6);
+  padding: 4px 10px;
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-dark-1);
+}
+
+/* Day grid */
+.grid_4b2480 {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--space-2);
+}
+
+@media (max-width: 599px) {
+  .grid_4b2480 { grid-template-columns: repeat(4, 1fr); }
+}
+
+.day_4b2480 {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 64px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--mantine-color-dark-5);
+  background: var(--mantine-color-dark-6);
+  padding: 10px;
+  transition: background 0.15s_4b2480 ease-out, color 0.15s_4b2480 ease-out;
+}
+
+.day_clickable_4b2480 {
+  cursor: pointer;
+}
+
+.day_clickable_4b2480:hover {
+  background: var(--mantine-color-dark-5);
+  color: var(--mantine-color-dark-0);
+}
+
+.day_today_4b2480 {
+  border-color: var(--mantine-color-blue-5);
+}
+
+.day_future_4b2480 {
+  opacity: 0.45_4b2480;
+}
+
+.day_selected_4b2480 {
+  background: var(--mantine-color-dark-5);
+  outline: 2px solid var(--mantine-color-blue-5);
+  outline-offset: 0;
+}
+
+.day_header_4b2480 {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-1);
+}
+
+.day_dow_4b2480 {
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-dark-3);
+}
+
+.day_num_4b2480 {
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+  color: var(--mantine-color-dark-0);
+}
+
+.day_dots_4b2480 {
+  display: flex;
+  gap: 4px;
+}
+
+.dot_4b2480 {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.dot_green_4b2480  { background: var(--mantine-color-green-5); }
+.dot_red_4b2480    { background: var(--mantine-color-red-5); }
+.dot_off_4b2480    { background: rgba(255,255,255,0.15_4b2480); }
+.dot_future_4b2480 { background: rgba(255,255,255,0.1_4b2480); }
+
+/* Day detail panel */
+.detail_4b2480 {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--mantine-color-dark-4);
+  background: var(--mantine-color-dark-7);
+  padding: var(--space-4);
+}
+
+.detail_header_4b2480 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.detail_title_4b2480 {
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+  color: var(--mantine-color-dark-0);
+}
+
+.detail_tracker_4b2480 {
+  padding-block: var(--space-2);
+  border-top: 1px solid var(--mantine-color-dark-5);
+}
+
+.detail_tracker_4b2480:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.detail_tracker_meta_4b2480 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.tracker_dot_4b2480 {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.detail_tracker_name_4b2480 {
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 600;
+  color: var(--mantine-color-dark-2);
+}
+
+.detail_miss_label_4b2480 {
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 500;
+  color: var(--mantine-color-red-4);
+}
+
+.detail_off_label_4b2480 {
+  font-size: var(--mantine-font-size-xs);
+  font-style: italic;
+  color: var(--mantine-color-dark-4);
+}
+
+.detail_text_4b2480 {
+  margin: 0;
+  margin-top: 4px;
+  padding-left: var(--space-4);
+  font-size: var(--mantine-font-size-xs);
+  line-height: 1.5_4b2480;
+  color: var(--mantine-color-dark-2);
+}
+
+.detail_note_4b2480 {
+  margin: 0;
+  margin-top: 4px;
+  padding-left: var(--space-4);
+  font-size: var(--mantine-font-size-xs);
+  font-style: italic;
+  color: var(--mantine-color-dark-2);
+}
+
+
 .header_a4224f {
   padding: 18px var(--space-6) var(--space-4);
   border-bottom: 1px solid var(--mantine-color-dark-4);
@@ -8550,7 +9081,7 @@ fieldset:disabled .m_c9ade57f:where([data-inverted]),
 }
 
 @media (max-width: 599px) {
-  .header_row_a4224f { flex-direction: column; align-items: flex-start; }
+  .header_row_a4224f { flex-direction: column; align-items: center; }
 }
 
 /* Left side: nav + sprint info */
@@ -8563,7 +9094,7 @@ fieldset:disabled .m_c9ade57f:where([data-inverted]),
 }
 
 @media (max-width: 599px) {
-  .sprint_nav_a4224f { width: 100%; }
+  .sprint_nav_a4224f { width: 100%; justify-content: center; }
 }
 
 .sprint_info_a4224f {
@@ -8575,7 +9106,7 @@ fieldset:disabled .m_c9ade57f:where([data-inverted]),
 }
 
 @media (max-width: 599px) {
-  .sprint_info_a4224f { flex-direction: column; align-items: flex-start; }
+  .sprint_info_a4224f { flex-direction: column; align-items: center; }
 }
 
 .sprint_title_row_a4224f {
@@ -8591,7 +9122,7 @@ fieldset:disabled .m_c9ade57f:where([data-inverted]),
 }
 
 @media (max-width: 599px) {
-  .sprint_dates_row_a4224f { padding-left: 22px; }
+  .sprint_dates_row_a4224f { justify-content: center; }
 }
 
 .sep_a4224f {
@@ -8628,7 +9159,7 @@ fieldset:disabled .m_c9ade57f:where([data-inverted]),
 }
 
 @media (max-width: 599px) {
-  .actions_a4224f { width: 100%; }
+  .actions_a4224f { width: 100%; justify-content: center; }
 }
 
 .all_done_a4224f {
@@ -8857,595 +9388,19 @@ fieldset:disabled .m_c9ade57f:where([data-inverted]),
 }
 
 
-.header_4b2480 {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: 18px var(--space-6) var(--space-4);
-  border-bottom: 1px solid var(--mantine-color-dark-4);
-}
-
-@media (max-width: 599px) {
-  .header_4b2480 { padding-inline: var(--space-4); padding-top: var(--space-4); }
-}
-
-.header_title_4b2480 {
-  font-size: var(--mantine-font-size-sm);
-  font-weight: 600;
-  color: var(--mantine-color-dark-0);
-}
-
-.content_4b2480 {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  padding: var(--space-4) var(--space-6);
-}
-
-@media (max-width: 599px) {
-  .content_4b2480 { padding: var(--space-4); }
-}
-
-/* Rollup badges row */
-.rollup_4b2480 {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.rollup_badge_4b2480 {
-  border-radius: 999px;
-  border: 1px solid var(--mantine-color-dark-4);
-  background: var(--mantine-color-dark-6);
-  padding: 4px 10px;
-  font-size: var(--mantine-font-size-xs);
-  color: var(--mantine-color-dark-1);
-}
-
-/* Day grid */
-.grid_4b2480 {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: var(--space-2);
-}
-
-@media (max-width: 599px) {
-  .grid_4b2480 { grid-template-columns: repeat(4, 1fr); }
-}
-
-.day_4b2480 {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 64px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--mantine-color-dark-5);
-  background: var(--mantine-color-dark-6);
-  padding: 10px;
-  transition: background 0.15s_4b2480 ease-out, color 0.15s_4b2480 ease-out;
-}
-
-.day_clickable_4b2480 {
-  cursor: pointer;
-}
-
-.day_clickable_4b2480:hover {
-  background: var(--mantine-color-dark-5);
-  color: var(--mantine-color-dark-0);
-}
-
-.day_today_4b2480 {
-  border-color: var(--mantine-color-blue-5);
-}
-
-.day_future_4b2480 {
-  opacity: 0.45_4b2480;
-}
-
-.day_selected_4b2480 {
-  background: var(--mantine-color-dark-5);
-  outline: 2px solid var(--mantine-color-blue-5);
-  outline-offset: 0;
-}
-
-.day_header_4b2480 {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-1);
-}
-
-.day_dow_4b2480 {
-  font-size: var(--mantine-font-size-xs);
-  color: var(--mantine-color-dark-3);
-}
-
-.day_num_4b2480 {
-  font-size: var(--mantine-font-size-sm);
-  font-weight: 600;
-  color: var(--mantine-color-dark-0);
-}
-
-.day_dots_4b2480 {
-  display: flex;
-  gap: 4px;
-}
-
-.dot_4b2480 {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-}
-
-.dot_green_4b2480  { background: var(--mantine-color-green-5); }
-.dot_red_4b2480    { background: var(--mantine-color-red-5); }
-.dot_off_4b2480    { background: rgba(255,255,255,0.15_4b2480); }
-.dot_future_4b2480 { background: rgba(255,255,255,0.1_4b2480); }
-
-/* Day detail panel */
-.detail_4b2480 {
-  border-radius: var(--radius-md);
-  border: 1px solid var(--mantine-color-dark-4);
-  background: var(--mantine-color-dark-7);
-  padding: var(--space-4);
-}
-
-.detail_header_4b2480 {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-  margin-bottom: var(--space-4);
-}
-
-.detail_title_4b2480 {
-  font-size: var(--mantine-font-size-sm);
-  font-weight: 600;
-  color: var(--mantine-color-dark-0);
-}
-
-.detail_tracker_4b2480 {
-  padding-block: var(--space-2);
-  border-top: 1px solid var(--mantine-color-dark-5);
-}
-
-.detail_tracker_4b2480:first-of-type {
-  border-top: none;
-  padding-top: 0;
-}
-
-.detail_tracker_meta_4b2480 {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.tracker_dot_4b2480 {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.detail_tracker_name_4b2480 {
-  font-size: var(--mantine-font-size-xs);
-  font-weight: 600;
-  color: var(--mantine-color-dark-2);
-}
-
-.detail_miss_label_4b2480 {
-  font-size: var(--mantine-font-size-xs);
-  font-weight: 500;
-  color: var(--mantine-color-red-4);
-}
-
-.detail_off_label_4b2480 {
-  font-size: var(--mantine-font-size-xs);
-  font-style: italic;
-  color: var(--mantine-color-dark-4);
-}
-
-.detail_text_4b2480 {
-  margin: 0;
-  margin-top: 4px;
-  padding-left: var(--space-4);
-  font-size: var(--mantine-font-size-xs);
-  line-height: 1.5_4b2480;
-  color: var(--mantine-color-dark-2);
-}
-
-.detail_note_4b2480 {
-  margin: 0;
-  margin-top: 4px;
-  padding-left: var(--space-4);
-  font-size: var(--mantine-font-size-xs);
-  font-style: italic;
-  color: var(--mantine-color-dark-2);
-}
-
-
-.header_912cbe {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: 18px var(--space-6) var(--space-4);
-  border-bottom: 1px solid var(--mantine-color-dark-4);
-}
-
-@media (max-width: 599px) {
-  .header_912cbe { padding-inline: var(--space-4); padding-top: var(--space-4); }
-}
-
-.header_title_912cbe {
-  font-size: var(--mantine-font-size-sm);
-  font-weight: 600;
-  color: var(--mantine-color-dark-0);
-}
-
-.content_912cbe {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-  padding: var(--space-6);
-}
-
-@media (max-width: 599px) {
-  .content_912cbe { padding: var(--space-4); gap: var(--space-4); }
-}
-
-.toolbar_912cbe {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-}
-
-.month_nav_912cbe {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-@media (max-width: 599px) {
-  .month_nav_912cbe { flex: 1; justify-content: center; }
-}
-
-.month_label_912cbe {
-  min-width: 128px;
-  text-align: center;
-  font-size: var(--mantine-font-size-xs);
-  font-weight: 500;
-  color: var(--mantine-color-dark-2);
-}
-
-.stats_grid_912cbe {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-4);
-}
-
-@media (max-width: 599px) {
-  .stats_grid_912cbe { grid-template-columns: 1fr; }
-}
-
-.stat_card_912cbe {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  background: var(--mantine-color-dark-6);
-  border: 1px solid var(--mantine-color-dark-4);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
-}
-
-.stat_card_text_912cbe {}
-
-.stat_value_912cbe {
-  font-size: var(--mantine-font-size-sm);
-  font-weight: 600;
-  color: var(--mantine-color-dark-0);
-}
-
-.stat_sub_912cbe {
-  font-size: var(--mantine-font-size-xs);
-  color: var(--mantine-color-dark-2);
-}
-
-.sort_row_912cbe {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  font-size: var(--mantine-font-size-xs);
-  color: var(--mantine-color-dark-2);
-}
-
-.list_912cbe {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-height: 384px;
-  overflow-y: auto;
-}
-
-.month_group_912cbe { display: grid; gap: var(--space-2); }
-
-.month_heading_wrap_912cbe {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  /* Transparent backing clears content underneath when sticky */
-  background: transparent;
-  padding-block: 4px;
-}
-
-.month_heading_912cbe {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: 4px var(--space-2);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--mantine-color-dark-4);
-  background: var(--mantine-color-dark-6);
-  font-size: var(--mantine-font-size-xs);
-  font-weight: 600;
-  text-transform: uppercase;
-  color: var(--mantine-color-dark-2);
-  /* Chip stays as wide as its content */
-  width: fit-content;
-  max-width: 100%;
-}
-
-.month_count_912cbe {
-  font-weight: 400;
-  color: var(--mantine-color-dark-3);
-}
-
-/* Day rows */
-.day_row_912cbe {
-  display: flex;
-  align-items: flex-start;
-  gap: 0;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--mantine-color-dark-5);
-  background: var(--mantine-color-dark-7);
-  padding: 10px var(--space-4);
-  transition: background 0.15s_912cbe ease-out, color 0.15s_912cbe ease-out;
-}
-
-.day_row_clickable_912cbe {
-  cursor: pointer;
-}
-
-.day_row_clickable_912cbe:hover {
-  background: var(--mantine-color-dark-5);
-  color: var(--mantine-color-dark-0);
-}
-
-.day_row_912cbe:focus-visible { outline: 2px solid var(--mantine-color-blue-5); outline-offset: 1px; }
-
-.day_reported_912cbe {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  width: 100%;
-}
-
-.day_meta_912cbe {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.day_dot_912cbe {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.dot_green_912cbe { background: var(--mantine-color-green-5); }
-.dot_red_912cbe   { background: var(--mantine-color-red-5); }
-
-.day_date_912cbe {
-  font-size: var(--mantine-font-size-xs);
-  font-weight: 600;
-  color: var(--mantine-color-dark-0);
-}
-
-.day_dow_912cbe {
-  font-size: var(--mantine-font-size-xs);
-  color: var(--mantine-color-dark-3);
-}
-
-.day_missed_label_912cbe {
-  font-size: var(--mantine-font-size-xs);
-  color: rgba(248, 113, 113, 0.7_912cbe);
-}
-
-.day_missed_name_912cbe {
-  font-size: var(--mantine-font-size-xs);
-  font-weight: 500;
-  color: var(--mantine-color-dark-2);
-}
-
-.day_text_912cbe {
-  margin: 0;
-  margin-top: 6px;
-  padding-left: var(--space-4);
-  font-size: var(--mantine-font-size-xs);
-  line-height: 1.5_912cbe;
-  color: var(--mantine-color-dark-2);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-
-.root_compact_98cbd2 { height: 4px; }
-.root_default_98cbd2 { height: 8px; }
-
-
-.header_6a0d1a {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  padding: 18px var(--space-6) var(--space-4);
-  border-bottom: 1px solid var(--mantine-color-dark-4);
-}
-
-@media (max-width: 599px) {
-  .header_6a0d1a { padding-inline: var(--space-4); padding-top: var(--space-4); }
-}
-
-.header_top_6a0d1a {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4) var(--space-4);
-}
-
-.header_title_6a0d1a {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.title_text_6a0d1a {
-  font-size: var(--mantine-font-size-sm);
-  font-weight: 600;
-  color: var(--mantine-color-dark-0);
-}
-
-.content_6a0d1a {
-  padding: var(--space-6);
-}
-
-@media (max-width: 599px) {
-  .content_6a0d1a { padding: var(--space-4); }
-}
-
-.tracker_grid_6a0d1a {
-  display: grid;
-  grid-template-columns: minmax(0, 380px) 1fr;
-  gap: var(--space-6);
-}
-
-@media (max-width: 700px) {
-  .tracker_grid_6a0d1a { grid-template-columns: 1fr; }
-}
-
-.stats_col_6a0d1a {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  min-width: 0;
-}
-
-
-.empty_state_0faf2f {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-4);
-  padding-block: var(--space-4);
-  color: var(--mantine-color-dark-2);
-}
-
-.empty_text_0faf2f {
-  margin: 0;
-  font-size: var(--mantine-font-size-sm);
-}
-
-.controls_0faf2f {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-4);
-}
-
-.select_wrap_0faf2f {
-  width: 180px;
-  flex-shrink: 0;
-}
-
-.grid_0faf2f {
-  display: grid;
-  grid-template-columns: minmax(0, 400px) 1fr;
-  gap: var(--space-4);
-  margin-top: var(--space-4);
-}
-
-@media (max-width: 900px) {
-  .grid_0faf2f { grid-template-columns: 1fr; }
-}
-
-.meta_0faf2f {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px var(--space-1);
-  margin-top: var(--space-4);
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--mantine-color-dark-5);
-  font-size: var(--mantine-font-size-xs);
-  color: var(--mantine-color-dark-2);
-}
-
-.deadline_days_0faf2f {
-  font-weight: 500;
-  color: var(--mantine-color-dark-0);
-}
-
-.deadline_bar_0faf2f {
-  height: 4px;
-  min-width: 80px;
-  flex: 1;
-}
-
-.sep_0faf2f {
-  opacity: 0.3_0faf2f;
-}
-
-
-.root_ad1235 {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.label_ad1235 {
-  font-size: var(--mantine-font-size-xs);
-  color: var(--mantine-color-dark-2);
-}
-
-/* Override Mantine DatePickerInput to look like ghost button */
-.picker_ad1235 :global(.mantine-DatePickerInput-input_ad1235) {
-  background: transparent;
-  border: none;
-  color: var(--mantine-color-dark-0);
-  font-size: var(--mantine-font-size-xs);
-  cursor: pointer;
-  padding-inline: var(--space-2);
-  height: 28px;
-  min-height: 28px;
-  transition: background 0.15s_ad1235 ease-out;
-}
-
-.picker_ad1235 :global(.mantine-DatePickerInput-input_ad1235:hover) {
-  background: var(--mantine-color-dark-5);
-}
-
-.picker_ad1235 :global(.mantine-DatePickerInput-input_ad1235:focus) {
-  outline: 2px solid var(--mantine-color-blue-5);
-  outline-offset: 1px;
-}
-
-
 .root_421d9c { position: relative; }
+
+.level_back_421d9c {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px var(--space-2) 0;
+}
+
+.level_back_label_421d9c {
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-dark-2);
+}
 
 /* Context menu */
 .ctx_menu_421d9c {
@@ -9521,49 +9476,106 @@ fieldset:disabled .m_c9ade57f:where([data-inverted]),
 }
 
 
-.grid_02ebad {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+.empty_state_0faf2f {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding-block: var(--space-4);
+  color: var(--mantine-color-dark-2);
+}
+
+.empty_text_0faf2f {
+  margin: 0;
+  font-size: var(--mantine-font-size-sm);
+}
+
+.controls_0faf2f {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-4);
 }
 
-.card_02ebad {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  background: var(--mantine-color-dark-6);
-  border: 1px solid var(--mantine-color-dark-4);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
+.select_wrap_0faf2f {
+  width: 180px;
+  flex-shrink: 0;
 }
 
-.card_header_02ebad {
+.grid_0faf2f {
+  display: grid;
+  grid-template-columns: minmax(0, 400px) 1fr;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+@media (max-width: 900px) {
+  .grid_0faf2f { grid-template-columns: 1fr; }
+}
+
+.meta_0faf2f {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-}
-
-.label_02ebad {
+  gap: 4px var(--space-1);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--mantine-color-dark-5);
   font-size: var(--mantine-font-size-xs);
-  font-weight: 500;
   color: var(--mantine-color-dark-2);
 }
 
-.value_02ebad {
-  font-size: 1.5rem_02ebad;
-  font-weight: 600;
-  line-height: 1;
+.deadline_days_0faf2f {
+  font-weight: 500;
   color: var(--mantine-color-dark-0);
 }
 
-.value_green_02ebad  { color: var(--mantine-color-green-4); }
-.value_orange_02ebad { color: #f97316; }
-.value_amber_02ebad  { color: var(--mantine-color-amber-4); }
+.deadline_bar_0faf2f {
+  height: 4px;
+  min-width: 80px;
+  flex: 1;
+}
 
-.sub_02ebad {
+.sep_0faf2f {
+  opacity: 0.3_0faf2f;
+}
+
+
+.root_compact_98cbd2 { height: 4px; }
+.root_default_98cbd2 { height: 8px; }
+
+
+.root_ad1235 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.label_ad1235 {
   font-size: var(--mantine-font-size-xs);
   color: var(--mantine-color-dark-2);
+}
+
+/* Override Mantine DatePickerInput to look like ghost button */
+.picker_ad1235 :global(.mantine-DatePickerInput-input_ad1235) {
+  background: transparent;
+  border: none;
+  color: var(--mantine-color-dark-0);
+  font-size: var(--mantine-font-size-xs);
+  cursor: pointer;
+  padding-inline: var(--space-2);
+  height: 28px;
+  min-height: 28px;
+  transition: background 0.15s_ad1235 ease-out;
+}
+
+.picker_ad1235 :global(.mantine-DatePickerInput-input_ad1235:hover) {
+  background: var(--mantine-color-dark-5);
+}
+
+.picker_ad1235 :global(.mantine-DatePickerInput-input_ad1235:focus) {
+  outline: 2px solid var(--mantine-color-blue-5);
+  outline-offset: 1px;
 }
 
 

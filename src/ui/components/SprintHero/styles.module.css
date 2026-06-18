@@ -16,7 +16,7 @@
 }
 
 @media (max-width: 599px) {
-  .header_row { flex-direction: column; align-items: flex-start; }
+  .header_row { flex-direction: column; align-items: center; }
 }
 
 /* Left side: nav + sprint info */
@@ -29,7 +29,7 @@
 }
 
 @media (max-width: 599px) {
-  .sprint_nav { width: 100%; }
+  .sprint_nav { width: 100%; justify-content: center; }
 }
 
 .sprint_info {
@@ -41,7 +41,7 @@
 }
 
 @media (max-width: 599px) {
-  .sprint_info { flex-direction: column; align-items: flex-start; }
+  .sprint_info { flex-direction: column; align-items: center; }
 }
 
 .sprint_title_row {
@@ -57,7 +57,7 @@
 }
 
 @media (max-width: 599px) {
-  .sprint_dates_row { padding-left: 22px; }
+  .sprint_dates_row { justify-content: center; }
 }
 
 .sep {
@@ -94,7 +94,7 @@
 }
 
 @media (max-width: 599px) {
-  .actions { width: 100%; }
+  .actions { width: 100%; justify-content: center; }
 }
 
 .all_done {
