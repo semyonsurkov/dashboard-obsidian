@@ -1,18 +1,33 @@
 .root {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
+}
+
+.top_row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
 }
 
 .greeting {
-  font-size: var(--mantine-font-size-sm);
-  font-weight: 600;
+  font-size: var(--mantine-font-size-md);
+  font-weight: 700;
   line-height: 1;
   color: var(--mantine-color-dark-0);
+}
+
+.time {
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--mantine-color-blue-4);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
 }
 
 .date {
   font-size: var(--mantine-font-size-xs);
   line-height: 1;
-  color: var(--mantine-color-dark-2);
+  color: var(--mantine-color-dark-3);
 }

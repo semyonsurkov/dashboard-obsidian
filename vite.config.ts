@@ -18,6 +18,9 @@ export default defineConfig(({ command }) => {
           closeBundle() {
             copyFileSync(join(__dirname, 'manifest.json'), join(VAULT_PLUGIN, 'manifest.json'))
             copyFileSync(join(__dirname, 'versions.json'), join(VAULT_PLUGIN, 'versions.json'))
+            // Copy release artifacts to repo root for GitHub Release
+            copyFileSync(join(VAULT_PLUGIN, 'main.js'), join(__dirname, 'main.js'))
+            copyFileSync(join(VAULT_PLUGIN, 'styles.css'), join(__dirname, 'styles.css'))
           },
         },
       ],

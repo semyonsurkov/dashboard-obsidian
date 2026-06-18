@@ -141,17 +141,13 @@ export default function SprintHero({
               </div>
 
               <div className={styles.sprint_dates_row}>
-                <span className={`${styles.sep} ${styles.sep_desktop}`}>·</span>
-                <span className={styles.sprint_dates}>{fmtShort(sprint.start)} - {fmtShort(sprint.end)}</span>
+                <span className={styles.sprint_dates}>{fmtShort(sprint.start)} — {fmtShort(sprint.end)}</span>
                 {isActive && (
-                  <>
-                    <span className={styles.sep}>·</span>
-                    <span className={styles.days_left}>
-                      {sprint.daysLeft === 0
-                        ? 'последний день'
-                        : `осталось ${sprint.daysLeft} ${pluralDays(sprint.daysLeft)}`}
-                    </span>
-                  </>
+                  <span className={styles.days_left}>
+                    {sprint.daysLeft === 0
+                      ? 'последний день'
+                      : `${sprint.daysLeft} ${pluralDays(sprint.daysLeft)}`}
+                  </span>
                 )}
               </div>
             </div>
