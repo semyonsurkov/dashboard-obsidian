@@ -17,11 +17,13 @@ function fmtDay(iso: string) { const [, m, d] = iso.split('-').map(Number); retu
 interface DayCell { date: string; dow: number }
 
 interface Props {
-  sprint:   SprintInfo
-  trackers: Tracker[]
+  sprint:         SprintInfo
+  trackers:       Tracker[]
+  sprintCreated?: boolean
+  onOpenNote?:    () => void
 }
 
-export default function SprintBody({ sprint, trackers }: Props) {
+export default function SprintBody({ sprint, trackers, sprintCreated, onOpenNote }: Props) {
   const today = toISO(new Date())
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
 
@@ -109,9 +111,18 @@ export default function SprintBody({ sprint, trackers }: Props) {
   const hasData = sprintDays.some(d => d.date <= today)
   const selDay  = sprintDays.find(d => d.date === selectedDate)
 
+  const canOpen = !!(onOpenNote && sprintCreated)
+
   return (
     <Card withBorder p={0} radius="md">
-      <div className={styles.header}>
+      <div
+        className={`${styles.header}${canOpen ? ` ${styles.header_clickable}` : ''}`}
+        onClick={canOpen ? onOpenNote : undefined}
+        role={canOpen ? 'button' : undefined}
+        tabIndex={canOpen ? 0 : undefined}
+        onKeyDown={canOpen ? e => e.key === 'Enter' && onOpenNote?.() : undefined}
+        aria-label={canOpen ? 'Открыть заметку спринта' : undefined}
+      >
         <Columns3 size={14} aria-hidden style={{ color: 'var(--mantine-color-dark-2)' }} />
         <span className={styles.header_title}>Дни спринта</span>
       </div>

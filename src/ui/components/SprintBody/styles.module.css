@@ -10,6 +10,15 @@
   .header { padding-inline: var(--space-4); padding-top: var(--space-4); }
 }
 
+.header_clickable {
+  cursor: pointer;
+  transition: background 0.15s ease-out;
+}
+
+.header_clickable:hover {
+  background: var(--mantine-color-dark-6);
+}
+
 .header_title {
   font-size: var(--mantine-font-size-sm);
   font-weight: 600;
