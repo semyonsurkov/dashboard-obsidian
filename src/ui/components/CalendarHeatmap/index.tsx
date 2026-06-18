@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef, type MouseEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { Calendar } from '@mantine/dates'
 import { ActionIcon } from '@mantine/core'
-import { ChevronLeft } from 'lucide-react'
+import { X } from 'lucide-react'
 import { daysForMonth } from '../../../stats'
 import type { HistoryDay } from '../../../types'
 import styles from './styles.module.css'
@@ -82,9 +82,6 @@ export default function CalendarHeatmap({ days, since, onCreateReport, onOpenRep
     return (
       <div className={styles.root}>
         <div className={styles.picker_header}>
-          <ActionIcon variant="subtle" size="sm" onClick={() => setCalLevel('month')} aria-label="Назад">
-            <ChevronLeft size={14} />
-          </ActionIcon>
           <button
             className={styles.picker_year_btn}
             onClick={() => setDisplayMonth(d => new Date(d.getFullYear() - 1, d.getMonth(), 1))}
@@ -100,6 +97,15 @@ export default function CalendarHeatmap({ days, since, onCreateReport, onOpenRep
             aria-label="Следующий год"
             disabled={pickerYear >= now.getFullYear()}
           >›</button>
+          <ActionIcon
+            variant="subtle"
+            size="sm"
+            onClick={() => setCalLevel('month')}
+            aria-label="Закрыть"
+            className={styles.picker_close}
+          >
+            <X size={13} />
+          </ActionIcon>
         </div>
         <div className={styles.month_grid}>
           {MONTHS_SHORT.map((name, i) => {
