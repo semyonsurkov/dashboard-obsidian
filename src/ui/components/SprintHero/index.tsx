@@ -73,7 +73,7 @@ export default function SprintHero({
         <div className={styles.header_row}>
           {/* Left: navigation + sprint title */}
           <div className={styles.sprint_nav}>
-            <ActionIcon variant="subtle" size="sm" onClick={onPrev} aria-label="Предыдущий спринт">
+            <ActionIcon variant="default" size="sm" onClick={onPrev} aria-label="Предыдущий спринт">
               <ChevronLeft size={14} />
             </ActionIcon>
 
@@ -152,7 +152,7 @@ export default function SprintHero({
               </div>
             </div>
 
-            <ActionIcon variant="subtle" size="sm" onClick={onNext} aria-label="Следующий спринт">
+            <ActionIcon variant="default" size="sm" onClick={onNext} aria-label="Следующий спринт">
               <ChevronRight size={14} />
             </ActionIcon>
           </div>

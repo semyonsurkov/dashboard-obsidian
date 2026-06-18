@@ -52622,7 +52622,7 @@ function SprintHero({
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card, { withBorder: true, p: 0, radius: "md", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$b.header, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$b.header_row, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$b.sprint_nav, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(ActionIcon, { variant: "subtle", size: "sm", onClick: onPrev, "aria-label": "Предыдущий спринт", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { size: 14 }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ActionIcon, { variant: "default", size: "sm", onClick: onPrev, "aria-label": "Предыдущий спринт", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { size: 14 }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$b.sprint_info, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$b.sprint_title_row, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 14, "aria-hidden": true, style: { color: "var(--mantine-color-blue-5)", flexShrink: 0 } }),
@@ -52703,7 +52703,7 @@ function SprintHero({
             isActive && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$b.days_left, children: sprint.daysLeft === 0 ? "последний день" : `${sprint.daysLeft} ${pluralDays(sprint.daysLeft)}` })
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(ActionIcon, { variant: "subtle", size: "sm", onClick: onNext, "aria-label": "Следующий спринт", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { size: 14 }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ActionIcon, { variant: "default", size: "sm", onClick: onNext, "aria-label": "Следующий спринт", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { size: 14 }) })
       ] }),
       isActive && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$b.actions, children: statuses.filter((s) => !s.skip).length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: styles$b.all_done, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheckBig, { size: 13, "aria-hidden": true, style: { color: "var(--mantine-color-green-5)" } }),
