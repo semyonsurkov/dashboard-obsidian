@@ -1,5 +1,4 @@
 import { DatePickerInput } from '@mantine/dates'
-import { CalendarDays } from 'lucide-react'
 import styles from './styles.module.css'
 
 const MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
@@ -46,9 +45,6 @@ export default function DatePickerPopover({
         placeholder={placeholder}
         valueFormat="D MMM"
         className={styles.picker}
-        leftSection={<CalendarDays size={12} aria-hidden />}
-        leftSectionPointerEvents="none"
-        leftSectionWidth={28}
         size="sm"
         popoverProps={{ position: 'bottom-start' }}
         clearable={false}
