@@ -155,6 +155,9 @@ export default function CalendarHeatmap({ days, since, onCreateReport, onOpenRep
             },
             style: {
               ...(!isFuture ? { cursor: 'pointer' } : {}),
+              ...(iso === today
+                ? { outline: '2px solid var(--mantine-color-violet-5)', outlineOffset: '-2px', borderRadius: 'var(--radius-sm)' }
+                : {}),
               ...(reported
                 ? { background: 'rgba(34,197,94,0.32)', color: 'var(--mantine-color-green-2)', borderRadius: 'var(--radius-sm)' }
                 : missed

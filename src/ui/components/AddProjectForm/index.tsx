@@ -1,5 +1,6 @@
 import { useState, useRef, useMemo } from 'react'
-import { Button, TextInput, Modal } from '@mantine/core'
+import { X } from 'lucide-react'
+import { Button, TextInput, Modal, ActionIcon } from '@mantine/core'
 import DatePickerPopover from '../DatePickerPopover'
 import styles from './styles.module.css'
 
@@ -49,9 +50,21 @@ export default function AddProjectForm({ onAdd, folders }: Props) {
       <Modal
         opened={open}
         onClose={() => { reset(); setOpen(false) }}
-        title="Новый проект"
+        title={
+          <div className={styles.modal_title}>
+            <span>Новый проект</span>
+            <ActionIcon
+              variant="subtle"
+              size="sm"
+              onClick={() => { reset(); setOpen(false) }}
+              aria-label="Закрыть"
+            >
+              <X size={15} aria-hidden />
+            </ActionIcon>
+          </div>
+        }
+        withCloseButton={false}
         size="md"
-        classNames={{ close: styles.modal_close }}
         onKeyDown={handleKeyDown}
       >
         <div className={styles.body}>

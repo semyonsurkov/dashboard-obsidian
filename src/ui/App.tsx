@@ -188,7 +188,12 @@ export function DashboardApp({
         onOpenNote={handleOpenNote}
       />
 
-      <SprintBody sprint={sprint} trackers={trackers} sprintCreated={sprint.created} onOpenNote={() => handleOpenNote('goals')} />
+      <SprintBody
+        sprint={sprint}
+        trackers={trackers}
+        onOpenReport={(date, fp, trackerId) => onOpenReport?.(date, fp, trackerId)}
+        onCreateReport={(date, trackerId) => handleCreateReport(date, trackerId)}
+      />
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleMainDragEnd}>
         <SortableContext items={mainOrder} strategy={verticalListSortingStrategy}>

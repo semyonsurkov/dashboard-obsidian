@@ -17,13 +17,13 @@ function fmtDay(iso: string) { const [, m, d] = iso.split('-').map(Number); retu
 interface DayCell { date: string; dow: number }
 
 interface Props {
-  sprint:         SprintInfo
-  trackers:       Tracker[]
-  sprintCreated?: boolean
-  onOpenNote?:    () => void
+  sprint:          SprintInfo
+  trackers:        Tracker[]
+  onOpenReport?:   (date: string, filePath: string, trackerId: string) => void
+  onCreateReport?: (date: string, trackerId: string) => void
 }
 
-export default function SprintBody({ sprint, trackers, sprintCreated, onOpenNote }: Props) {
+export default function SprintBody({ sprint, trackers, onOpenReport, onCreateReport }: Props) {
   const today = toISO(new Date())
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
 
@@ -48,6 +48,11 @@ export default function SprintBody({ sprint, trackers, sprintCreated, onOpenNote
     [trackers],
   )
 
+  const pathMap = useMemo(
+    () => new Map(trackers.map(t => [t.id, new Map(t.days.map(d => [d.date, d.filePath]))])),
+    [trackers],
+  )
+
   function weekRollup(days: DayCell[]) {
     return trackers.map(t => {
       const eligible = days.filter(d => !(t.weekendsOff && (d.dow === 0 || d.dow === 6)) && d.date <= today)
@@ -62,16 +67,12 @@ export default function SprintBody({ sprint, trackers, sprintCreated, onOpenNote
   }
 
   function renderDetail(date: string, dow: number) {
+    const isPast = date < today
     return (
       <div className={styles.detail}>
         <div className={styles.detail_header}>
           <span className={styles.detail_title}>{DOW_FULL[dow]}, {fmtDay(date)}</span>
-          <ActionIcon
-            variant="subtle"
-            size="sm"
-            onClick={() => setSelectedDate(null)}
-            aria-label="Закрыть"
-          >
+          <ActionIcon variant="subtle" size="sm" onClick={() => setSelectedDate(null)} aria-label="Закрыть">
             <X size={12} aria-hidden />
           </ActionIcon>
         </div>
@@ -79,6 +80,7 @@ export default function SprintBody({ sprint, trackers, sprintCreated, onOpenNote
           const isOff    = t.weekendsOff && (dow === 0 || dow === 6)
           const reported = reportedSets.get(t.id)?.has(date)
           const text     = textMap.get(t.id)?.get(date) ?? ''
+          const filePath = pathMap.get(t.id)?.get(date)
           const isToday  = date === today
           const dotColor = reported ? styles.dot_green : isToday ? styles.dot_future : styles.dot_red
 
@@ -90,16 +92,34 @@ export default function SprintBody({ sprint, trackers, sprintCreated, onOpenNote
               </div>
             </div>
           )
+
           return (
             <div key={t.id} className={styles.detail_tracker}>
               <div className={styles.detail_tracker_meta}>
                 <span className={`${styles.tracker_dot} ${dotColor}`} />
                 <span className={styles.detail_tracker_name}>{t.label.split(' ')[0]}</span>
                 {!reported && !isToday && <span className={styles.detail_miss_label}>пропустил</span>}
-                {!reported &&  isToday && <span className={styles.detail_note}>ещё не сдан</span>}
+                {!reported &&  isToday && <span className={styles.detail_note_inline}>ещё не сдан</span>}
+                <div className={styles.detail_actions}>
+                  {reported && filePath && (
+                    <button
+                      className={styles.detail_btn}
+                      onClick={() => onOpenReport?.(date, filePath, t.id)}
+                    >
+                      Открыть
+                    </button>
+                  )}
+                  {!reported && (isToday || isPast) && (
+                    <button
+                      className={`${styles.detail_btn} ${styles.detail_btn_create}`}
+                      onClick={() => onCreateReport?.(date, t.id)}
+                    >
+                      {isToday ? 'Написать' : 'Создать'}
+                    </button>
+                  )}
+                </div>
               </div>
               {reported && text && <p className={styles.detail_text}>{text}</p>}
-              {reported && !text && <p className={styles.detail_note}>Отчёт сдан</p>}
             </div>
           )
         })}
@@ -111,18 +131,9 @@ export default function SprintBody({ sprint, trackers, sprintCreated, onOpenNote
   const hasData = sprintDays.some(d => d.date <= today)
   const selDay  = sprintDays.find(d => d.date === selectedDate)
 
-  const canOpen = !!(onOpenNote && sprintCreated)
-
   return (
     <Card withBorder p={0} radius="md">
-      <div
-        className={`${styles.header}${canOpen ? ` ${styles.header_clickable}` : ''}`}
-        onClick={canOpen ? onOpenNote : undefined}
-        role={canOpen ? 'button' : undefined}
-        tabIndex={canOpen ? 0 : undefined}
-        onKeyDown={canOpen ? e => e.key === 'Enter' && onOpenNote?.() : undefined}
-        aria-label={canOpen ? 'Открыть заметку спринта' : undefined}
-      >
+      <div className={styles.header}>
         <Columns3 size={14} aria-hidden style={{ color: 'var(--mantine-color-dark-2)' }} />
         <span className={styles.header_title}>Дни спринта</span>
       </div>

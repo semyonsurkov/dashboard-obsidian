@@ -60,8 +60,12 @@
   background: var(--mantine-color-dark-5);
 }
 
-.modal_close {
-  margin: 8px 8px 0 0 !important;
+.modal_title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding-right: 2px;
 }
 
 .footer {

@@ -52791,37 +52791,40 @@ function SprintHero({
     ] })
   ] });
 }
-const header$2 = "_header_ytzrc_1";
-const header_title$2 = "_header_title_ytzrc_13";
-const content$2 = "_content_ytzrc_19";
-const rollup = "_rollup_ytzrc_31";
-const rollup_badge = "_rollup_badge_ytzrc_37";
-const grid$2 = "_grid_ytzrc_47";
-const day = "_day_ytzrc_57";
-const day_clickable = "_day_clickable_ytzrc_69";
-const day_today = "_day_today_ytzrc_78";
-const day_future = "_day_future_ytzrc_82";
-const day_selected = "_day_selected_ytzrc_86";
-const day_header = "_day_header_ytzrc_92";
-const day_dow$1 = "_day_dow_ytzrc_99";
-const day_num = "_day_num_ytzrc_104";
-const day_dots = "_day_dots_ytzrc_110";
-const dot = "_dot_ytzrc_115";
-const dot_green$1 = "_dot_green_ytzrc_121";
-const dot_red$1 = "_dot_red_ytzrc_122";
-const dot_off = "_dot_off_ytzrc_123";
-const dot_future = "_dot_future_ytzrc_124";
-const detail = "_detail_ytzrc_127";
-const detail_header = "_detail_header_ytzrc_134";
-const detail_title = "_detail_title_ytzrc_142";
-const detail_tracker = "_detail_tracker_ytzrc_148";
-const detail_tracker_meta = "_detail_tracker_meta_ytzrc_158";
-const tracker_dot = "_tracker_dot_ytzrc_164";
-const detail_tracker_name = "_detail_tracker_name_ytzrc_171";
-const detail_miss_label = "_detail_miss_label_ytzrc_177";
-const detail_off_label = "_detail_off_label_ytzrc_183";
-const detail_text = "_detail_text_ytzrc_189";
-const detail_note = "_detail_note_ytzrc_198";
+const header$2 = "_header_f0lmx_1";
+const header_title$2 = "_header_title_f0lmx_13";
+const content$2 = "_content_f0lmx_19";
+const rollup = "_rollup_f0lmx_31";
+const rollup_badge = "_rollup_badge_f0lmx_37";
+const grid$2 = "_grid_f0lmx_47";
+const day = "_day_f0lmx_57";
+const day_clickable = "_day_clickable_f0lmx_69";
+const day_today = "_day_today_f0lmx_78";
+const day_future = "_day_future_f0lmx_82";
+const day_selected = "_day_selected_f0lmx_86";
+const day_header = "_day_header_f0lmx_91";
+const day_dow$1 = "_day_dow_f0lmx_98";
+const day_num = "_day_num_f0lmx_103";
+const day_dots = "_day_dots_f0lmx_109";
+const dot = "_dot_f0lmx_114";
+const dot_green$1 = "_dot_green_f0lmx_120";
+const dot_red$1 = "_dot_red_f0lmx_121";
+const dot_off = "_dot_off_f0lmx_122";
+const dot_future = "_dot_future_f0lmx_123";
+const detail = "_detail_f0lmx_126";
+const detail_header = "_detail_header_f0lmx_133";
+const detail_title = "_detail_title_f0lmx_141";
+const detail_tracker = "_detail_tracker_f0lmx_147";
+const detail_tracker_meta = "_detail_tracker_meta_f0lmx_157";
+const tracker_dot = "_tracker_dot_f0lmx_163";
+const detail_tracker_name = "_detail_tracker_name_f0lmx_170";
+const detail_miss_label = "_detail_miss_label_f0lmx_176";
+const detail_off_label = "_detail_off_label_f0lmx_182";
+const detail_text = "_detail_text_f0lmx_188";
+const detail_note_inline = "_detail_note_inline_f0lmx_206";
+const detail_actions = "_detail_actions_f0lmx_212";
+const detail_btn = "_detail_btn_f0lmx_216";
+const detail_btn_create = "_detail_btn_create_f0lmx_232";
 const styles$a = {
   header: header$2,
   header_title: header_title$2,
@@ -52853,7 +52856,10 @@ const styles$a = {
   detail_miss_label,
   detail_off_label,
   detail_text,
-  detail_note
+  detail_note_inline,
+  detail_actions,
+  detail_btn,
+  detail_btn_create
 };
 const DOW_SHORT = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
 const DOW_FULL$1 = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
@@ -52865,7 +52871,7 @@ function fmtDay(iso) {
   const [, m, d] = iso.split("-").map(Number);
   return `${d} ${MONTHS_GEN$4[m - 1]}`;
 }
-function SprintBody({ sprint, trackers }) {
+function SprintBody({ sprint, trackers, onOpenReport, onCreateReport }) {
   const today = toISO$3(/* @__PURE__ */ new Date());
   const [selectedDate, setSelectedDate] = reactExports.useState(null);
   const sprintDays = reactExports.useMemo(() => {
@@ -52886,6 +52892,10 @@ function SprintBody({ sprint, trackers }) {
     () => new Map(trackers.map((t) => [t.id, new Map(t.days.map((d) => [d.date, d.text]))])),
     [trackers]
   );
+  const pathMap = reactExports.useMemo(
+    () => new Map(trackers.map((t) => [t.id, new Map(t.days.map((d) => [d.date, d.filePath]))])),
+    [trackers]
+  );
   function weekRollup(days) {
     return trackers.map((t) => {
       const eligible = days.filter((d) => !(t.weekendsOff && (d.dow === 0 || d.dow === 6)) && d.date <= today);
@@ -52901,6 +52911,7 @@ function SprintBody({ sprint, trackers }) {
     setSelectedDate((prev) => prev === date2 ? null : date2);
   }
   function renderDetail(date2, dow) {
+    const isPast = date2 < today;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$a.detail, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$a.detail_header, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: styles$a.detail_title, children: [
@@ -52908,22 +52919,14 @@ function SprintBody({ sprint, trackers }) {
           ", ",
           fmtDay(date2)
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          ActionIcon,
-          {
-            variant: "subtle",
-            size: "sm",
-            onClick: () => setSelectedDate(null),
-            "aria-label": "Закрыть",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 12, "aria-hidden": true })
-          }
-        )
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ActionIcon, { variant: "subtle", size: "sm", onClick: () => setSelectedDate(null), "aria-label": "Закрыть", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 12, "aria-hidden": true }) })
       ] }),
       trackers.map((t) => {
-        var _a, _b;
+        var _a, _b, _c;
         const isOff = t.weekendsOff && (dow === 0 || dow === 6);
         const reported = (_a = reportedSets.get(t.id)) == null ? void 0 : _a.has(date2);
         const text = ((_b = textMap.get(t.id)) == null ? void 0 : _b.get(date2)) ?? "";
+        const filePath = (_c = pathMap.get(t.id)) == null ? void 0 : _c.get(date2);
         const isToday = date2 === today;
         const dotColor = reported ? styles$a.dot_green : isToday ? styles$a.dot_future : styles$a.dot_red;
         if (isOff) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$a.detail_tracker, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$a.detail_tracker_meta, children: [
@@ -52935,10 +52938,27 @@ function SprintBody({ sprint, trackers }) {
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `${styles$a.tracker_dot} ${dotColor}` }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$a.detail_tracker_name, children: t.label.split(" ")[0] }),
             !reported && !isToday && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$a.detail_miss_label, children: "пропустил" }),
-            !reported && isToday && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$a.detail_note, children: "ещё не сдан" })
+            !reported && isToday && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$a.detail_note_inline, children: "ещё не сдан" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$a.detail_actions, children: [
+              reported && filePath && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  className: styles$a.detail_btn,
+                  onClick: () => onOpenReport == null ? void 0 : onOpenReport(date2, filePath, t.id),
+                  children: "Открыть"
+                }
+              ),
+              !reported && (isToday || isPast) && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  className: `${styles$a.detail_btn} ${styles$a.detail_btn_create}`,
+                  onClick: () => onCreateReport == null ? void 0 : onCreateReport(date2, t.id),
+                  children: isToday ? "Написать" : "Создать"
+                }
+              )
+            ] })
           ] }),
-          reported && text && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: styles$a.detail_text, children: text }),
-          reported && !text && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: styles$a.detail_note, children: "Отчёт сдан" })
+          reported && text && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: styles$a.detail_text, children: text })
         ] }, t.id);
       })
     ] });
@@ -56429,6 +56449,7 @@ function CalendarHeatmap({ days, since: since2, onCreateReport, onOpenReport, on
             },
             style: {
               ...!isFuture ? { cursor: "pointer" } : {},
+              ...iso === today ? { outline: "2px solid var(--mantine-color-violet-5)", outlineOffset: "-2px", borderRadius: "var(--radius-sm)" } : {},
               ...reported ? { background: "rgba(34,197,94,0.32)", color: "var(--mantine-color-green-2)", borderRadius: "var(--radius-sm)" } : missed ? { background: "rgba(239,68,68,0.28)", color: "var(--mantine-color-red-3)", borderRadius: "var(--radius-sm)" } : {}
             }
           };
@@ -56610,15 +56631,16 @@ function DatePickerPopover({
     )
   ] });
 }
-const body = "_body_1abyk_1";
-const row = "_row_1abyk_7";
-const field = "_field_1abyk_14";
-const field_label = "_field_label_1abyk_20";
-const optional = "_optional_1abyk_26";
-const suggestions = "_suggestions_1abyk_31";
-const suggestion = "_suggestion_1abyk_31";
-const suggestion_active = "_suggestion_active_1abyk_59";
-const footer = "_footer_1abyk_63";
+const body = "_body_1np23_1";
+const row = "_row_1np23_7";
+const field = "_field_1np23_14";
+const field_label = "_field_label_1np23_20";
+const optional = "_optional_1np23_26";
+const suggestions = "_suggestions_1np23_31";
+const suggestion = "_suggestion_1np23_31";
+const suggestion_active = "_suggestion_active_1np23_59";
+const modal_title = "_modal_title_1np23_63";
+const footer = "_footer_1np23_71";
 const styles$6 = {
   body,
   row,
@@ -56628,6 +56650,7 @@ const styles$6 = {
   suggestions,
   suggestion,
   suggestion_active,
+  modal_title,
   footer
 };
 function AddProjectForm({ onAdd, folders }) {
@@ -56674,9 +56697,24 @@ function AddProjectForm({ onAdd, folders }) {
           reset();
           setOpen(false);
         },
-        title: "Новый проект",
+        title: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$6.modal_title, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Новый проект" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            ActionIcon,
+            {
+              variant: "subtle",
+              size: "sm",
+              onClick: () => {
+                reset();
+                setOpen(false);
+              },
+              "aria-label": "Закрыть",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 15, "aria-hidden": true })
+            }
+          )
+        ] }),
+        withCloseButton: false,
         size: "md",
-        styles: { close: { margin: "8px 8px 0 0" } },
         onKeyDown: handleKeyDown,
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$6.body, children: [
@@ -57585,7 +57623,15 @@ function DashboardApp({
         onOpenNote: handleOpenNote
       }
     ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(SprintBody, { sprint, trackers }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      SprintBody,
+      {
+        sprint,
+        trackers,
+        onOpenReport: (date2, fp, trackerId) => onOpenReport == null ? void 0 : onOpenReport(date2, fp, trackerId),
+        onCreateReport: (date2, trackerId) => handleCreateReport(date2, trackerId)
+      }
+    ),
     /* @__PURE__ */ jsxRuntimeExports.jsx(DndContext, { sensors, collisionDetection: closestCenter, onDragEnd: handleMainDragEnd, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SortableContext, { items: mainOrder, strategy: verticalListSortingStrategy, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles.blocks, children: mainOrder.map((id) => /* @__PURE__ */ jsxRuntimeExports.jsx(SortableItem, { id, editMode, children: blocks2[id] }, id)) }) }) })
   ] });
 }
