@@ -153,7 +153,10 @@ export async function buildSprints(
   for (let offset = -SPRINT_RANGE; offset <= 1; offset++) {
     const info = sprintByOffset(today, offset)
     const path = weeklyNotePath(info.weekNumber, info.year, settings)
-    const file = app.vault.getAbstractFileByPath(path)
+    const abstract = app.vault.getAbstractFileByPath(path)
+    const file = abstract instanceof TFile
+      ? abstract
+      : app.vault.getFiles().find(f => f.path.normalize('NFC') === path.normalize('NFC')) ?? null
     const created = file instanceof TFile
 
     let goalsPersonal: string[] = []
@@ -161,9 +164,9 @@ export async function buildSprints(
     let summary: string | undefined
     let retro:   string | undefined
 
-    if (created && file instanceof TFile) {
+    if (file instanceof TFile) {
       try {
-        const content = await app.vault.cachedRead(file)
+        const content = await app.vault.read(file)
         const parsed  = parseSprintNote(content)
         goalsPersonal = parsed.goalsPersonal
         goalsWork     = parsed.goalsWork

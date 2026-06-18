@@ -52504,40 +52504,42 @@ function ProgressBar({ pct, tone = "accent", compact = false }) {
     }
   );
 }
-const header$3 = "_header_15hd0_1";
-const header_row = "_header_row_15hd0_10";
-const sprint_nav = "_sprint_nav_15hd0_23";
-const sprint_info = "_sprint_info_15hd0_35";
-const sprint_title_row = "_sprint_title_row_15hd0_47";
-const sprint_dates_row = "_sprint_dates_row_15hd0_53";
-const sprint_dates = "_sprint_dates_15hd0_53";
-const days_left = "_days_left_15hd0_83";
-const actions = "_actions_15hd0_95";
-const all_done = "_all_done_15hd0_106";
-const sprint_list = "_sprint_list_15hd0_119";
-const sprint_item = "_sprint_item_15hd0_128";
-const sprint_item_active = "_sprint_item_active_15hd0_149";
-const sprint_item_num = "_sprint_item_num_15hd0_153";
-const sprint_item_dates = "_sprint_item_dates_15hd0_158";
-const content$3 = "_content_15hd0_169";
-const progress_row = "_progress_row_15hd0_181";
-const progress_label_row = "_progress_label_row_15hd0_186";
-const progress_label = "_progress_label_15hd0_186";
-const progress_pct = "_progress_pct_15hd0_199";
-const banner = "_banner_15hd0_206";
-const banner_text = "_banner_text_15hd0_218";
-const summary_panel = "_summary_panel_15hd0_225";
-const summary_section = "_summary_section_15hd0_234";
-const summary_label = "_summary_label_15hd0_236";
-const summary_text = "_summary_text_15hd0_243";
-const goals_section = "_goals_section_15hd0_252";
-const goals_heading = "_goals_heading_15hd0_261";
-const goals_heading_text = "_goals_heading_text_15hd0_277";
-const goals_grid = "_goals_grid_15hd0_282";
-const goals_col = "_goals_col_15hd0_293";
-const goals_col_label = "_goals_col_label_15hd0_302";
-const goals_list = "_goals_list_15hd0_308";
-const goal_item = "_goal_item_15hd0_313";
+const header$3 = "_header_ac2st_1";
+const header_row = "_header_row_ac2st_10";
+const sprint_nav = "_sprint_nav_ac2st_23";
+const sprint_info = "_sprint_info_ac2st_35";
+const sprint_title_row = "_sprint_title_row_ac2st_47";
+const sprint_dates_row = "_sprint_dates_row_ac2st_53";
+const sprint_dates = "_sprint_dates_ac2st_53";
+const days_left = "_days_left_ac2st_83";
+const actions = "_actions_ac2st_95";
+const all_done = "_all_done_ac2st_106";
+const sprint_list = "_sprint_list_ac2st_119";
+const sprint_item = "_sprint_item_ac2st_128";
+const sprint_item_active = "_sprint_item_active_ac2st_149";
+const sprint_item_num = "_sprint_item_num_ac2st_153";
+const sprint_item_dates = "_sprint_item_dates_ac2st_158";
+const content$3 = "_content_ac2st_169";
+const progress_row = "_progress_row_ac2st_181";
+const progress_label_row = "_progress_label_row_ac2st_186";
+const progress_label = "_progress_label_ac2st_186";
+const progress_pct = "_progress_pct_ac2st_199";
+const banner = "_banner_ac2st_206";
+const banner_text = "_banner_text_ac2st_218";
+const summary_panel = "_summary_panel_ac2st_225";
+const summary_section = "_summary_section_ac2st_234";
+const summary_label = "_summary_label_ac2st_236";
+const summary_text = "_summary_text_ac2st_243";
+const goals_section = "_goals_section_ac2st_252";
+const goals_heading = "_goals_heading_ac2st_261";
+const goals_heading_text = "_goals_heading_text_ac2st_277";
+const goals_grid = "_goals_grid_ac2st_282";
+const goals_col = "_goals_col_ac2st_293";
+const goals_col_label = "_goals_col_label_ac2st_305";
+const goals_list = "_goals_list_ac2st_311";
+const goal_item = "_goal_item_ac2st_317";
+const goal_bullet = "_goal_bullet_ac2st_331";
+const goal_text = "_goal_text_ac2st_347";
 const styles$b = {
   header: header$3,
   header_row,
@@ -52572,7 +52574,9 @@ const styles$b = {
   goals_col,
   goals_col_label,
   goals_list,
-  goal_item
+  goal_item,
+  goal_bullet,
+  goal_text
 };
 const MONTHS_GEN$5 = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
 function fmtShort$2(iso) {
@@ -52780,11 +52784,39 @@ function SprintHero({
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$b.goals_grid, children: [
           sprint.goalsPersonal.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$b.goals_col, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$b.goals_col_label, children: "Личное" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$b.goals_list, children: sprint.goalsPersonal.map((g, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: styles$b.goal_item, onClick: () => onOpenNote("goals"), children: g }, i)) })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$b.goals_list, children: sprint.goalsPersonal.map((g, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                className: styles$b.goal_item,
+                role: "button",
+                tabIndex: 0,
+                onClick: () => onOpenNote("goals"),
+                onKeyDown: (e) => e.key === "Enter" && onOpenNote("goals"),
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$b.goal_bullet, "aria-hidden": true, children: "•" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$b.goal_text, children: g })
+                ]
+              },
+              i
+            )) })
           ] }),
           sprint.goalsWork.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$b.goals_col, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$b.goals_col_label, children: "Работа" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$b.goals_list, children: sprint.goalsWork.map((g, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: styles$b.goal_item, onClick: () => onOpenNote("goals"), children: g }, i)) })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$b.goals_list, children: sprint.goalsWork.map((g, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                className: styles$b.goal_item,
+                role: "button",
+                tabIndex: 0,
+                onClick: () => onOpenNote("goals"),
+                onKeyDown: (e) => e.key === "Enter" && onOpenNote("goals"),
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$b.goal_bullet, "aria-hidden": true, children: "•" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$b.goal_text, children: g })
+                ]
+              },
+              i
+            )) })
           ] })
         ] })
       ] })
@@ -58094,15 +58126,16 @@ async function buildSprints(app, today, settings) {
   for (let offset2 = -4; offset2 <= 1; offset2++) {
     const info = sprintByOffset(today, offset2);
     const path = weeklyNotePath(info.weekNumber, info.year, settings);
-    const file = app.vault.getAbstractFileByPath(path);
+    const abstract = app.vault.getAbstractFileByPath(path);
+    const file = abstract instanceof obsidian.TFile ? abstract : app.vault.getFiles().find((f) => f.path.normalize("NFC") === path.normalize("NFC")) ?? null;
     const created = file instanceof obsidian.TFile;
     let goalsPersonal = [];
     let goalsWork = [];
     let summary;
     let retro;
-    if (created && file instanceof obsidian.TFile) {
+    if (file instanceof obsidian.TFile) {
       try {
-        const content2 = await app.vault.cachedRead(file);
+        const content2 = await app.vault.read(file);
         const parsed = parseSprintNote(content2);
         goalsPersonal = parsed.goalsPersonal;
         goalsWork = parsed.goalsWork;

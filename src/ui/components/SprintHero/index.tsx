@@ -264,9 +264,17 @@ export default function SprintHero({
                   <span className={styles.goals_col_label}>Личное</span>
                   <div className={styles.goals_list}>
                     {sprint.goalsPersonal.map((g, i) => (
-                      <button key={i} className={styles.goal_item} onClick={() => onOpenNote('goals')}>
-                        {g}
-                      </button>
+                      <div
+                        key={i}
+                        className={styles.goal_item}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => onOpenNote('goals')}
+                        onKeyDown={e => e.key === 'Enter' && onOpenNote('goals')}
+                      >
+                        <span className={styles.goal_bullet} aria-hidden>•</span>
+                        <span className={styles.goal_text}>{g}</span>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -276,9 +284,17 @@ export default function SprintHero({
                   <span className={styles.goals_col_label}>Работа</span>
                   <div className={styles.goals_list}>
                     {sprint.goalsWork.map((g, i) => (
-                      <button key={i} className={styles.goal_item} onClick={() => onOpenNote('goals')}>
-                        {g}
-                      </button>
+                      <div
+                        key={i}
+                        className={styles.goal_item}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => onOpenNote('goals')}
+                        onKeyDown={e => e.key === 'Enter' && onOpenNote('goals')}
+                      >
+                        <span className={styles.goal_bullet} aria-hidden>•</span>
+                        <span className={styles.goal_text}>{g}</span>
+                      </div>
                     ))}
                   </div>
                 </div>
