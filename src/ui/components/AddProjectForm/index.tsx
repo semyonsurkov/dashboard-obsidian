@@ -50,7 +50,7 @@ export default function AddProjectForm({ onAdd, folders }: Props) {
         opened={open}
         onClose={() => { reset(); setOpen(false) }}
         title="Новый проект"
-        size="sm"
+        size="lg"
         onKeyDown={handleKeyDown}
       >
         <div className={styles.body}>

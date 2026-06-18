@@ -56407,8 +56407,8 @@ function CalendarHeatmap({ days, since: since2, onCreateReport, onOpenReport, on
         size: "xs",
         styles: {
           calendarHeader: { maxWidth: "none", width: "100%" },
-          month: { width: "100%", borderCollapse: "separate", borderSpacing: "2px" },
-          day: { width: "100%", height: "auto", aspectRatio: "1", fontSize: "11px" },
+          month: { width: "100%", borderCollapse: "separate", borderSpacing: "3px 3px" },
+          day: { width: "100%", height: "auto", aspectRatio: "1", fontSize: "11px", borderRadius: "var(--radius-sm)" },
           weekday: { fontSize: "10px" }
         },
         getDayProps: (date2) => {
@@ -56595,9 +56595,10 @@ function DatePickerPopover({
         placeholder,
         valueFormat: "D MMM",
         className: styles$7.picker,
-        leftSection: /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { size: 11, "aria-hidden": true }),
+        leftSection: /* @__PURE__ */ jsxRuntimeExports.jsx(CalendarDays, { size: 12, "aria-hidden": true }),
         leftSectionPointerEvents: "none",
-        size: "xs",
+        leftSectionWidth: 28,
+        size: "sm",
         popoverProps: { position: "bottom-start" },
         clearable: false,
         renderDay: (date2) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: date2.getDate() }),
@@ -56608,15 +56609,15 @@ function DatePickerPopover({
     )
   ] });
 }
-const body = "_body_1t9wa_1";
-const field = "_field_1t9wa_7";
-const field_label = "_field_label_1t9wa_13";
-const optional = "_optional_1t9wa_19";
-const folder_wrap = "_folder_wrap_1t9wa_24";
-const suggestions = "_suggestions_1t9wa_28";
-const suggestion = "_suggestion_1t9wa_28";
-const suggestion_active = "_suggestion_active_1t9wa_61";
-const footer = "_footer_1t9wa_65";
+const body = "_body_1aeu1_1";
+const field = "_field_1aeu1_7";
+const field_label = "_field_label_1aeu1_13";
+const optional = "_optional_1aeu1_19";
+const folder_wrap = "_folder_wrap_1aeu1_24";
+const suggestions = "_suggestions_1aeu1_28";
+const suggestion = "_suggestion_1aeu1_28";
+const suggestion_active = "_suggestion_active_1aeu1_61";
+const footer = "_footer_1aeu1_65";
 const styles$6 = {
   body,
   field,
@@ -56673,7 +56674,7 @@ function AddProjectForm({ onAdd, folders }) {
           setOpen(false);
         },
         title: "Новый проект",
-        size: "sm",
+        size: "lg",
         onKeyDown: handleKeyDown,
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$6.body, children: [

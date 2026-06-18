@@ -134,8 +134,8 @@ export default function CalendarHeatmap({ days, since, onCreateReport, onOpenRep
         size="xs"
         styles={{
           calendarHeader: { maxWidth: 'none', width: '100%' },
-          month:          { width: '100%', borderCollapse: 'separate', borderSpacing: '2px' },
-          day:            { width: '100%', height: 'auto', aspectRatio: '1', fontSize: '11px' },
+          month:          { width: '100%', borderCollapse: 'separate', borderSpacing: '3px 3px' },
+          day:            { width: '100%', height: 'auto', aspectRatio: '1', fontSize: '11px', borderRadius: 'var(--radius-sm)' },
           weekday:        { fontSize: '10px' },
         }}
         getDayProps={date => {

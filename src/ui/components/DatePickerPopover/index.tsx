@@ -46,9 +46,10 @@ export default function DatePickerPopover({
         placeholder={placeholder}
         valueFormat="D MMM"
         className={styles.picker}
-        leftSection={<CalendarDays size={11} aria-hidden />}
+        leftSection={<CalendarDays size={12} aria-hidden />}
         leftSectionPointerEvents="none"
-        size="xs"
+        leftSectionWidth={28}
+        size="sm"
         popoverProps={{ position: 'bottom-start' }}
         clearable={false}
         renderDay={date => (
