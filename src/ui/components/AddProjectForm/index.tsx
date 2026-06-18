@@ -50,58 +50,56 @@ export default function AddProjectForm({ onAdd, folders }: Props) {
         opened={open}
         onClose={() => { reset(); setOpen(false) }}
         title="Новый проект"
-        size="lg"
+        size="md"
         onKeyDown={handleKeyDown}
       >
         <div className={styles.body}>
-          <div className={styles.field}>
-            <label className={styles.field_label} htmlFor="apf_name">Название</label>
-            <TextInput
-              id="apf_name"
-              placeholder="Мой проект"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              autoFocus
-              size="sm"
-            />
-          </div>
-
-          <div className={styles.field}>
-            <label className={styles.field_label} htmlFor="apf_folder">Папка в Vault</label>
-            <div className={styles.folder_wrap}>
+          <div className={styles.row}>
+            <div className={styles.field}>
+              <label className={styles.field_label} htmlFor="apf_name">Название</label>
               <TextInput
-                ref={inputRef}
-                id="apf_folder"
-                placeholder="Начните вводить путь…"
-                value={folder}
-                onChange={e => { setFolder(e.target.value); setDropOpen(true) }}
-                onFocus={() => setDropOpen(true)}
-                onBlur={() => setTimeout(() => setDropOpen(false), 120)}
-                autoComplete="off"
+                id="apf_name"
+                placeholder="Мой проект"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                autoFocus
                 size="sm"
               />
-              {dropOpen && suggestions.length > 0 && (
-                <ul className={styles.suggestions} role="listbox">
-                  {suggestions.map(f => (
-                    <li key={f} role="option" aria-selected={folder === f}>
-                      <button
-                        className={`${styles.suggestion} ${folder === f ? styles.suggestion_active : ''}`}
-                        onMouseDown={e => { e.preventDefault(); setFolder(f); setDropOpen(false); inputRef.current?.blur() }}
-                      >
-                        {f}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
+            </div>
+            <div className={styles.field}>
+              <span className={styles.field_label}>
+                Дедлайн <span className={styles.optional}>— необязательно</span>
+              </span>
+              <DatePickerPopover value={deadline} onChange={setDeadline} placeholder="Без дедлайна" allowFuture />
             </div>
           </div>
 
           <div className={styles.field}>
-            <span className={styles.field_label}>
-              Дедлайн <span className={styles.optional}>— необязательно</span>
-            </span>
-            <DatePickerPopover value={deadline} onChange={setDeadline} placeholder="Без дедлайна" allowFuture />
+            <label className={styles.field_label} htmlFor="apf_folder">Папка в Vault</label>
+            <TextInput
+              ref={inputRef}
+              id="apf_folder"
+              placeholder="Начните вводить путь…"
+              value={folder}
+              onChange={e => { setFolder(e.target.value); setDropOpen(true) }}
+              onFocus={() => setDropOpen(true)}
+              autoComplete="off"
+              size="sm"
+            />
+            {suggestions.length > 0 && (
+              <ul className={styles.suggestions} role="listbox">
+                {suggestions.map(f => (
+                  <li key={f} role="option" aria-selected={folder === f}>
+                    <button
+                      className={`${styles.suggestion} ${folder === f ? styles.suggestion_active : ''}`}
+                      onMouseDown={e => { e.preventDefault(); setFolder(f); setDropOpen(false) }}
+                    >
+                      {f}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
 

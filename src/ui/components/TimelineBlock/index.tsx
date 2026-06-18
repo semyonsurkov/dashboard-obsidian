@@ -112,7 +112,10 @@ export default function TimelineBlock({ sourceDays, onOpenByDate, onOpenReport, 
 
   useEffect(() => {
     if (!ctxMenu) return
-    const close = () => setCtxMenu(null)
+    const close = (e: Event) => {
+      if (menuRef.current?.contains(e.target as Node)) return
+      setCtxMenu(null)
+    }
     const t = setTimeout(() => document.addEventListener('mousedown', close), 0)
     return () => { clearTimeout(t); document.removeEventListener('mousedown', close) }
   }, [ctxMenu])

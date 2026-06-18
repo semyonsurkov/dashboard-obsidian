@@ -5468,8 +5468,8 @@ function requireReactDomClient_production() {
     pop(suspenseStackCursor);
   }
   var suspenseStackCursor = createCursor(0);
-  function findFirstSuspended(row) {
-    for (var node = row; null !== node; ) {
+  function findFirstSuspended(row2) {
+    for (var node = row2; null !== node; ) {
       if (13 === node.tag) {
         var state = node.memoizedState;
         if (null !== state && (state = state.dehydrated, null === state || isSuspenseInstancePending(state) || isSuspenseInstanceFallback(state)))
@@ -5481,9 +5481,9 @@ function requireReactDomClient_production() {
         node = node.child;
         continue;
       }
-      if (node === row) break;
+      if (node === row2) break;
       for (; null === node.sibling; ) {
-        if (null === node.return || node.return === row) return null;
+        if (null === node.return || node.return === row2) return null;
         node = node.return;
       }
       node.sibling.return = node.return;
@@ -19236,8 +19236,8 @@ function requireReactDomClient_development() {
       shellBoundary === fiber && (shellBoundary = null);
       pop(suspenseStackCursor, fiber);
     }
-    function findFirstSuspended(row) {
-      for (var node = row; null !== node; ) {
+    function findFirstSuspended(row2) {
+      for (var node = row2; null !== node; ) {
         if (13 === node.tag) {
           var state = node.memoizedState;
           if (null !== state && (state = state.dehydrated, null === state || isSuspenseInstancePending(state) || isSuspenseInstanceFallback(state)))
@@ -19249,9 +19249,9 @@ function requireReactDomClient_development() {
           node = node.child;
           continue;
         }
-        if (node === row) break;
+        if (node === row2) break;
         for (; null === node.sibling; ) {
-          if (null === node.return || node.return === row) return null;
+          if (null === node.return || node.return === row2) return null;
           node = node.return;
         }
         node.sibling.return = node.return;
@@ -53451,7 +53451,7 @@ function getDirection(key) {
 }
 function getControlsSize(controlsRef) {
   var _a;
-  return (_a = controlsRef.current) == null ? void 0 : _a.map((column) => column.map((row) => row.length));
+  return (_a = controlsRef.current) == null ? void 0 : _a.map((column) => column.map((row2) => row2.length));
 }
 function handleControlKeyDown({
   controlsRef,
@@ -54074,8 +54074,8 @@ const Month = factory((_props, ref) => {
     styles: styles2,
     props
   });
-  const rows = dates.map((row, rowIndex) => {
-    const cells = row.map((date2, cellIndex) => {
+  const rows = dates.map((row2, rowIndex) => {
+    const cells = row2.map((date2, cellIndex) => {
       const outside = !isSameMonth(date2, month);
       const ariaLabel = (getDayAriaLabel == null ? void 0 : getDayAriaLabel(date2)) || dayjs(date2).locale(locale || ctx.locale).format("D MMMM YYYY");
       const dayProps = getDayProps == null ? void 0 : getDayProps(date2);
@@ -54133,7 +54133,7 @@ const Month = factory((_props, ref) => {
       );
     });
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { ...getStyles2("monthRow"), children: [
-      withWeekNumbers && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { ...getStyles2("weekNumber"), children: getWeekNumber(row) }),
+      withWeekNumbers && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { ...getStyles2("weekNumber"), children: getWeekNumber(row2) }),
       cells
     ] }, rowIndex);
   });
@@ -56317,7 +56317,11 @@ function CalendarHeatmap({ days, since: since2, onCreateReport, onOpenReport, on
   const menuRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
     if (!ctxMenu) return;
-    const close = () => setCtxMenu(null);
+    const close = (e) => {
+      var _a;
+      if ((_a = menuRef.current) == null ? void 0 : _a.contains(e.target)) return;
+      setCtxMenu(null);
+    };
     const t = setTimeout(() => document.addEventListener("mousedown", close), 0);
     return () => {
       clearTimeout(t);
@@ -56609,21 +56613,21 @@ function DatePickerPopover({
     )
   ] });
 }
-const body = "_body_1aeu1_1";
-const field = "_field_1aeu1_7";
-const field_label = "_field_label_1aeu1_13";
-const optional = "_optional_1aeu1_19";
-const folder_wrap = "_folder_wrap_1aeu1_24";
-const suggestions = "_suggestions_1aeu1_28";
-const suggestion = "_suggestion_1aeu1_28";
-const suggestion_active = "_suggestion_active_1aeu1_61";
-const footer = "_footer_1aeu1_65";
+const body = "_body_1abyk_1";
+const row = "_row_1abyk_7";
+const field = "_field_1abyk_14";
+const field_label = "_field_label_1abyk_20";
+const optional = "_optional_1abyk_26";
+const suggestions = "_suggestions_1abyk_31";
+const suggestion = "_suggestion_1abyk_31";
+const suggestion_active = "_suggestion_active_1abyk_59";
+const footer = "_footer_1abyk_63";
 const styles$6 = {
   body,
+  row,
   field,
   field_label,
   optional,
-  folder_wrap,
   suggestions,
   suggestion,
   suggestion_active,
@@ -56674,66 +56678,63 @@ function AddProjectForm({ onAdd, folders }) {
           setOpen(false);
         },
         title: "Новый проект",
-        size: "lg",
+        size: "md",
         onKeyDown: handleKeyDown,
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$6.body, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$6.field, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: styles$6.field_label, htmlFor: "apf_name", children: "Название" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                TextInput,
-                {
-                  id: "apf_name",
-                  placeholder: "Мой проект",
-                  value: name,
-                  onChange: (e) => setName(e.target.value),
-                  autoFocus: true,
-                  size: "sm"
-                }
-              )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$6.field, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: styles$6.field_label, htmlFor: "apf_folder", children: "Папка в Vault" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$6.folder_wrap, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$6.row, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$6.field, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: styles$6.field_label, htmlFor: "apf_name", children: "Название" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   TextInput,
                   {
-                    ref: inputRef,
-                    id: "apf_folder",
-                    placeholder: "Начните вводить путь…",
-                    value: folder,
-                    onChange: (e) => {
-                      setFolder(e.target.value);
-                      setDropOpen(true);
-                    },
-                    onFocus: () => setDropOpen(true),
-                    onBlur: () => setTimeout(() => setDropOpen(false), 120),
-                    autoComplete: "off",
+                    id: "apf_name",
+                    placeholder: "Мой проект",
+                    value: name,
+                    onChange: (e) => setName(e.target.value),
+                    autoFocus: true,
                     size: "sm"
                   }
-                ),
-                dropOpen && suggestions2.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: styles$6.suggestions, role: "listbox", children: suggestions2.map((f) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { role: "option", "aria-selected": folder === f, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "button",
-                  {
-                    className: `${styles$6.suggestion} ${folder === f ? styles$6.suggestion_active : ""}`,
-                    onMouseDown: (e) => {
-                      var _a;
-                      e.preventDefault();
-                      setFolder(f);
-                      setDropOpen(false);
-                      (_a = inputRef.current) == null ? void 0 : _a.blur();
-                    },
-                    children: f
-                  }
-                ) }, f)) })
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$6.field, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: styles$6.field_label, children: [
+                  "Дедлайн ",
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$6.optional, children: "— необязательно" })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(DatePickerPopover, { value: deadline, onChange: setDeadline, placeholder: "Без дедлайна", allowFuture: true })
               ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$6.field, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: styles$6.field_label, children: [
-                "Дедлайн ",
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$6.optional, children: "— необязательно" })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(DatePickerPopover, { value: deadline, onChange: setDeadline, placeholder: "Без дедлайна", allowFuture: true })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: styles$6.field_label, htmlFor: "apf_folder", children: "Папка в Vault" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                TextInput,
+                {
+                  ref: inputRef,
+                  id: "apf_folder",
+                  placeholder: "Начните вводить путь…",
+                  value: folder,
+                  onChange: (e) => {
+                    setFolder(e.target.value);
+                    setDropOpen(true);
+                  },
+                  onFocus: () => setDropOpen(true),
+                  autoComplete: "off",
+                  size: "sm"
+                }
+              ),
+              suggestions2.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: styles$6.suggestions, role: "listbox", children: suggestions2.map((f) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { role: "option", "aria-selected": folder === f, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  className: `${styles$6.suggestion} ${folder === f ? styles$6.suggestion_active : ""}`,
+                  onMouseDown: (e) => {
+                    e.preventDefault();
+                    setFolder(f);
+                    setDropOpen(false);
+                  },
+                  children: f
+                }
+              ) }, f)) })
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$6.footer, children: [
@@ -57155,7 +57156,11 @@ function TimelineBlock({ sourceDays, onOpenByDate, onOpenReport, onDeleteReport 
   const menuRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
     if (!ctxMenu) return;
-    const close = () => setCtxMenu(null);
+    const close = (e) => {
+      var _a;
+      if ((_a = menuRef.current) == null ? void 0 : _a.contains(e.target)) return;
+      setCtxMenu(null);
+    };
     const t = setTimeout(() => document.addEventListener("mousedown", close), 0);
     return () => {
       clearTimeout(t);
