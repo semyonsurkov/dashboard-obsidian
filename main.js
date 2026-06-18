@@ -56676,6 +56676,7 @@ function AddProjectForm({ onAdd, folders }) {
         },
         title: "Новый проект",
         size: "md",
+        styles: { close: { margin: "8px 8px 0 0" } },
         onKeyDown: handleKeyDown,
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles$6.body, children: [
