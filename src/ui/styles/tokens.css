@@ -1,59 +1,257 @@
-/* Design tokens — mapped to Obsidian's native CSS variables.
-   Colors/surfaces automatically adapt to the active Obsidian theme. */
+/* ─── Obsidian portal bridge ────────────────────────────────────────────────────
+   Модалки и Popover-дропдауны рендерятся в body-портале вне .dashboard-view-root,
+   поэтому им нужны переменные на :root. Значения захардкожены (без var-цепочки
+   через --interactive-accent): в Obsidian тема перебивает этот var и accent
+   оставался синим вместо фиолетового.
+─────────────────────────────────────────────────────────────────────────── */
 
-.dashboard-view-root {
-  /* Container context — @container queries in child styles measure pane width */
-  container-type: inline-size;
+:root[data-mantine-color-scheme],
+:root {
+  --mantine-color-body:           var(--background-primary, #0d0d0f);
+  --mantine-color-text:           #e4e4e7;
+  --mantine-color-default:        #18181b;
+  --mantine-color-default-hover:  #27272a;
+  --mantine-color-default-border: rgba(255, 255, 255, 0.07);
+  --mantine-color-default-color:  #e4e4e7;
+  --mantine-color-dimmed:         #71717a;
+  --mantine-color-placeholder:    #52525b;
+  --mantine-primary-color-filled:       #7c3aed;
+  --mantine-primary-color-filled-hover: #6d28d9;
+  --mantine-primary-color-contrast:     #ffffff;
+  --mantine-primary-color-light:        rgba(124, 58, 237, 0.10);
+  --mantine-primary-color-light-hover:  rgba(124, 58, 237, 0.12);
+  --mantine-primary-color-light-color:  #a78bfa;
+  --mantine-color-blue-4: #9775fa;
+  --mantine-color-blue-5: #7c3aed;
+  --mantine-color-blue-6: #6d28d9;
+}
 
-  /* Spacing — 8-pt grid (no Obsidian equivalent) */
-  --space-1: 4px;   --space-2: 8px;   --space-4: 16px;
-  --space-6: 24px;  --space-8: 32px;  --space-12: 48px; --space-16: 64px;
+/* ─── Design tokens (CLAUDE.md canon, 8px grid) ─────────────────────────────── */
 
-  /* Radii — use Obsidian's radius tokens */
-  --radius-sm: var(--radius-s, 4px);
-  --radius-md: var(--radius-m, 6px);
-  --radius-lg: var(--radius-l, 10px);
-  --radius-xl: var(--radius-xl, 14px);
+:root {
+  /* Spacing */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-4:  16px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
 
   /* Shadows */
-  --shadow-card: var(--shadow-s, 0 2px 8px rgba(0,0,0,.18));
-  --shadow-lg:   var(--shadow-l, 0 8px 24px rgba(0,0,0,.28));
+  --shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md:   0 4px 12px rgba(0, 0, 0, 0.10);
+  --shadow-lg:   0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.07);
 
-  /* Surfaces — Obsidian theme variables */
-  --bg:        var(--background-primary);
-  --surface:   var(--background-secondary);
-  --surface-2: var(--background-modifier-form-field, var(--background-secondary-alt, var(--background-secondary)));
+  /* Card */
+  --card-padding: var(--space-4) var(--space-6);
+}
 
-  /* Borders */
-  --border:    var(--background-modifier-border);
-  --border-2:  var(--background-modifier-border-hover, var(--background-modifier-border));
-  --border-3:  var(--background-modifier-border-focus, var(--interactive-accent));
+/* ─── Dashboard panel root ───────────────────────────────────────────────────── */
+/* Applied by DashboardView.onOpen() via this.contentEl.addClass(...) */
 
-  /* Text */
-  --text:      var(--text-normal);
-  --text-2:    var(--text-muted);
-  --text-muted: var(--text-muted);
-  --text-dim:  var(--text-faint);
+.dashboard-view-root {
+  /* ─── Mantine dark palette — прямые значения, без var-цепочки ──────────────
+     Mantine инжектирует palette как inline-style на <html>. Даже если мы
+     ставим --interactive-accent на этом элементе, Obsidian-тема перебивает
+     его у предков — и цепочка "blue-5 → interactive-accent" даёт синий.
+     Поэтому задаём финальные hex-значения напрямую: все потомки наследуют
+     нужный цвет без промежуточных var(). */
+  --mantine-color-dark-0: #e4e4e7;
+  --mantine-color-dark-1: #d4d4d8;
+  --mantine-color-dark-2: #a1a1aa;
+  --mantine-color-dark-3: #71717a;
+  --mantine-color-dark-4: rgba(255, 255, 255, 0.07);
+  --mantine-color-dark-5: #27272a;
+  --mantine-color-dark-6: #18181b;
+  --mantine-color-dark-7: #0d0d0f;
+  --mantine-color-dark-8: #0a0a0c;
+  --mantine-color-dark-9: #070709;
 
-  /* Accent & semantic */
-  --accent:     var(--interactive-accent);
-  --accent-dim: var(--interactive-accent-hover, color-mix(in srgb, var(--interactive-accent) 40%, transparent));
-  --green:      var(--color-green);
-  --red:        var(--color-red);
-  --amber:      var(--color-orange, #f59e0b);
-  --orange:     var(--color-orange, #f97316);
+  /* Purple accent (вместо синего из темы Obsidian) */
+  --mantine-color-blue-0: #f3f0ff;
+  --mantine-color-blue-1: #e9e3ff;
+  --mantine-color-blue-2: #d0bfff;
+  --mantine-color-blue-3: #b197fc;
+  --mantine-color-blue-4: #9775fa;
+  --mantine-color-blue-5: #7c3aed;
+  --mantine-color-blue-6: #6d28d9;
+  --mantine-color-blue-7: #5b21b6;
+  --mantine-color-blue-8: #4c1d95;
+  --mantine-color-blue-9: #3b0764;
 
-  /* Type scale: 12 / 14 / 16 / 20 / 24 / 32 */
-  --fs-xs: 12px;  --fs-sm: 14px;  --fs-md: 16px;
-  --fs-lg: 20px;  --fs-xl: 24px;  --fs-2xl: 32px;
+  --mantine-color-body:           #0d0d0f;
+  --mantine-color-text:           #e4e4e7;
+  --mantine-color-default:        #18181b;
+  --mantine-color-default-hover:  #27272a;
+  --mantine-color-default-border: rgba(255, 255, 255, 0.07);
+  --mantine-color-default-color:  #e4e4e7;
+  --mantine-color-dimmed:         #71717a;
+  --mantine-color-placeholder:    #52525b;
+  --mantine-primary-color-filled:       #7c3aed;
+  --mantine-primary-color-filled-hover: #6d28d9;
+  --mantine-primary-color-contrast:     #ffffff;
+  --mantine-primary-color-light:        rgba(124, 58, 237, 0.10);
+  --mantine-primary-color-light-hover:  rgba(124, 58, 237, 0.12);
+  --mantine-primary-color-light-color:  #a78bfa;
 
-  font-family: var(--font-interface, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
-  font-size: var(--fs-sm);
-  color: var(--text);
-  background: var(--bg);
+  /* Obsidian vars — для компонентов, которые читают их напрямую */
+  --background-secondary: #18181b;
+  --interactive-accent:   #7c3aed;
+  --text-normal:  #e4e4e7;
+  --text-muted:   #71717a;
+
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  background: transparent;
+  color: var(--mantine-color-dark-0);
+  container-type: inline-size;
   box-sizing: border-box;
 }
 
-.dashboard-view-root *, .dashboard-view-root *::before, .dashboard-view-root *::after {
+.dashboard-view-root *,
+.dashboard-view-root *::before,
+.dashboard-view-root *::after {
   box-sizing: inherit;
+}
+
+/* ─── Нейтрализация host-CSS Obsidian для контролов Mantine ─────────────────────
+   Obsidian's `button:not(.clickable-icon)` (специфичность 0,1,1) перебивает
+   классовые правила Mantine (0,1,0), ломая заливку/рамку/паддинги filled-кнопок.
+   Решение: таргетируем по хешированному классу + тегу → (0,1,1) ничья с
+   Obsidian, но tokens.css грузится ПОСЛЕ styles.css (Providers.tsx:7,10) →
+   побеждаем по порядку источника. При этом остаёмся НИЖЕ hover/disabled Mantine
+   (0,2,0), так что интерактивные состояния не ломаются.
+   Значения — ровно те кастом-проперти, что Mantine ставит на сам элемент через
+   JS (Button.mjs:49); фоллбэки дублируют дефолты из Button/ActionIcon/Input.css.
+   Хеши привязаны к @mantine/core 7.17.x — обновить при мажорном апгрейде.
+─────────────────────────────────────────────────────────────────────────────── */
+
+/* UnstyledButton — .m_87cf2631 (UnstyledButton.css:1)
+   ПЕРВЫМ: элементы Button и ActionIcon тоже несут этот класс, но их правила
+   ниже → при одинаковой специфичности (0,1,1) побеждают они, не это. */
+.dashboard-view-root button.m_87cf2631 {
+  background: transparent;
+  border:     0;
+  box-shadow: none;
+  padding:    0;
+}
+
+/* CloseButton (крестик модалки) — .m_86a44da5 (CloseButton.css:1) */
+.dashboard-view-root button.m_86a44da5 {
+  background: var(--cb-bg, transparent);
+  border:     0;
+  box-shadow: none;
+  padding:    0;
+}
+
+/* Button — .m_77c9d27d (Button.css:1)
+   ПОСЛЕ UnstyledButton → перебивает transparent для Button-элементов,
+   у которых одновременно есть оба класса. */
+.dashboard-view-root button.m_77c9d27d {
+  background:     var(--button-bg, var(--mantine-primary-color-filled));
+  border:         var(--button-bd, calc(0.0625rem * var(--mantine-scale)) solid transparent);
+  color:          var(--button-color, var(--mantine-color-white));
+  box-shadow:     none;
+  padding-block:  0;
+  padding-inline: var(--button-padding-x, var(--button-padding-x-sm));
+}
+
+/* ActionIcon — .m_8d3f4000 (ActionIcon.css:1)
+   ПОСЛЕ UnstyledButton → то же самое. */
+.dashboard-view-root button.m_8d3f4000 {
+  background: var(--ai-bg, var(--mantine-primary-color-filled));
+  border:     var(--ai-bd, calc(0.0625rem * var(--mantine-scale)) solid transparent);
+  color:      var(--ai-color, var(--mantine-color-white));
+  box-shadow: none;
+  padding:    0;
+}
+
+/* Input-элемент (TextInput / Select / DatePickerInput) — .m_8fb7ebe7 (Input.css:141)
+   Специфичность (0,2,0) — выше Obsidian (0,1,1) без привязки к тегу. */
+.dashboard-view-root .m_8fb7ebe7 {
+  background-color: var(--input-bg);
+  border:           calc(0.0625rem * var(--mantine-scale)) solid var(--input-bd);
+  color:            var(--input-color);
+  box-shadow:       none;
+}
+
+/* ─── Скрытые радио-инпуты SegmentedControl (.m_1714d588) и Chip (.m_bde07329) ──
+   Obsidian's input styles (height/width/opacity) могут делать их видимыми и
+   ломать расчёт позиции floating indicator. Фиксим с той же специфичностью
+   (0,2,0) что и .m_8fb7ebe7 выше. */
+.dashboard-view-root input.m_1714d588,
+.dashboard-view-root input.m_bde07329 {
+  width:      0;
+  height:     0;
+  position:   absolute;
+  opacity:    0;
+  padding:    0;
+  margin:     0;
+  border:     0;
+  appearance: none;
+}
+
+/* ─── Кнопки Calendar ─────────────────────────────────────────────────────────── */
+
+/* Calendar day — .m_396ce5cb (dates/styles.css:29)
+   Obsidian's button styles могут перебивать width/height заданные через --day-size.
+   Сохраняем точные размеры ячеек; display:inline-flex уже стоит в классе,
+   но Obsidian может его перекрыть. */
+.dashboard-view-root button.m_396ce5cb {
+  width:            var(--day-size, var(--day-size-sm));
+  height:           var(--day-size, var(--day-size-sm));
+  min-width:        unset;
+  min-height:       unset;
+  display:          inline-flex;
+  justify-content:  center;
+  align-items:      center;
+  padding:          0;
+  background-color: transparent;
+  border:           0;
+  box-shadow:       none;
+  line-height:      1;
+}
+
+/* Calendar header arrow (.m_2351eeb0) и month-label (.m_f6645d97) */
+.dashboard-view-root button.m_2351eeb0,
+.dashboard-view-root button.m_f6645d97 {
+  height:     var(--dch-control-size);
+  display:    flex;
+  align-items: center;
+  justify-content: center;
+  padding:    0;
+  background: transparent;
+  border:     0;
+  box-shadow: none;
+}
+
+.dashboard-view-root a {
+  color:           inherit;
+  text-decoration: none;
+}
+
+.dashboard-view-root svg {
+  display:    block;
+  flex-shrink: 0;
+}
+
+.dashboard-view-root p {
+  margin: 0;
+}
+
+.dashboard-view-root ul,
+.dashboard-view-root ol,
+.dashboard-view-root li {
+  list-style: none;
+  margin:     0;
+  padding:    0;
 }

@@ -46,11 +46,7 @@ export interface DashboardSettings {
   weeklyFolder:     string
   sprintTemplate:   string
 
-  goFolder:         string
-  englishFolder:    string
-
   mainBlockOrder:   string[]
-  sideBlockOrder:   string[]
 }
 
 export const DEFAULT_SETTINGS: DashboardSettings = {
@@ -66,11 +62,7 @@ export const DEFAULT_SETTINGS: DashboardSettings = {
   weeklyFolder:     '1 ⚙️ Base/periodic/weekly',
   sprintTemplate:   '',
 
-  goFolder:         '1 ⚙️ Base/GO',
-  englishFolder:    '1 ⚙️ Base/English',
-
   mainBlockOrder:   ['tracker', 'history'],
-  sideBlockOrder:   ['go', 'english'],
 }
 
 // ─── Setting tab ───────────────────────────────────────────────────────────────
@@ -175,24 +167,5 @@ export class DashboardSettingTab extends PluginSettingTab {
         return t
       })
 
-    // ── Быстрые заметки ───────────────────────────────────────────────────────
-
-    containerEl.createEl('h3', { text: 'Быстрые заметки' })
-
-    new Setting(containerEl)
-      .setName('Go — папка')
-      .addText(t => t
-        .setPlaceholder('1 ⚙️ Base/GO')
-        .setValue(this.plugin.settings.goFolder)
-        .onChange(async v => { this.plugin.settings.goFolder = v; await this.plugin.saveSettings() }),
-      )
-
-    new Setting(containerEl)
-      .setName('English — папка')
-      .addText(t => t
-        .setPlaceholder('1 ⚙️ Base/English')
-        .setValue(this.plugin.settings.englishFolder)
-        .onChange(async v => { this.plugin.settings.englishFolder = v; await this.plugin.saveSettings() }),
-      )
   }
 }

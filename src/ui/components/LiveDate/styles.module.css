@@ -1,16 +1,18 @@
-.live_date {
+.root {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
+
 .greeting {
-  font-size: var(--fs-md);
-  font-weight: 700;
-  color: var(--text);
-  line-height: 1.1;
-}
-.dt {
-  font-size: var(--fs-sm);
-  color: var(--text-muted);
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
   line-height: 1;
+  color: var(--mantine-color-dark-0);
+}
+
+.date {
+  font-size: var(--mantine-font-size-xs);
+  line-height: 1;
+  color: var(--mantine-color-dark-2);
 }

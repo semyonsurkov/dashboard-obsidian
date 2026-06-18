@@ -1,18 +1,19 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Layers, Clock } from 'lucide-react'
+import { Select } from '@mantine/core'
 import CalendarHeatmap from '../CalendarHeatmap'
 import StatsCards from '../StatsCards'
 import ProgressBar from '../ProgressBar'
 import DatePickerPopover from '../DatePickerPopover'
 import AddProjectForm from '../AddProjectForm'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/components/ui/select'
 import { daysLeftUntil, deadlineProgress } from '../../../stats'
 import type { Project, RangeMode } from '../../../types'
 import styles from './styles.module.css'
 
-const MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
-function fmtShort(iso: string) { const [,m,d] = iso.split('-').map(Number); return `${d} ${MONTHS_GEN[m-1]}` }
-function todayStr() { return new Date().toISOString().slice(0, 10) }
+function todayStr() {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+}
 
 interface Props {
   projects:         Project[]
@@ -25,7 +26,7 @@ interface Props {
   onSelect:         (id: string) => void
   onSinceChange:    (id: string, since: string) => void
   onDeadlineChange: (id: string, deadline: string) => void
-  onAdd:            (name: string, folder: string, deadline?: string) => void
+  onAdd:            (name: string, folder: string, deadline?: string) => Promise<void>
   onCreateReport:   (date: string) => void
 }
 
@@ -39,11 +40,17 @@ export default function ProjectsPanel({
     [projects, activeId],
   )
 
+  useEffect(() => {
+    if (projects.length > 0 && project && project.id !== activeId) {
+      onSelect(project.id)
+    }
+  }, [project, activeId, projects.length, onSelect])
+
   if (projects.length === 0) {
     return (
-      <div className={styles.empty}>
-        <Layers size={28} aria-hidden className="icon_dim" />
-        <p>Нет проектов — добавьте первый</p>
+      <div className={styles.empty_state}>
+        <Layers size={28} aria-hidden style={{ color: 'var(--mantine-color-dark-3)' }} />
+        <p className={styles.empty_text}>Нет проектов — добавьте первый</p>
         <AddProjectForm onAdd={onAdd} folders={folders} />
       </div>
     )
@@ -54,47 +61,30 @@ export default function ProjectsPanel({
     ? deadlineProgress(project.since, project.deadline, today) : null
   const deadlineTone = deadlinePct != null && deadlinePct > 80 ? 'red' : deadlinePct != null && deadlinePct > 60 ? 'amber' : 'accent'
 
+  const selectData = projects.map(p => ({ value: p.id, label: p.name }))
+
   return (
     <div>
-      <div className={styles.header}>
-        <Select value={activeId} onValueChange={onSelect}>
-          <SelectTrigger className="tw-w-[180px]">
-            <SelectValue placeholder="Проект" />
-          </SelectTrigger>
-          <SelectContent>
-            {projects.map(p => (
-              <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className={styles.controls}>
+        <div className={styles.select_wrap}>
+          <Select
+            value={activeId}
+            onChange={v => { if (v) onSelect(v) }}
+            data={selectData}
+            size="sm"
+          />
+        </div>
         <AddProjectForm onAdd={onAdd} folders={folders} />
       </div>
 
-      {project?.deadline && (
-        <div className={styles.deadline_row}>
-          <Clock size={11} aria-hidden className="icon_muted" />
-          <span className={styles.deadline_label}>Дедлайн {fmtShort(project.deadline)}</span>
-          {deadlineDays != null && (
-            <span className={styles.deadline_left}>
-              {deadlineDays === 0 ? 'сегодня!' : `осталось ${deadlineDays} дн.`}
-            </span>
-          )}
-          {deadlinePct != null && (
-            <div className={styles.deadline_bar}>
-              <ProgressBar pct={deadlinePct} tone={deadlineTone} compact />
-            </div>
-          )}
-        </div>
-      )}
-
       {project && (
-        <div className={styles.body}>
-          <CalendarHeatmap
-            days={project.days}
-            since={project.since}
-            onCreateReport={onCreateReport}
-          />
-          <div className={styles.right}>
+        <>
+          <div className={styles.grid}>
+            <CalendarHeatmap
+              days={project.days}
+              since={project.since}
+              onCreateReport={onCreateReport}
+            />
             <StatsCards
               days={project.days}
               weekendsOff={false}
@@ -103,24 +93,38 @@ export default function ProjectsPanel({
               sprintEnd={sprintEnd}
               today={today}
             />
-            {editMode && project && (
-              <div className={styles.edit_row}>
-                <DatePickerPopover
-                  value={project.since}
-                  onChange={v => onSinceChange(project.id, v)}
-                  label="Отслеживать с:"
-                />
-                <DatePickerPopover
-                  value={project.deadline ?? ''}
-                  onChange={v => onDeadlineChange(project.id, v)}
-                  label="Дедлайн:"
-                  placeholder="Без дедлайна"
-                  allowFuture
-                />
-              </div>
+          </div>
+
+          <div className={styles.meta}>
+            <span>Отслеживать с</span>
+            <DatePickerPopover
+              value={project.since}
+              onChange={v => onSinceChange(project.id, v)}
+            />
+            <span className={styles.sep}>·</span>
+            <span>Дедлайн</span>
+            <DatePickerPopover
+              value={project.deadline ?? ''}
+              onChange={v => onDeadlineChange(project.id, v)}
+              placeholder="Не задан"
+              allowFuture
+            />
+            {project.deadline && deadlineDays != null && (
+              <>
+                <span className={styles.sep}>·</span>
+                <Clock size={11} aria-hidden />
+                <span className={styles.deadline_days}>
+                  {deadlineDays === 0 ? 'сегодня!' : `осталось ${deadlineDays} дн.`}
+                </span>
+                {deadlinePct != null && (
+                  <div className={styles.deadline_bar}>
+                    <ProgressBar pct={deadlinePct} tone={deadlineTone} compact />
+                  </div>
+                )}
+              </>
             )}
           </div>
-        </div>
+        </>
       )}
     </div>
   )

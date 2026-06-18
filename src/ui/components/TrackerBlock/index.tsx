@@ -1,32 +1,35 @@
 import { useState, useMemo, useEffect } from 'react'
-import { NotebookPen, Briefcase, Layers } from 'lucide-react'
+import { NotebookPen, Briefcase, Layers, Activity } from 'lucide-react'
+import { Card, SegmentedControl, Chip, Group } from '@mantine/core'
 import CalendarHeatmap from '../CalendarHeatmap'
 import StatsCards from '../StatsCards'
 import DatePickerPopover from '../DatePickerPopover'
 import ProjectsPanel from '../ProjectsPanel'
-import { ToggleGroup, ToggleGroupItem } from '@/ui/components/ui/toggle-group'
 import type { Tracker, Project, TrackerId, MainTab, RangeMode, HistoryDay } from '../../../types'
 import type { SprintInfo } from '../../../stats'
 import styles from './styles.module.css'
 
 interface Props {
-  trackers:           Tracker[]
-  projects:           Project[]
-  editMode:           boolean
-  sprint:             SprintInfo
-  folders:            string[]
-  onSinceChange:      (id: TrackerId, since: string) => void
-  onProjectUpdate:    (id: string, patch: Partial<Project>) => void
-  onAddProject:       (name: string, folder: string, deadline?: string) => void
-  onActiveDaysChange: (days: HistoryDay[]) => void
-  onCreateReport:     (date: string, trackerId: string) => void
+  trackers:               Tracker[]
+  projects:               Project[]
+  editMode:               boolean
+  sprint:                 SprintInfo
+  folders:                string[]
+  onSinceChange:          (id: TrackerId, since: string) => void
+  onProjectUpdate:        (id: string, patch: Partial<Project>) => void
+  onAddProject:           (name: string, folder: string, deadline?: string) => Promise<void>
+  onActiveDaysChange:     (days: HistoryDay[]) => void
+  onActiveTrackerChange?: (trackerId: string) => void
+  onCreateReport:   (date: string, trackerId: string) => void
+  onOpenReport?:    (date: string, filePath: string, trackerId: string) => void
+  onDeleteReport?:  (date: string, filePath: string, trackerId: string) => void
 }
 
 export default function TrackerBlock({
   trackers, projects, editMode, sprint, folders,
-  onSinceChange, onProjectUpdate, onAddProject, onActiveDaysChange, onCreateReport,
+  onSinceChange, onProjectUpdate, onAddProject, onActiveDaysChange, onActiveTrackerChange, onCreateReport, onOpenReport, onDeleteReport,
 }: Props) {
-  const [activeTab, setActiveTab]             = useState<MainTab>(trackers[0].id)
+  const [activeTab, setActiveTab]             = useState<MainTab>(trackers[0]?.id ?? 'personal')
   const [activeProjectId, setActiveProjectId] = useState(projects[0]?.id ?? '')
   const [rangeMode, setRangeMode]             = useState<RangeMode>('all')
 
@@ -41,96 +44,93 @@ export default function TrackerBlock({
   )
 
   useEffect(() => {
+    if (!projects.find(p => p.id === activeProjectId)) {
+      setActiveProjectId(projects[0]?.id ?? '')
+    }
+  }, [projects]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
     onActiveDaysChange(activeDays)
+    const tid = isProjects ? `project:${activeProjectId}` : activeTab
+    onActiveTrackerChange?.(tid)
   }, [activeDays]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  function switchTab(tab: MainTab) {
-    setActiveTab(tab)
-    const days = tab === 'projects'
-      ? (projects.find(p => p.id === activeProjectId)?.days ?? [])
-      : (trackers.find(t => t.id === tab)?.days ?? [])
-    onActiveDaysChange(days)
-  }
+  const _now     = new Date()
+  const todayStr = `${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,'0')}-${String(_now.getDate()).padStart(2,'0')}`
 
-  function switchProject(id: string) {
-    setActiveProjectId(id)
-    onActiveDaysChange(projects.find(p => p.id === id)?.days ?? [])
-  }
-
-  const todayStr = new Date().toISOString().slice(0, 10)
+  const rangeData = [
+    { value: 'all',    label: 'Всё время' },
+    { value: 'sprint', label: 'Спринт'    },
+  ]
 
   return (
-    <div className="db_card">
-      <div className={styles.tabs}>
-        <ToggleGroup
-          type="single"
-          value={activeTab}
-          onValueChange={v => { if (v) switchTab(v as MainTab) }}
-          className="tw-justify-start"
-        >
-          <ToggleGroupItem value="personal" className="tw-gap-1.5">
-            <NotebookPen size={13} aria-hidden /> Личный отчёт
-          </ToggleGroupItem>
-          <ToggleGroupItem value="work" className="tw-gap-1.5">
-            <Briefcase size={13} aria-hidden /> Рабочий отчёт
-          </ToggleGroupItem>
-          <ToggleGroupItem value="projects" className="tw-gap-1.5">
-            <Layers size={13} aria-hidden /> Проекты
-          </ToggleGroupItem>
-        </ToggleGroup>
-
-        <ToggleGroup
-          type="single"
-          value={rangeMode}
-          onValueChange={v => { if (v) setRangeMode(v as RangeMode) }}
-          className={styles.range_toggle}
-        >
-          <ToggleGroupItem value="all" size="sm" className="tw-rounded-full">Всё время</ToggleGroupItem>
-          <ToggleGroupItem value="sprint" size="sm" className="tw-rounded-full">Спринт</ToggleGroupItem>
-        </ToggleGroup>
+    <Card withBorder p={0} radius="md">
+      <div className={styles.header}>
+        <div className={styles.header_top}>
+          <div className={styles.header_title}>
+            <Activity size={14} aria-hidden style={{ color: 'var(--mantine-color-dark-2)' }} />
+            <span className={styles.title_text}>Активность</span>
+          </div>
+          <SegmentedControl
+            data={rangeData}
+            value={rangeMode}
+            onChange={v => setRangeMode(v as RangeMode)}
+            size="xs"
+          />
+        </div>
+        <Chip.Group value={activeTab} onChange={v => setActiveTab(v as MainTab)}>
+          <Group gap="xs" wrap="wrap">
+            <Chip value="personal" size="xs" icon={<NotebookPen size={12} />}>
+              Личный отчёт
+            </Chip>
+            <Chip value="work" size="xs" icon={<Briefcase size={12} />}>
+              Рабочий отчёт
+            </Chip>
+            <Chip value="projects" size="xs" icon={<Layers size={12} />}>
+              Проекты
+            </Chip>
+          </Group>
+        </Chip.Group>
       </div>
 
-      {isProjects ? (
-        <ProjectsPanel
-          projects={projects}
-          editMode={editMode}
-          activeId={activeProjectId}
-          rangeMode={rangeMode}
-          sprintStart={sprint.start}
-          sprintEnd={sprint.end}
-          folders={folders}
-          onSelect={switchProject}
-          onSinceChange={(id, since) => onProjectUpdate(id, { since })}
-          onDeadlineChange={(id, deadline) => onProjectUpdate(id, { deadline })}
-          onAdd={onAddProject}
-          onCreateReport={date => onCreateReport(date, `project:${activeProjectId}`)}
-        />
-      ) : activeTracker ? (
-        <div className={styles.body}>
-          <CalendarHeatmap
-            days={activeTracker.days}
-            since={activeTracker.since}
-            onCreateReport={date => onCreateReport(date, activeTracker.id)}
+      <div className={styles.content}>
+        {isProjects ? (
+          <ProjectsPanel
+            projects={projects}
+            editMode={editMode}
+            activeId={activeProjectId}
+            rangeMode={rangeMode}
+            sprintStart={sprint.start}
+            sprintEnd={sprint.end}
+            folders={folders}
+            onSelect={id => setActiveProjectId(id)}
+            onSinceChange={(id, since) => onProjectUpdate(id, { since })}
+            onDeadlineChange={(id, deadline) => onProjectUpdate(id, { deadline })}
+            onAdd={onAddProject}
+            onCreateReport={date => onCreateReport(date, `project:${activeProjectId}`)}
           />
-          <div className={styles.right}>
-            <StatsCards
+        ) : activeTracker ? (
+          <div className={styles.tracker_grid}>
+            <CalendarHeatmap
               days={activeTracker.days}
-              weekendsOff={activeTracker.weekendsOff}
-              rangeMode={rangeMode}
-              sprintStart={sprint.start}
-              sprintEnd={sprint.end}
-              today={todayStr}
+              since={activeTracker.since}
+              onCreateReport={date => onCreateReport(date, activeTracker.id)}
+              onOpenReport={(date, fp) => onOpenReport?.(date, fp, activeTracker.id)}
+              onDeleteReport={(date, fp) => onDeleteReport?.(date, fp, activeTracker.id)}
             />
-            {editMode && (
-              <DatePickerPopover
-                value={activeTracker.since}
-                onChange={v => onSinceChange(activeTracker.id, v)}
-                label="Отслеживать с:"
+            <div className={styles.stats_col}>
+              <StatsCards
+                days={activeTracker.days}
+                weekendsOff={activeTracker.weekendsOff}
+                rangeMode={rangeMode}
+                sprintStart={sprint.start}
+                sprintEnd={sprint.end}
+                today={todayStr}
               />
-            )}
+            </div>
           </div>
-        </div>
-      ) : null}
-    </div>
+        ) : null}
+      </div>
+    </Card>
   )
 }

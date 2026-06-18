@@ -16,10 +16,15 @@ export default function SortableItem({ id, editMode, children }: Props) {
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`${styles.item}${isDragging ? ` ${styles.dragging}` : ''}`}
+      className={`${styles.root} ${isDragging ? styles.root_dragging : ''}`}
     >
       {editMode && (
-        <div className={styles.handle} {...attributes} {...listeners} aria-label="Перетащить блок">
+        <div
+          className={styles.handle}
+          {...attributes}
+          {...listeners}
+          aria-label="Перетащить блок"
+        >
           <GripVertical size={15} aria-hidden />
         </div>
       )}

@@ -1,6 +1,7 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { DashboardApp } from '../ui/App'
+import { Providers } from '../ui/Providers'
 import { sprintByOffset } from '../stats'
 import type { DashboardData } from '../vault'
 import type { Sprint, HistoryDay, Project } from '../types'
@@ -82,21 +83,8 @@ const mockData: DashboardData = {
   workDays,
   projects,
   sprints,
-  goNotes: [
-    { name: 'Заметка 2026-06-17', path: '1 ⚙️ Base/GO/Заметка 2026-06-17.md' },
-    { name: 'Промпт для понимания темы в гошке', path: '1 ⚙️ Base/GO/Промпт для понимания темы в гошке.md' },
-    { name: 'Вопросы по бэку', path: '1 ⚙️ Base/GO/Вопросы по бэку.md' },
-    { name: 'Промпт для подготовки к собеседованиям', path: '1 ⚙️ Base/GO/Промпт для подготовки к собеседованиям.md' },
-  ],
-  englishNotes: [
-    { name: 'Education\'s log - Topics', path: '1 ⚙️ Base/English/Education\'s log - Topics.md' },
-    { name: 'English Progress Log', path: '1 ⚙️ Base/English/English Progress Log.md' },
-    { name: 'Weekly Plan', path: '1 ⚙️ Base/English/Weekly Plan.md' },
-    { name: 'Questions with DO', path: '1 ⚙️ Base/English/Questions with DO.md' },
-    { name: 'How to think in English', path: '1 ⚙️ Base/English/How to think in English.md' },
-  ],
   folders: [
-    '1 ⚙️ Base', '1 ⚙️ Base/GO', '1 ⚙️ Base/English', '1 ⚙️ Base/daily',
+    '1 ⚙️ Base', '1 ⚙️ Base/daily',
     '1 ⚙️ Base/periodic/weekly', '1 ⚙️ Base/periodic/monthly',
     '2 💻 Work', '2 💻 Work/Verba', '2 💻 Work/Отчет за каждый день',
     '3 🌱 Growth', '3 🌱 Growth/Books', '4 📦 Archive', '0 Inbox',
@@ -113,16 +101,15 @@ const settings = {
   projectTemplate:  '',
   weeklyFolder:     '1 ⚙️ Base/periodic/weekly',
   sprintTemplate:   '',
-  goFolder:         '1 ⚙️ Base/GO',
-  englishFolder:    '1 ⚙️ Base/English',
   mainBlockOrder:   ['tracker', 'history'] as string[],
-  sideBlockOrder:   ['go', 'english'] as string[],
 }
 
 const el = document.getElementById('app')!
 el.className = 'dashboard-view-root'
+document.documentElement.setAttribute('data-mantine-color-scheme', 'dark')
 
 createRoot(el).render(
+  React.createElement(Providers, { colorScheme: 'dark' },
   React.createElement(DashboardApp, {
     data:            mockData,
     today,
@@ -130,9 +117,11 @@ createRoot(el).render(
     onCreateSprint:  async (wn, y)       => console.log('create sprint', wn, y),
     onOpenNote:      async (wn, y, s)    => console.log('open note', wn, y, s),
     onCreateReport:  async (date, id)    => console.log('create report', date, id),
-    onOpenQuickNote: async (path)        => console.log('open note', path),
-    onNewQuickNote:  async (folder)      => console.log('new note in', folder),
     onNewProject:    async (name, folder, deadline) => console.log('new project', name, folder, deadline),
     onProjectUpdate: async (id, patch)   => console.log('update project', id, patch),
-  }),
+    onOpenSettings:  ()                  => console.log('open settings'),
+    onOrderChange:   (main)              => console.log('order changed', main),
+    onOpenReport:    (date, fp, id)     => console.log('open report', date, fp, id),
+    onDeleteReport:  (date, fp, id)     => console.log('delete report', date, fp, id),
+  }))
 )

@@ -1,4 +1,6 @@
 import { useState, useMemo } from 'react'
+import { X, Columns3 } from 'lucide-react'
+import { Card, ActionIcon } from '@mantine/core'
 import type { Tracker } from '../../../types'
 import type { SprintInfo } from '../../../stats'
 import styles from './styles.module.css'
@@ -7,8 +9,10 @@ const DOW_SHORT  = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб']
 const DOW_FULL   = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота']
 const MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
 
-function toISO(d: Date) { return d.toISOString().slice(0, 10) }
-function fmtDay(iso: string) { const [,m,d] = iso.split('-').map(Number); return `${d} ${MONTHS_GEN[m-1]}` }
+function toISO(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+}
+function fmtDay(iso: string) { const [, m, d] = iso.split('-').map(Number); return `${d} ${MONTHS_GEN[m-1]}` }
 
 interface DayCell { date: string; dow: number }
 
@@ -58,32 +62,42 @@ export default function SprintBody({ sprint, trackers }: Props) {
   function renderDetail(date: string, dow: number) {
     return (
       <div className={styles.detail}>
-        <div className={styles.detail_hdr}>
+        <div className={styles.detail_header}>
           <span className={styles.detail_title}>{DOW_FULL[dow]}, {fmtDay(date)}</span>
-          <button className={styles.detail_close} onClick={() => setSelectedDate(null)} aria-label="Закрыть">✕</button>
+          <ActionIcon
+            variant="subtle"
+            size="sm"
+            onClick={() => setSelectedDate(null)}
+            aria-label="Закрыть"
+          >
+            <X size={12} aria-hidden />
+          </ActionIcon>
         </div>
         {trackers.map(t => {
           const isOff    = t.weekendsOff && (dow === 0 || dow === 6)
           const reported = reportedSets.get(t.id)?.has(date)
           const text     = textMap.get(t.id)?.get(date) ?? ''
+          const isToday  = date === today
+          const dotColor = reported ? styles.dot_green : isToday ? styles.dot_future : styles.dot_red
 
           if (isOff) return (
-            <div key={t.id} className={styles.detail_row}>
-              <div className={styles.detail_row_hdr}>
-                <span className={styles.detail_label}>{t.label.split(' ')[0]}</span>
-                <span className={styles.detail_off}>выходной</span>
+            <div key={t.id} className={styles.detail_tracker}>
+              <div className={styles.detail_tracker_meta}>
+                <span className={styles.detail_tracker_name}>{t.label.split(' ')[0]}</span>
+                <span className={styles.detail_off_label}>выходной</span>
               </div>
             </div>
           )
           return (
-            <div key={t.id} className={styles.detail_row}>
-              <div className={styles.detail_row_hdr}>
-                <span className={`${styles.dot} ${reported ? styles.dot_ok : styles.dot_miss}`} />
-                <span className={styles.detail_label}>{t.label.split(' ')[0]}</span>
-                {!reported && <span className={styles.detail_skip}>пропустил</span>}
+            <div key={t.id} className={styles.detail_tracker}>
+              <div className={styles.detail_tracker_meta}>
+                <span className={`${styles.tracker_dot} ${dotColor}`} />
+                <span className={styles.detail_tracker_name}>{t.label.split(' ')[0]}</span>
+                {!reported && !isToday && <span className={styles.detail_miss_label}>пропустил</span>}
+                {!reported &&  isToday && <span className={styles.detail_note}>ещё не сдан</span>}
               </div>
               {reported && text && <p className={styles.detail_text}>{text}</p>}
-              {reported && !text && <p className={styles.detail_empty}>Отчёт сдан, текст не сохранён</p>}
+              {reported && !text && <p className={styles.detail_note}>Отчёт сдан</p>}
             </div>
           )
         })}
@@ -96,62 +110,72 @@ export default function SprintBody({ sprint, trackers }: Props) {
   const selDay  = sprintDays.find(d => d.date === selectedDate)
 
   return (
-    <div className={`db_card ${styles.body}`}>
-      {hasData && (
-        <div className={styles.week_hdr}>
+    <Card withBorder p={0} radius="md">
+      <div className={styles.header}>
+        <Columns3 size={14} aria-hidden style={{ color: 'var(--mantine-color-dark-2)' }} />
+        <span className={styles.header_title}>Дни спринта</span>
+      </div>
+
+      <div className={styles.content}>
+        {hasData && (
           <div className={styles.rollup}>
             {rollup.map(r => (
-              <span key={r.label} className={styles.rollup_item}>
+              <span key={r.label} className={styles.rollup_badge}>
                 {r.label} {r.done}/{r.total}
               </span>
             ))}
           </div>
+        )}
+
+        <div className={styles.grid}>
+          {sprintDays.map(({ date, dow }) => {
+            const isToday    = date === today
+            const isFuture   = date > today
+            const isSelected = date === selectedDate
+            const hasReport  = trackers.some(t => reportedSets.get(t.id)?.has(date))
+
+            const dayClass = [
+              styles.day,
+              !isFuture && styles.day_clickable,
+              isToday   && styles.day_today,
+              isFuture  && styles.day_future,
+              isSelected && styles.day_selected,
+            ].filter(Boolean).join(' ')
+
+            return (
+              <div
+                key={date}
+                className={dayClass}
+                onClick={() => handleDayClick(date, isFuture)}
+                role={!isFuture ? 'button' : undefined}
+                tabIndex={!isFuture ? 0 : undefined}
+                onKeyDown={e => e.key === 'Enter' && handleDayClick(date, isFuture)}
+                aria-label={!isFuture
+                  ? `${DOW_FULL[dow]}, ${fmtDay(date)}${hasReport ? ', сдан' : ', пропущен'}`
+                  : undefined}
+                aria-expanded={isSelected}
+              >
+                <div className={styles.day_header}>
+                  <span className={styles.day_dow}>{DOW_SHORT[dow]}</span>
+                  <span className={styles.day_num}>{date.slice(8)}</span>
+                </div>
+                <div className={styles.day_dots}>
+                  {trackers.map(t => {
+                    const isOff = t.weekendsOff && (dow === 0 || dow === 6)
+                    if (isOff)    return <span key={t.id} className={`${styles.dot} ${styles.dot_off}`} />
+                    if (isFuture) return <span key={t.id} className={`${styles.dot} ${styles.dot_future}`} />
+                    const done = reportedSets.get(t.id)?.has(date)
+                    if (!done && isToday) return <span key={t.id} className={`${styles.dot} ${styles.dot_future}`} />
+                    return <span key={t.id} className={`${styles.dot} ${done ? styles.dot_green : styles.dot_red}`} />
+                  })}
+                </div>
+              </div>
+            )
+          })}
         </div>
-      )}
 
-      <div className={styles.grid}>
-        {sprintDays.map(({ date, dow }) => {
-          const isToday    = date === today
-          const isFuture   = date > today
-          const isSelected = date === selectedDate
-          const hasReport  = trackers.some(t => reportedSets.get(t.id)?.has(date))
-
-          let cellCls = styles.cell
-          if (isToday)    cellCls += ` ${styles.today}`
-          if (isFuture)   cellCls += ` ${styles.future}`
-          if (isSelected) cellCls += ` ${styles.selected}`
-          if (!isFuture)  cellCls += ` ${styles.clickable}`
-
-          return (
-            <div
-              key={date}
-              className={cellCls}
-              onClick={() => handleDayClick(date, isFuture)}
-              role={!isFuture ? 'button' : undefined}
-              tabIndex={!isFuture ? 0 : undefined}
-              onKeyDown={e => e.key === 'Enter' && handleDayClick(date, isFuture)}
-              aria-label={!isFuture ? `${DOW_FULL[dow]}, ${fmtDay(date)}${hasReport ? ', сдан' : ', пропустил'}` : undefined}
-              aria-expanded={isSelected}
-            >
-              <div className={styles.cell_top}>
-                <span className={styles.cell_dow}>{DOW_SHORT[dow]}</span>
-                <span className={styles.cell_day}>{date.slice(8)}</span>
-              </div>
-              <div className={styles.dots}>
-                {trackers.map(t => {
-                  const isOff = t.weekendsOff && (dow === 0 || dow === 6)
-                  if (isOff)    return <span key={t.id} className={`${styles.dot} ${styles.dot_skip}`} />
-                  if (isFuture) return <span key={t.id} className={`${styles.dot} ${styles.dot_future}`} />
-                  const done = reportedSets.get(t.id)?.has(date)
-                  return <span key={t.id} className={`${styles.dot} ${done ? styles.dot_ok : styles.dot_miss}`} />
-                })}
-              </div>
-            </div>
-          )
-        })}
+        {selDay && renderDetail(selDay.date, selDay.dow)}
       </div>
-
-      {selDay && renderDetail(selDay.date, selDay.dow)}
-    </div>
+    </Card>
   )
 }

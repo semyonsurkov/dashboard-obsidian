@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react'
 import { CalendarDays, CheckCircle, XCircle, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react'
-import { Button } from '@/ui/components/ui/button'
-import { ToggleGroup, ToggleGroupItem } from '@/ui/components/ui/toggle-group'
+import { Card, ActionIcon, SegmentedControl, UnstyledButton } from '@mantine/core'
 import { groupByMonth } from '../../../stats'
 import type { HistoryDay, Preset } from '../../../types'
 import styles from './styles.module.css'
@@ -9,52 +8,86 @@ import styles from './styles.module.css'
 const MONTHS_NOM = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь']
 const MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
 
-function toISO(d: Date) { return d.toISOString().slice(0, 10) }
+const DOW = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб']
+
+const PRESET_DATA = [
+  { value: 'week',  label: 'Неделя'    },
+  { value: 'month', label: 'Месяц'     },
+  { value: 'all',   label: 'Всё время' },
+]
+
+function toISO(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+}
 function daysAgo(n: number) { const d = new Date(); d.setDate(d.getDate() - n); return toISO(d) }
 function fmtShort(iso: string) { const [, m, d] = iso.split('-').map(Number); return `${d} ${MONTHS_GEN[m - 1]}` }
 
-function DayRow({ entry, onOpen }: { entry: HistoryDay; onOpen?: (path: string) => void }) {
-  const [, m, d] = entry.date.split('-').map(Number)
-  const label = `${d} ${MONTHS_GEN[m - 1]}`
-  const clickable = entry.reported && !!entry.filePath && !!onOpen
+function DayRow({ entry, onOpenByDate }: { entry: HistoryDay; onOpenByDate?: (date: string) => void }) {
+  const [y, m, d] = entry.date.split('-').map(Number)
+  const label     = `${d} ${MONTHS_GEN[m - 1]}`
+  const dow       = DOW[new Date(y, m - 1, d).getDay()]
+  const clickable = !!onOpenByDate
+
+  function handleClick() { onOpenByDate?.(entry.date) }
+  function handleKey(e: React.KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpenByDate?.(entry.date) }
+  }
+
+  const rowClass = `${styles.day_row}${clickable ? ` ${styles.day_row_clickable}` : ''}`
 
   if (entry.reported) {
     return (
       <div
-        className={`${styles.row} ${styles.row_ok}${clickable ? ` ${styles.row_link}` : ''}`}
-        role="listitem"
+        className={rowClass}
+        role={clickable ? 'button' : 'listitem'}
         tabIndex={clickable ? 0 : undefined}
-        onClick={clickable ? () => onOpen!(entry.filePath!) : undefined}
-        onKeyDown={clickable ? e => e.key === 'Enter' && onOpen!(entry.filePath!) : undefined}
+        onClick={clickable ? handleClick : undefined}
+        onKeyDown={clickable ? handleKey : undefined}
         aria-label={clickable ? `Открыть заметку за ${label}` : undefined}
       >
-        <div className={styles.row_head}>
-          <span className="dot dot_green" />
-          <span className={styles.row_date}>{label}</span>
+        <div className={styles.day_reported}>
+          <div className={styles.day_meta}>
+            <span className={`${styles.day_dot} ${styles.dot_green}`} />
+            <span className={styles.day_date}>{label}</span>
+            <span className={styles.day_dow}>{dow}</span>
+          </div>
+          {entry.text && (
+            <p className={styles.day_text}>
+              {entry.text.slice(0, 160)}{entry.text.length > 160 ? '…' : ''}
+            </p>
+          )}
         </div>
-        {entry.text && (
-          <p className={styles.row_text}>
-            {entry.text.slice(0, 140)}{entry.text.length > 140 ? '…' : ''}
-          </p>
-        )}
       </div>
     )
   }
+
   return (
-    <div className={`${styles.row} ${styles.row_miss}`} role="listitem">
-      <span className="dot dot_dim" />
-      <span className={styles.row_dim}>{label}</span>
-      <span className={styles.row_miss_label}>пропустил</span>
+    <div
+      className={rowClass}
+      role={clickable ? 'button' : 'listitem'}
+      tabIndex={clickable ? 0 : undefined}
+      onClick={clickable ? handleClick : undefined}
+      onKeyDown={clickable ? handleKey : undefined}
+      aria-label={clickable ? `Создать заметку за ${label}` : undefined}
+    >
+      <div className={styles.day_reported}>
+        <div className={styles.day_meta}>
+          <span className={`${styles.day_dot} ${styles.dot_red}`} />
+          <span className={styles.day_missed_name}>{label}</span>
+          <span className={styles.day_dow}>{dow}</span>
+          <span className={styles.day_missed_label}>пропущено</span>
+        </div>
+      </div>
     </div>
   )
 }
 
 interface Props {
-  sourceDays:  HistoryDay[]
-  onOpenDay?:  (filePath: string) => void
+  sourceDays:    HistoryDay[]
+  onOpenByDate?: (date: string) => void
 }
 
-export default function TimelineBlock({ sourceDays, onOpenDay }: Props) {
+export default function TimelineBlock({ sourceDays, onOpenByDate }: Props) {
   const [preset, setPreset]           = useState<Preset>('month')
   const [newestFirst, setNewestFirst] = useState(true)
   const now = new Date()
@@ -89,7 +122,7 @@ export default function TimelineBlock({ sourceDays, onOpenDay }: Props) {
       result.push({ date: iso, reported: !!r?.reported, text: r?.text ?? '' })
       cur.setDate(cur.getDate() + 1)
     }
-    return result
+    return result.filter(d => d.reported || d.date < today)
   }, [preset, viewYear, viewMonth, today, sourceDays, dayMap])
 
   const reported = useMemo(() => allDays.filter(d => d.reported), [allDays])
@@ -115,50 +148,46 @@ export default function TimelineBlock({ sourceDays, onOpenDay }: Props) {
   const isCurrentMonth = viewYear === now.getFullYear() && viewMonth === now.getMonth()
 
   return (
-    <div className="db_card">
+    <Card withBorder p={0} radius="md">
       <div className={styles.header}>
-        <CalendarDays size={14} aria-hidden className="icon_muted" />
-        <span className={styles.title}>История</span>
+        <CalendarDays size={14} aria-hidden style={{ color: 'var(--mantine-color-dark-2)' }} />
+        <span className={styles.header_title}>История</span>
       </div>
 
-      <div className={styles.preset_row}>
-        <ToggleGroup
-          type="single"
-          value={preset}
-          onValueChange={v => { if (v) setPreset(v as Preset) }}
-        >
-          <ToggleGroupItem value="week"  size="sm" className="tw-rounded-full">Неделя</ToggleGroupItem>
-          <ToggleGroupItem value="month" size="sm" className="tw-rounded-full">Месяц</ToggleGroupItem>
-          <ToggleGroupItem value="all"   size="sm" className="tw-rounded-full">Всё время</ToggleGroupItem>
-        </ToggleGroup>
+      <div className={styles.content}>
+        <div className={styles.toolbar}>
+          <SegmentedControl
+            data={PRESET_DATA}
+            value={preset}
+            onChange={v => setPreset(v as Preset)}
+            size="xs"
+          />
 
-        {preset === 'month' && (
-          <div className={styles.month_nav}>
-            <Button variant="ghost" size="icon" className="tw-h-7 tw-w-7" onClick={() => shiftMonth(-1)} aria-label="Предыдущий месяц">
-              <ChevronLeft size={13} aria-hidden />
-            </Button>
-            <span className={styles.month_label}>{monthLabel}</span>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="tw-h-7 tw-w-7"
-              onClick={() => shiftMonth(1)}
-              disabled={isCurrentMonth}
-              aria-label="Следующий месяц"
-            >
-              <ChevronRight size={13} aria-hidden />
-            </Button>
-          </div>
-        )}
-      </div>
+          {preset === 'month' && (
+            <div className={styles.month_nav}>
+              <ActionIcon variant="subtle" size="sm" onClick={() => shiftMonth(-1)} aria-label="Предыдущий месяц">
+                <ChevronLeft size={13} aria-hidden />
+              </ActionIcon>
+              <span className={styles.month_label}>{monthLabel}</span>
+              <ActionIcon
+                variant="subtle"
+                size="sm"
+                onClick={() => shiftMonth(1)}
+                disabled={isCurrentMonth}
+                aria-label="Следующий месяц"
+              >
+                <ChevronRight size={13} aria-hidden />
+              </ActionIcon>
+            </div>
+          )}
+        </div>
 
-      <div className={styles.stats_box}>
-        <div className={styles.pills}>
-          <div className={`${styles.pill} ${styles.pill_green}`}>
-            <CheckCircle size={13} aria-hidden className={styles.pill_icon} />
-            <div>
-              <div className={styles.pill_val}>{reported.length} написал</div>
-              <div className={styles.pill_sub}>
+        <div className={styles.stats_grid}>
+          <div className={styles.stat_card}>
+            <CheckCircle size={16} aria-hidden style={{ color: 'var(--mantine-color-green-5)', flexShrink: 0 }} />
+            <div className={styles.stat_card_text}>
+              <div className={styles.stat_value}>{reported.length} написал</div>
+              <div className={styles.stat_sub}>
                 {preset === 'week'
                   ? `${fmtShort(daysAgo(6))} — ${fmtShort(today)}`
                   : preset === 'month'
@@ -167,49 +196,58 @@ export default function TimelineBlock({ sourceDays, onOpenDay }: Props) {
               </div>
             </div>
           </div>
-          <div className={`${styles.pill} ${styles.pill_red}`}>
-            <XCircle size={13} aria-hidden className={styles.pill_icon} />
-            <div>
-              <div className={styles.pill_val}>{missed.length} пропустил</div>
-              <div className={styles.pill_sub}>из {allDays.length} дней</div>
+          <div className={styles.stat_card}>
+            <XCircle size={16} aria-hidden style={{ color: 'var(--mantine-color-red-5)', flexShrink: 0 }} />
+            <div className={styles.stat_card_text}>
+              <div className={styles.stat_value}>{missed.length} пропустил</div>
+              <div className={styles.stat_sub}>из {allDays.length} дней</div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className={styles.meta}>
-        <span>{pct}% сдачи</span>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setNewestFirst(v => !v)}
-          aria-label="Изменить порядок"
-        >
-          <ArrowUpDown size={12} aria-hidden />
-          {newestFirst ? 'Новые сначала' : 'Старые сначала'}
-        </Button>
-      </div>
+        <div className={styles.sort_row}>
+          <span>{pct}% сдачи</span>
+          <UnstyledButton
+            onClick={() => setNewestFirst(v => !v)}
+            aria-label="Изменить порядок"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 4,
+              fontSize: 'var(--mantine-font-size-xs)',
+              color: 'var(--mantine-color-dark-2)',
+            }}
+          >
+            <ArrowUpDown size={12} aria-hidden />
+            {newestFirst ? 'Новые сначала' : 'Старые сначала'}
+          </UnstyledButton>
+        </div>
 
-      <div className={styles.day_list} role="list">
-        {preset === 'all' ? (
-          monthGroups.map(group => {
-            const groupDays = newestFirst ? [...group.days].reverse() : group.days
-            return (
-              <div key={group.key}>
-                <div className={styles.month_header}>
-                  {MONTHS_NOM[group.month]} {group.year}
-                  <span className={styles.month_count}>
-                    {group.days.filter(d => d.reported).length}/{group.days.length}
-                  </span>
+        <div className={styles.list} role="list">
+          {preset === 'all' ? (
+            (newestFirst ? monthGroups : [...monthGroups].reverse()).map(group => {
+              const groupDays = newestFirst ? [...group.days].reverse() : group.days
+              return (
+                <div key={group.key} className={styles.month_group}>
+                  <div className={styles.month_heading_wrap}>
+                    <div className={styles.month_heading}>
+                      {MONTHS_NOM[group.month]} {group.year}
+                      <span className={styles.month_count}>
+                        {group.days.filter(d => d.reported).length}/{group.days.length}
+                      </span>
+                    </div>
+                  </div>
+                  {groupDays.map(entry => (
+                    <DayRow key={entry.date} entry={entry} onOpenByDate={onOpenByDate} />
+                  ))}
                 </div>
-                {groupDays.map(entry => <DayRow key={entry.date} entry={entry} onOpen={onOpenDay} />)}
-              </div>
-            )
-          })
-        ) : (
-          displayed.map(entry => <DayRow key={entry.date} entry={entry} onOpen={onOpenDay} />)
-        )}
+              )
+            })
+          ) : (
+            displayed.map(entry => (
+              <DayRow key={entry.date} entry={entry} onOpenByDate={onOpenByDate} />
+            ))
+          )}
+        </div>
       </div>
-    </div>
+    </Card>
   )
 }

@@ -1,6 +1,6 @@
 import { NotebookPen } from 'lucide-react'
 import type React from 'react'
-import { Button } from '@/ui/components/ui/button'
+import { Card, Button, ActionIcon } from '@mantine/core'
 import styles from './styles.module.css'
 
 interface Props {
@@ -8,7 +8,6 @@ interface Props {
   icon:        React.ElementType
   iconClass:   string
   notes:       string[]
-  hubNote:     string
   onHubClick:  () => void
   onNoteClick: (name: string) => void
   onNewNote:   () => void
@@ -16,46 +15,46 @@ interface Props {
 
 export default function QuickBlock({ title, icon: Icon, iconClass, notes, onHubClick, onNoteClick, onNewNote }: Props) {
   return (
-    <div className={`db_card ${styles.card}`}>
+    <Card withBorder p={0} radius="md">
       <div className={styles.header}>
         <Icon size={16} aria-hidden className={iconClass} />
         <button
-          className={`${styles.hub_link} ${iconClass}`}
+          className={styles.title_btn}
           onClick={onHubClick}
           aria-label={`Открыть главную заметку ${title}`}
         >
           {title}
         </button>
-        <div className={styles.actions}>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onNewNote()}
-            aria-label={`Новая заметка в ${title}`}
-          >
-            Новая заметка
-          </Button>
-        </div>
+        <Button
+          variant="subtle"
+          size="xs"
+          onClick={() => onNewNote()}
+          aria-label={`Новая заметка в ${title}`}
+        >
+          Новая заметка
+        </Button>
       </div>
 
-      <div className={styles.note_list} role="list">
+      <div className={styles.list} role="list">
         {notes.map(n => (
-          <div
+          <Button
             key={n}
-            className={styles.note_row}
+            variant="subtle"
+            size="xs"
+            fullWidth
+            justify="left"
+            leftSection={<NotebookPen size={11} aria-hidden style={{ flexShrink: 0 }} />}
             role="listitem"
-            tabIndex={0}
             onClick={() => onNoteClick(n)}
-            onKeyDown={e => e.key === 'Enter' && onNoteClick(n)}
+            styles={{ inner: { overflow: 'hidden' }, label: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 } }}
           >
-            <NotebookPen size={11} aria-hidden className={styles.note_icon} />
-            <span>{n}</span>
-          </div>
+            {n}
+          </Button>
         ))}
         {notes.length === 0 && (
           <p className={styles.empty}>Заметок нет</p>
         )}
       </div>
-    </div>
+    </Card>
   )
 }

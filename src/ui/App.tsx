@@ -1,4 +1,4 @@
-import { useState, useMemo, type ReactNode } from 'react'
+import { useState, useMemo } from 'react'
 import {
   DndContext, closestCenter,
   KeyboardSensor, PointerSensor, useSensor, useSensors,
@@ -7,10 +7,9 @@ import {
 import {
   SortableContext, arrayMove, verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
-import { GripVertical, BookOpen, Globe, NotebookPen, Briefcase } from 'lucide-react'
-import { Button } from './components/ui/button'
-import { Toaster } from './components/ui/sonner'
-import { toast } from 'sonner'
+import { GripVertical, NotebookPen, Briefcase, Settings } from 'lucide-react'
+import { Button, ActionIcon } from '@mantine/core'
+import { notifications } from '@mantine/notifications'
 import { sprintByOffset } from '../stats'
 import type { Tracker, Project, TrackerId, BlockId, HistoryDay } from '../types'
 import type { DashboardData } from '../vault'
@@ -19,16 +18,13 @@ import SprintHero    from './components/SprintHero'
 import SprintBody    from './components/SprintBody'
 import TrackerBlock  from './components/TrackerBlock'
 import TimelineBlock from './components/TimelineBlock'
-import QuickBlock    from './components/QuickBlock'
 import SortableItem  from './components/SortableItem'
 import LiveDate      from './components/LiveDate'
-import './styles/globals.css'
-import './styles/tokens.css'
-import './styles/shared.css'
-import './styles/calendar.css'
-import './App.css'
+import styles from './App.module.css'
 
 // ─── Props ────────────────────────────────────────────────────────────────────
+
+const SPRINT_RANGE = 4
 
 interface Props {
   data:      DashboardData
@@ -37,24 +33,26 @@ interface Props {
   onCreateSprint:  (weekNumber: number, year: number) => Promise<void>
   onOpenNote:      (weekNumber: number, year: number, section: 'goals' | 'summary' | 'retro') => Promise<void>
   onCreateReport:  (date: string, trackerId: string) => Promise<void>
-  onOpenQuickNote: (notePath: string) => Promise<void>
-  onNewQuickNote:  (folderPath: string) => Promise<void>
   onNewProject:    (name: string, folder: string, deadline?: string) => Promise<void>
   onProjectUpdate: (id: string, patch: Partial<Project>) => Promise<void>
+  onOpenSettings:  () => void
+  onOrderChange?:   (main: BlockId[]) => void
+  onOpenReport?:    (date: string, filePath: string, trackerId: string) => void
+  onDeleteReport?:  (date: string, filePath: string, trackerId: string) => void
 }
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 
 export function DashboardApp({
   data, today, settings,
-  onCreateSprint, onOpenNote, onCreateReport, onOpenQuickNote, onNewQuickNote,
-  onNewProject, onProjectUpdate,
+  onCreateSprint, onOpenNote, onCreateReport,
+  onNewProject, onProjectUpdate, onOpenSettings, onOrderChange, onOpenReport, onDeleteReport,
 }: Props) {
-  const [editMode, setEditMode]     = useState(false)
-  const [mainOrder, setMainOrder]   = useState<BlockId[]>((settings.mainBlockOrder as BlockId[]) ?? ['tracker', 'history'])
-  const [sideOrder, setSideOrder]   = useState<string[]>(settings.sideBlockOrder ?? ['go', 'english'])
-  const [weekOffset, setWeekOffset] = useState(0)
-  const [activeDays, setActiveDays] = useState<HistoryDay[]>(data.personalDays)
+  const [editMode, setEditMode]               = useState(false)
+  const [mainOrder, setMainOrder]             = useState<BlockId[]>((settings.mainBlockOrder as BlockId[]) ?? ['tracker', 'history'])
+  const [weekOffset, setWeekOffset]           = useState(0)
+  const [activeDays, setActiveDays]           = useState<HistoryDay[]>(data.personalDays)
+  const [activeTrackerId, setActiveTrackerId] = useState<string>('personal')
 
   const trackers = useMemo<Tracker[]>(() => [
     {
@@ -91,14 +89,9 @@ export function DashboardApp({
   function handleMainDragEnd(e: DragEndEvent) {
     const { active, over } = e
     if (over && active.id !== over.id) {
-      setMainOrder(prev => arrayMove(prev, prev.indexOf(active.id as BlockId), prev.indexOf(over.id as BlockId)))
-    }
-  }
-
-  function handleSideDragEnd(e: DragEndEvent) {
-    const { active, over } = e
-    if (over && active.id !== over.id) {
-      setSideOrder(prev => arrayMove(prev, prev.indexOf(active.id as string), prev.indexOf(over.id as string)))
+      const next = arrayMove(mainOrder, mainOrder.indexOf(active.id as BlockId), mainOrder.indexOf(over.id as BlockId))
+      setMainOrder(next)
+      onOrderChange?.(next)
     }
   }
 
@@ -114,8 +107,12 @@ export function DashboardApp({
   }
 
   async function handleCreateSprint() {
-    await onCreateSprint(sprint.weekNumber, sprint.year)
-    toast(`Спринт W${sprint.weekNumber} создан`)
+    try {
+      await onCreateSprint(sprint.weekNumber, sprint.year)
+      notifications.show({ color: 'green', message: `Спринт W${sprint.weekNumber} создан` })
+    } catch {
+      notifications.show({ color: 'red', message: `Не удалось создать спринт W${sprint.weekNumber}` })
+    }
   }
 
   async function handleOpenNote(section: 'goals' | 'summary' | 'retro') {
@@ -126,10 +123,7 @@ export function DashboardApp({
     await onCreateReport(date, trackerId)
   }
 
-  const goNoteNames  = data.goNotes.map(n => n.name)
-  const engNoteNames = data.englishNotes.map(n => n.name)
-
-  const mainBlocks: Record<BlockId, ReactNode> = {
+  const blocks: Record<BlockId, React.ReactNode> = {
     tracker: (
       <TrackerBlock
         trackers={trackers}
@@ -141,55 +135,43 @@ export function DashboardApp({
         onProjectUpdate={onProjectUpdate}
         onAddProject={onNewProject}
         onActiveDaysChange={setActiveDays}
+        onActiveTrackerChange={setActiveTrackerId}
         onCreateReport={handleCreateReport}
+        onOpenReport={onOpenReport}
+        onDeleteReport={onDeleteReport}
       />
     ),
-    history: <TimelineBlock sourceDays={activeDays} onOpenDay={onOpenQuickNote} />,
-  }
-
-  const sideBlocks: Record<string, ReactNode> = {
-    go: (
-      <QuickBlock
-        title="Go"
-        icon={BookOpen}
-        iconClass="icon_go"
-        hubNote={settings.goFolder + '/Go база.md'}
-        onHubClick={() => onOpenQuickNote(`${settings.goFolder}/Go база.md`)}
-        notes={goNoteNames}
-        onNoteClick={name => onOpenQuickNote(`${settings.goFolder}/${name}.md`)}
-        onNewNote={() => onNewQuickNote(settings.goFolder)}
-      />
-    ),
-    english: (
-      <QuickBlock
-        title="English"
-        icon={Globe}
-        iconClass="icon_english"
-        hubNote={settings.englishFolder + '/English база.md'}
-        onHubClick={() => onOpenQuickNote(`${settings.englishFolder}/English база.md`)}
-        notes={engNoteNames}
-        onNoteClick={name => onOpenQuickNote(`${settings.englishFolder}/${name}.md`)}
-        onNewNote={() => onNewQuickNote(settings.englishFolder)}
+    history: (
+      <TimelineBlock
+        sourceDays={activeDays}
+        onOpenByDate={date => handleCreateReport(date, activeTrackerId)}
       />
     ),
   }
 
   return (
-    <div className="db_root">
-      <div className="db_toolbar">
-        <div className="db_toolbar_left">
-          <LiveDate />
+    <div className={styles.root}>
+      <div className={styles.topbar}>
+        <LiveDate />
+        <div className={styles.topbar_actions}>
+          <ActionIcon
+            variant={editMode ? 'light' : 'subtle'}
+            size="md"
+            onClick={() => setEditMode(v => !v)}
+            aria-pressed={editMode}
+            aria-label={editMode ? 'Выйти из режима компоновки' : 'Компоновка'}
+          >
+            <GripVertical size={16} aria-hidden />
+          </ActionIcon>
+          <ActionIcon
+            variant="subtle"
+            size="md"
+            onClick={onOpenSettings}
+            aria-label="Настройки"
+          >
+            <Settings size={16} aria-hidden />
+          </ActionIcon>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className={editMode ? 'is_active' : ''}
-          onClick={() => setEditMode(v => !v)}
-          aria-pressed={editMode}
-        >
-          <GripVertical size={14} aria-hidden />
-          {editMode ? 'Готово' : 'Настроить'}
-        </Button>
       </div>
 
       <SprintHero
@@ -197,8 +179,8 @@ export function DashboardApp({
         sprints={data.sprints}
         trackers={trackers}
         onWrite={id => handleCreateReport(today, id)}
-        onPrev={() => setWeekOffset(v => v - 1)}
-        onNext={() => setWeekOffset(v => v + 1)}
+        onPrev={() => setWeekOffset(v => Math.max(-SPRINT_RANGE, v - 1))}
+        onNext={() => setWeekOffset(v => Math.min(1, v + 1))}
         onSelectSprint={handleSelectSprint}
         onCreateSprint={handleCreateSprint}
         onOpenNote={handleOpenNote}
@@ -206,33 +188,17 @@ export function DashboardApp({
 
       <SprintBody sprint={sprint} trackers={trackers} />
 
-      <div className="db_bento">
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleMainDragEnd}>
-          <SortableContext items={mainOrder} strategy={verticalListSortingStrategy}>
-            <div className="db_main_col">
-              {mainOrder.map(id => (
-                <SortableItem key={id} id={id} editMode={editMode}>
-                  {mainBlocks[id]}
-                </SortableItem>
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
-
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSideDragEnd}>
-          <SortableContext items={sideOrder} strategy={verticalListSortingStrategy}>
-            <div className="db_sidebar">
-              {sideOrder.map(id => (
-                <SortableItem key={id} id={id} editMode={editMode}>
-                  {sideBlocks[id]}
-                </SortableItem>
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
-      </div>
-
-      <Toaster position="bottom-right" richColors />
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleMainDragEnd}>
+        <SortableContext items={mainOrder} strategy={verticalListSortingStrategy}>
+          <div className={styles.blocks}>
+            {mainOrder.map(id => (
+              <SortableItem key={id} id={id} editMode={editMode}>
+                {blocks[id]}
+              </SortableItem>
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
     </div>
   )
 }

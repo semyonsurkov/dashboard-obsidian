@@ -1,5 +1,5 @@
-import { Progress } from '@/ui/components/ui/progress'
-import { cn } from '@/lib/utils'
+import { Progress } from '@mantine/core'
+import styles from './styles.module.css'
 
 interface Props {
   pct:      number
@@ -7,18 +7,21 @@ interface Props {
   compact?: boolean
 }
 
-const toneMap: Record<string, string> = {
-  accent: 'tw-bg-[var(--accent)]',
-  amber:  'tw-bg-amber-500',
-  red:    'tw-bg-red-500',
+const toneColor: Record<string, string> = {
+  accent: 'blue',
+  amber:  'amber',
+  red:    'red',
 }
 
 export default function ProgressBar({ pct, tone = 'accent', compact = false }: Props) {
+  const clamped = Math.min(100, Math.max(0, pct))
   return (
     <Progress
-      value={pct}
-      className={compact ? 'tw-h-1' : 'tw-h-2'}
-      indicatorClassName={toneMap[tone]}
+      value={clamped}
+      color={toneColor[tone]}
+      size={compact ? 4 : 8}
+      radius="xl"
+      className={compact ? styles.root_compact : styles.root_default}
     />
   )
 }

@@ -28,6 +28,7 @@ export function calcStats(days: HistoryDay[], weekendsOff = false): TrackerStats
   let streak = 0
   for (let i = allDates.length - 1; i >= 0; i--) {
     if (allDates[i] > today) continue
+    if (allDates[i] === today && !reported.has(allDates[i])) continue
     if (reported.has(allDates[i])) streak++
     else break
   }
@@ -38,8 +39,9 @@ export function calcStats(days: HistoryDay[], weekendsOff = false): TrackerStats
     else run = 0
   }
 
-  const eligRep    = allDates.filter(d => reported.has(d)).length
-  const attendance = allDates.length ? Math.round(eligRep / allDates.length * 100) : 0
+  const countable  = allDates.filter(d => d < today || reported.has(d))
+  const eligRep    = countable.filter(d => reported.has(d)).length
+  const attendance = countable.length ? Math.round(eligRep / countable.length * 100) : 0
 
   const sorted           = [...reported].sort()
   const lastReportedDate = sorted[sorted.length - 1] ?? null
@@ -74,7 +76,7 @@ export function isoWeek(iso: string): { week: number; year: number } {
   const d = new Date(iso + 'T12:00:00')
   const day = d.getDay() || 7
   d.setDate(d.getDate() + 4 - day)
-  const jan1 = new Date(d.getFullYear(), 0, 1)
+  const jan1 = new Date(d.getFullYear(), 0, 1, 12, 0, 0)
   return { week: Math.ceil(((d.getTime() - jan1.getTime()) / 86400000 + 1) / 7), year: d.getFullYear() }
 }
 
@@ -148,7 +150,7 @@ export function rollupForRange(
     cur.setDate(cur.getDate() + 1)
   }
   const reported = result.filter(d => d.reported).length
-  const missed   = result.filter(d => !d.reported).length
+  const missed   = result.filter(d => !d.reported && d.date < today).length
   const total    = result.length
   const pct      = total ? Math.round(reported / total * 100) : 0
   return { reported, missed, total, pct }

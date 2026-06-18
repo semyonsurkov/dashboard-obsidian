@@ -6,19 +6,79 @@ import type { DashboardSettings } from './settings'
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
-export interface QuickNote {
-  name: string
-  path: string
-}
-
 export interface DashboardData {
   personalDays:   HistoryDay[]
   workDays:       HistoryDay[]
   projects:       Project[]
   sprints:        Sprint[]
-  goNotes:        QuickNote[]
-  englishNotes:   QuickNote[]
   folders:        string[]
+}
+
+export async function ensureFolder(app: App, folderPath: string): Promise<TFolder | null> {
+  const clean = folderPath.trim().replace(/^\/+|\/+$/g, '')
+  if (!clean) return null
+
+  const existing = app.vault.getAbstractFileByPath(clean)
+  if (existing instanceof TFolder) return existing
+
+  const parts = clean.split('/').filter(Boolean)
+  let current = ''
+
+  for (const part of parts) {
+    current = current ? `${current}/${part}` : part
+    const found = app.vault.getAbstractFileByPath(current)
+    if (found instanceof TFolder) continue
+    await app.vault.createFolder(current)
+  }
+
+  const created = app.vault.getAbstractFileByPath(clean)
+  return created instanceof TFolder ? created : null
+}
+
+export async function createUniqueMarkdownFile(app: App, folderPath: string, basename: string, content: string): Promise<TFile> {
+  await ensureFolder(app, folderPath)
+
+  const safeBase = basename.trim().replace(/[\\/:|#^[\]]/g, ' ').replace(/\s+/g, ' ') || 'Заметка'
+  let path = `${folderPath}/${safeBase}.md`
+  let n = 2
+
+  while (app.vault.getAbstractFileByPath(path)) {
+    path = `${folderPath}/${safeBase} ${n}.md`
+    n += 1
+  }
+
+  return app.vault.create(path, content)
+}
+
+async function ensureMarkdownFile(app: App, path: string, content: string): Promise<TFile | null> {
+  const existing = app.vault.getAbstractFileByPath(path)
+  if (existing instanceof TFile) return existing
+
+  const folder = path.split('/').slice(0, -1).join('/')
+  if (folder) await ensureFolder(app, folder)
+
+  return app.vault.create(path, content)
+}
+
+export async function bootstrapDashboardVault(app: App, settings: DashboardSettings): Promise<void> {
+  const folders = [
+    settings.personalFolder,
+    settings.workFolder,
+    settings.weeklyFolder,
+    ...settings.projects.map(p => p.folder),
+  ].filter(Boolean)
+
+  for (const folder of folders) {
+    await ensureFolder(app, folder)
+  }
+
+  for (const project of settings.projects) {
+    await ensureMarkdownFile(
+      app,
+      `${project.folder}/Обзор.md`,
+      `# ${project.name}\n\n## Цель\n\n## Текущий фокус\n\n## Решения\n\n## Следующие действия\n`,
+    )
+  }
 }
 
 export function getAllFolderPaths(app: App): string[] {
@@ -65,6 +125,7 @@ export async function readDateTracker(app: App, folderPath: string): Promise<His
             .replace(/`([^`]+)`/g, '$1')
             .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
             .replace(/^[-*+]\s+/, '')
+            .replace(/^\d+\.\s*/, '')
           break
         }
       }
@@ -78,21 +139,9 @@ export async function readDateTracker(app: App, folderPath: string): Promise<His
   return days.sort((a, b) => a.date.localeCompare(b.date))
 }
 
-// ─── Quick notes ───────────────────────────────────────────────────────────────
-
-export function readQuickNotes(app: App, folderPath: string): QuickNote[] {
-  const folder = app.vault.getAbstractFileByPath(folderPath)
-  if (!(folder instanceof TFolder)) return []
-
-  return folder.children
-    .filter((f): f is TFile => f instanceof TFile && f.extension === 'md')
-    .sort((a, b) => b.stat.mtime - a.stat.mtime)
-    .map(f => ({ name: f.basename, path: f.path }))
-}
-
 // ─── Sprints ───────────────────────────────────────────────────────────────────
 
-const SPRINT_RANGE = 4
+export const SPRINT_RANGE = 4
 
 export async function buildSprints(
   app: App,
@@ -155,9 +204,7 @@ export async function buildDashboardData(
     }))
   )
 
-  const goNotes      = readQuickNotes(app, settings.goFolder)
-  const englishNotes = readQuickNotes(app, settings.englishFolder)
-  const folders      = getAllFolderPaths(app)
+  const folders = getAllFolderPaths(app)
 
-  return { personalDays, workDays, projects, sprints, goNotes, englishNotes, folders }
+  return { personalDays, workDays, projects, sprints, folders }
 }
