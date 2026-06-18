@@ -115,9 +115,9 @@ export default function CalendarHeatmap({ days, since, onCreateReport, onOpenRep
             style: {
               ...(!isFuture ? { cursor: 'pointer' } : {}),
               ...(reported
-                ? { background: '#16a34a', color: 'white', borderRadius: 'var(--radius-sm)' }
+                ? { background: 'rgba(34,197,94,0.22)', color: 'var(--mantine-color-green-3)', borderRadius: 'var(--radius-sm)' }
                 : missed
-                ? { background: 'rgba(220,38,38,0.55)', color: 'white', borderRadius: 'var(--radius-sm)' }
+                ? { background: 'rgba(239,68,68,0.18)', color: 'var(--mantine-color-red-4)', borderRadius: 'var(--radius-sm)' }
                 : {}),
             },
           }

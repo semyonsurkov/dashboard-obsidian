@@ -51,8 +51,8 @@
   color: var(--mantine-color-red-4);
 }
 
-.dot_reported { background: #16a34a; }
-.dot_missed   { background: rgba(220,38,38,0.55); }
+.dot_reported { background: rgba(34,197,94,0.55); }
+.dot_missed   { background: rgba(239,68,68,0.45); }
 
 .legend {
   display: flex;
