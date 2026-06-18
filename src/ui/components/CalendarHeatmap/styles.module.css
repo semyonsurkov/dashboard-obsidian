@@ -1,15 +1,63 @@
 .root { position: relative; }
 
-.level_back {
+.picker_header {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px var(--space-2) 0;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-2) var(--space-4);
 }
 
-.level_back_label {
-  font-size: var(--mantine-font-size-xs);
+.picker_year {
+  flex: 1;
+  text-align: center;
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+  color: var(--mantine-color-dark-0);
+}
+
+.picker_year_btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
   color: var(--mantine-color-dark-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease-out;
+}
+
+.picker_year_btn:hover:not(:disabled) { background: var(--mantine-color-dark-5); color: var(--mantine-color-dark-0); }
+.picker_year_btn:disabled { opacity: 0.3; cursor: default; }
+
+.month_grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 0 var(--space-2) var(--space-2);
+}
+
+.month_cell {
+  height: 40px;
+  border: 1px solid var(--mantine-color-dark-4);
+  background: var(--mantine-color-dark-6);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--mantine-font-size-sm);
+  color: var(--mantine-color-dark-1);
+  transition: background 0.15s ease-out, color 0.15s ease-out;
+}
+
+.month_cell:hover:not(:disabled) { background: var(--mantine-color-dark-5); color: var(--mantine-color-dark-0); }
+.month_cell:disabled { opacity: 0.3; cursor: default; }
+.month_cell_active {
+  background: var(--mantine-primary-color-light) !important;
+  border-color: var(--mantine-color-blue-5);
+  color: var(--mantine-color-blue-4) !important;
 }
 
 /* Context menu */
@@ -51,8 +99,8 @@
   color: var(--mantine-color-red-4);
 }
 
-.dot_reported { background: rgba(34,197,94,0.55); }
-.dot_missed   { background: rgba(239,68,68,0.45); }
+.dot_reported { background: rgba(34,197,94,0.70); }
+.dot_missed   { background: rgba(239,68,68,0.60); }
 
 .legend {
   display: flex;

@@ -1,259 +1,43 @@
-/* ─── Obsidian portal bridge ────────────────────────────────────────────────────
-   Модалки и Popover-дропдауны рендерятся в body-портале вне .dashboard-view-root,
-   поэтому им нужны переменные на :root. Значения захардкожены (без var-цепочки
-   через --interactive-accent): в Obsidian тема перебивает этот var и accent
-   оставался синим вместо фиолетового.
-─────────────────────────────────────────────────────────────────────────── */
-
-:root[data-mantine-color-scheme],
-:root {
-  --mantine-color-body:           var(--background-primary, #0d0d0f);
-  --mantine-color-text:           #e4e4e7;
-  --mantine-color-default:        #18181b;
-  --mantine-color-default-hover:  #27272a;
-  --mantine-color-default-border: rgba(255, 255, 255, 0.07);
-  --mantine-color-default-color:  #e4e4e7;
-  --mantine-color-dimmed:         #71717a;
-  --mantine-color-placeholder:    #52525b;
-  --mantine-primary-color-filled:       #7c3aed;
-  --mantine-primary-color-filled-hover: #6d28d9;
-  --mantine-primary-color-contrast:     #ffffff;
-  --mantine-primary-color-light:        rgba(124, 58, 237, 0.10);
-  --mantine-primary-color-light-hover:  rgba(124, 58, 237, 0.12);
-  --mantine-primary-color-light-color:  #a78bfa;
-  --mantine-color-blue-4: #9775fa;
-  --mantine-color-blue-5: #7c3aed;
-  --mantine-color-blue-6: #6d28d9;
+.root_abe1a4 {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-height: 100%;
+  max-width: 960px;
+  margin-inline: auto;
+  padding: var(--space-6) var(--space-6) 64px;
 }
 
-/* ─── Design tokens (CLAUDE.md canon, 8px grid) ─────────────────────────────── */
-
-:root {
-  /* Spacing */
-  --space-1:  4px;
-  --space-2:  8px;
-  --space-4:  16px;
-  --space-6:  24px;
-  --space-8:  32px;
-  --space-12: 48px;
-  --space-16: 64px;
-
-  /* Radii */
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-
-  /* Shadows */
-  --shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md:   0 4px 12px rgba(0, 0, 0, 0.10);
-  --shadow-lg:   0 8px 24px rgba(0, 0, 0, 0.12);
-  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.07);
-
-  /* Card */
-  --card-padding: var(--space-4) var(--space-6);
+@media (max-width: 599px) {
+  .root_abe1a4 {
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-4) var(--space-8);
+  }
 }
 
-/* ─── Dashboard panel root ───────────────────────────────────────────────────── */
-/* Applied by DashboardView.onOpen() via this.contentEl.addClass(...) */
-
-.dashboard-view-root {
-  /* ─── Mantine dark palette — прямые значения, без var-цепочки ──────────────
-     Mantine инжектирует palette как inline-style на <html>. Даже если мы
-     ставим --interactive-accent на этом элементе, Obsidian-тема перебивает
-     его у предков — и цепочка "blue-5 → interactive-accent" даёт синий.
-     Поэтому задаём финальные hex-значения напрямую: все потомки наследуют
-     нужный цвет без промежуточных var(). */
-  --mantine-color-dark-0: #e4e4e7;
-  --mantine-color-dark-1: #d4d4d8;
-  --mantine-color-dark-2: #a1a1aa;
-  --mantine-color-dark-3: #71717a;
-  --mantine-color-dark-4: rgba(255, 255, 255, 0.07);
-  --mantine-color-dark-5: #27272a;
-  --mantine-color-dark-6: #18181b;
-  --mantine-color-dark-7: #0d0d0f;
-  --mantine-color-dark-8: #0a0a0c;
-  --mantine-color-dark-9: #070709;
-
-  /* Purple accent (вместо синего из темы Obsidian) */
-  --mantine-color-blue-0: #f3f0ff;
-  --mantine-color-blue-1: #e9e3ff;
-  --mantine-color-blue-2: #d0bfff;
-  --mantine-color-blue-3: #b197fc;
-  --mantine-color-blue-4: #9775fa;
-  --mantine-color-blue-5: #7c3aed;
-  --mantine-color-blue-6: #6d28d9;
-  --mantine-color-blue-7: #5b21b6;
-  --mantine-color-blue-8: #4c1d95;
-  --mantine-color-blue-9: #3b0764;
-
-  --mantine-color-body:           #0d0d0f;
-  --mantine-color-text:           #e4e4e7;
-  --mantine-color-default:        #18181b;
-  --mantine-color-default-hover:  #27272a;
-  --mantine-color-default-border: rgba(255, 255, 255, 0.07);
-  --mantine-color-default-color:  #e4e4e7;
-  --mantine-color-dimmed:         #71717a;
-  --mantine-color-placeholder:    #52525b;
-  --mantine-primary-color-filled:       #7c3aed;
-  --mantine-primary-color-filled-hover: #6d28d9;
-  --mantine-primary-color-contrast:     #ffffff;
-  --mantine-primary-color-light:        rgba(124, 58, 237, 0.10);
-  --mantine-primary-color-light-hover:  rgba(124, 58, 237, 0.12);
-  --mantine-primary-color-light-color:  #a78bfa;
-
-  /* Obsidian vars — для компонентов, которые читают их напрямую */
-  --background-secondary: #18181b;
-  --interactive-accent:   #7c3aed;
-  --text-normal:  #e4e4e7;
-  --text-muted:   #71717a;
-
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 14px;
-  line-height: 1.5;
-  background: transparent;
-  color: var(--mantine-color-dark-0);
-  container-type: inline-size;
-  box-sizing: border-box;
-}
-
-.dashboard-view-root *,
-.dashboard-view-root *::before,
-.dashboard-view-root *::after {
-  box-sizing: inherit;
-}
-
-/* ─── Нейтрализация host-CSS Obsidian для контролов Mantine ─────────────────────
-   Obsidian's `button:not(.clickable-icon)` (специфичность 0,1,1) перебивает
-   классовые правила Mantine (0,1,0), ломая заливку/рамку/паддинги filled-кнопок.
-   Решение: таргетируем по хешированному классу + тегу → (0,1,1) ничья с
-   Obsidian, но tokens.css грузится ПОСЛЕ styles.css (Providers.tsx:7,10) →
-   побеждаем по порядку источника. При этом остаёмся НИЖЕ hover/disabled Mantine
-   (0,2,0), так что интерактивные состояния не ломаются.
-   Значения — ровно те кастом-проперти, что Mantine ставит на сам элемент через
-   JS (Button.mjs:49); фоллбэки дублируют дефолты из Button/ActionIcon/Input.css.
-   Хеши привязаны к @mantine/core 7.17.x — обновить при мажорном апгрейде.
-─────────────────────────────────────────────────────────────────────────────── */
-
-/* UnstyledButton — .m_87cf2631 (UnstyledButton.css:1)
-   ПЕРВЫМ: элементы Button и ActionIcon тоже несут этот класс, но их правила
-   ниже → при одинаковой специфичности (0,1,1) побеждают они, не это. */
-.dashboard-view-root button.m_87cf2631 {
-  background: transparent;
-  border:     0;
-  box-shadow: none;
-  padding:    0;
-}
-
-/* CloseButton (крестик модалки) — .m_86a44da5 (CloseButton.css:1) */
-.dashboard-view-root button.m_86a44da5 {
-  background: var(--cb-bg, transparent);
-  border:     0;
-  box-shadow: none;
-  padding:    0;
-}
-
-/* Button — .m_77c9d27d (Button.css:1)
-   ПОСЛЕ UnstyledButton → перебивает transparent для Button-элементов,
-   у которых одновременно есть оба класса. */
-.dashboard-view-root button.m_77c9d27d {
-  background:     var(--button-bg, var(--mantine-primary-color-filled));
-  border:         var(--button-bd, calc(0.0625rem * var(--mantine-scale)) solid transparent);
-  color:          var(--button-color, var(--mantine-color-white));
-  box-shadow:     none;
-  padding-block:  0;
-  padding-inline: var(--button-padding-x, var(--button-padding-x-sm));
-}
-
-/* ActionIcon — .m_8d3f4000 (ActionIcon.css:1)
-   ПОСЛЕ UnstyledButton → то же самое. */
-.dashboard-view-root button.m_8d3f4000 {
-  background: var(--ai-bg, var(--mantine-primary-color-filled));
-  border:     var(--ai-bd, calc(0.0625rem * var(--mantine-scale)) solid transparent);
-  color:      var(--ai-color, var(--mantine-color-white));
-  box-shadow: none;
-  padding:    0;
-}
-
-/* Input-элемент (TextInput / Select / DatePickerInput) — .m_8fb7ebe7 (Input.css:141)
-   Специфичность (0,2,0) — выше Obsidian (0,1,1) без привязки к тегу. */
-.dashboard-view-root .m_8fb7ebe7 {
-  background-color: var(--input-bg);
-  border:           calc(0.0625rem * var(--mantine-scale)) solid var(--input-bd);
-  color:            var(--input-color);
-  box-shadow:       none;
-}
-
-/* ─── Скрытые радио-инпуты SegmentedControl (.m_1714d588) и Chip (.m_bde07329) ──
-   Obsidian's input styles (height/width/opacity) могут делать их видимыми и
-   ломать расчёт позиции floating indicator. Фиксим с той же специфичностью
-   (0,2,0) что и .m_8fb7ebe7 выше. */
-.dashboard-view-root input.m_1714d588,
-.dashboard-view-root input.m_bde07329 {
-  width:      0;
-  height:     0;
-  position:   absolute;
-  opacity:    0;
-  padding:    0;
-  margin:     0;
-  border:     0;
-  appearance: none;
-}
-
-/* ─── Кнопки Calendar ─────────────────────────────────────────────────────────── */
-
-/* Calendar day — .m_396ce5cb (dates/styles.css:29)
-   Obsidian's button styles могут перебивать width/height заданные через --day-size.
-   Сохраняем точные размеры ячеек; display:inline-flex уже стоит в классе,
-   но Obsidian может его перекрыть. */
-.dashboard-view-root button.m_396ce5cb {
-  width:            var(--day-size, var(--day-size-sm));
-  height:           var(--day-size, var(--day-size-sm));
-  min-width:        unset;
-  min-height:       unset;
-  display:          inline-flex;
-  justify-content:  center;
-  align-items:      center;
-  padding:          0;
-  background-color: transparent;
-  border:           0;
-  box-shadow:       none;
-  line-height:      1;
-}
-
-/* Calendar header arrow (.m_2351eeb0) и month-label (.m_f6645d97) */
-.dashboard-view-root button.m_2351eeb0,
-.dashboard-view-root button.m_f6645d97 {
-  height:     var(--dch-control-size);
-  display:    flex;
+.topbar_abe1a4 {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
-  padding:    0;
-  background: transparent;
-  border:     0;
-  box-shadow: none;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-inline: 2px;
 }
 
-.dashboard-view-root a {
-  color:           inherit;
-  text-decoration: none;
+.topbar_actions_abe1a4 {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.dashboard-view-root svg {
-  display:    block;
-  flex-shrink: 0;
+.blocks_abe1a4 {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
 }
 
-.dashboard-view-root p {
-  margin: 0;
-}
-
-.dashboard-view-root ul,
-.dashboard-view-root ol,
-.dashboard-view-root li {
-  list-style: none;
-  margin:     0;
-  padding:    0;
+@media (max-width: 599px) {
+  .blocks_abe1a4 { gap: var(--space-4); }
 }
 
 
@@ -722,6 +506,265 @@
 .m_62ee059 {
   flex: 1;
   margin-inline-end: var(--mantine-spacing-md);
+}
+
+
+/* ─── Obsidian portal bridge ────────────────────────────────────────────────────
+   Модалки и Popover-дропдауны рендерятся в body-портале вне .dashboard-view-root,
+   поэтому им нужны переменные на :root. Значения захардкожены (без var-цепочки
+   через --interactive-accent): в Obsidian тема перебивает этот var и accent
+   оставался синим вместо фиолетового.
+─────────────────────────────────────────────────────────────────────────── */
+
+:root[data-mantine-color-scheme],
+:root {
+  --mantine-color-body:           var(--background-primary, #0d0d0f);
+  --mantine-color-text:           #e4e4e7;
+  --mantine-color-default:        #18181b;
+  --mantine-color-default-hover:  #27272a;
+  --mantine-color-default-border: rgba(255, 255, 255, 0.07);
+  --mantine-color-default-color:  #e4e4e7;
+  --mantine-color-dimmed:         #71717a;
+  --mantine-color-placeholder:    #52525b;
+  --mantine-primary-color-filled:       #7c3aed;
+  --mantine-primary-color-filled-hover: #6d28d9;
+  --mantine-primary-color-contrast:     #ffffff;
+  --mantine-primary-color-light:        rgba(124, 58, 237, 0.10);
+  --mantine-primary-color-light-hover:  rgba(124, 58, 237, 0.12);
+  --mantine-primary-color-light-color:  #a78bfa;
+  --mantine-color-blue-4: #9775fa;
+  --mantine-color-blue-5: #7c3aed;
+  --mantine-color-blue-6: #6d28d9;
+}
+
+/* ─── Design tokens (CLAUDE.md canon, 8px grid) ─────────────────────────────── */
+
+:root {
+  /* Spacing */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-4:  16px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Shadows */
+  --shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md:   0 4px 12px rgba(0, 0, 0, 0.10);
+  --shadow-lg:   0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.07);
+
+  /* Card */
+  --card-padding: var(--space-4) var(--space-6);
+}
+
+/* ─── Dashboard panel root ───────────────────────────────────────────────────── */
+/* Applied by DashboardView.onOpen() via this.contentEl.addClass(...) */
+
+.dashboard-view-root {
+  /* ─── Mantine dark palette — прямые значения, без var-цепочки ──────────────
+     Mantine инжектирует palette как inline-style на <html>. Даже если мы
+     ставим --interactive-accent на этом элементе, Obsidian-тема перебивает
+     его у предков — и цепочка "blue-5 → interactive-accent" даёт синий.
+     Поэтому задаём финальные hex-значения напрямую: все потомки наследуют
+     нужный цвет без промежуточных var(). */
+  --mantine-color-dark-0: #e4e4e7;
+  --mantine-color-dark-1: #d4d4d8;
+  --mantine-color-dark-2: #a1a1aa;
+  --mantine-color-dark-3: #71717a;
+  --mantine-color-dark-4: rgba(255, 255, 255, 0.07);
+  --mantine-color-dark-5: #27272a;
+  --mantine-color-dark-6: #18181b;
+  --mantine-color-dark-7: #0d0d0f;
+  --mantine-color-dark-8: #0a0a0c;
+  --mantine-color-dark-9: #070709;
+
+  /* Purple accent (вместо синего из темы Obsidian) */
+  --mantine-color-blue-0: #f3f0ff;
+  --mantine-color-blue-1: #e9e3ff;
+  --mantine-color-blue-2: #d0bfff;
+  --mantine-color-blue-3: #b197fc;
+  --mantine-color-blue-4: #9775fa;
+  --mantine-color-blue-5: #7c3aed;
+  --mantine-color-blue-6: #6d28d9;
+  --mantine-color-blue-7: #5b21b6;
+  --mantine-color-blue-8: #4c1d95;
+  --mantine-color-blue-9: #3b0764;
+
+  --mantine-color-body:           #0d0d0f;
+  --mantine-color-text:           #e4e4e7;
+  --mantine-color-default:        #18181b;
+  --mantine-color-default-hover:  #27272a;
+  --mantine-color-default-border: rgba(255, 255, 255, 0.07);
+  --mantine-color-default-color:  #e4e4e7;
+  --mantine-color-dimmed:         #71717a;
+  --mantine-color-placeholder:    #52525b;
+  --mantine-primary-color-filled:       #7c3aed;
+  --mantine-primary-color-filled-hover: #6d28d9;
+  --mantine-primary-color-contrast:     #ffffff;
+  --mantine-primary-color-light:        rgba(124, 58, 237, 0.10);
+  --mantine-primary-color-light-hover:  rgba(124, 58, 237, 0.12);
+  --mantine-primary-color-light-color:  #a78bfa;
+
+  /* Obsidian vars — для компонентов, которые читают их напрямую */
+  --background-secondary: #18181b;
+  --interactive-accent:   #7c3aed;
+  --text-normal:  #e4e4e7;
+  --text-muted:   #71717a;
+
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  background: transparent;
+  color: var(--mantine-color-dark-0);
+  container-type: inline-size;
+  box-sizing: border-box;
+}
+
+.dashboard-view-root *,
+.dashboard-view-root *::before,
+.dashboard-view-root *::after {
+  box-sizing: inherit;
+}
+
+/* ─── Нейтрализация host-CSS Obsidian для контролов Mantine ─────────────────────
+   Obsidian's `button:not(.clickable-icon)` (специфичность 0,1,1) перебивает
+   классовые правила Mantine (0,1,0), ломая заливку/рамку/паддинги filled-кнопок.
+   Решение: таргетируем по хешированному классу + тегу → (0,1,1) ничья с
+   Obsidian, но tokens.css грузится ПОСЛЕ styles.css (Providers.tsx:7,10) →
+   побеждаем по порядку источника. При этом остаёмся НИЖЕ hover/disabled Mantine
+   (0,2,0), так что интерактивные состояния не ломаются.
+   Значения — ровно те кастом-проперти, что Mantine ставит на сам элемент через
+   JS (Button.mjs:49); фоллбэки дублируют дефолты из Button/ActionIcon/Input.css.
+   Хеши привязаны к @mantine/core 7.17.x — обновить при мажорном апгрейде.
+─────────────────────────────────────────────────────────────────────────────── */
+
+/* UnstyledButton — .m_87cf2631 (UnstyledButton.css:1)
+   ПЕРВЫМ: элементы Button и ActionIcon тоже несут этот класс, но их правила
+   ниже → при одинаковой специфичности (0,1,1) побеждают они, не это. */
+.dashboard-view-root button.m_87cf2631 {
+  background: transparent;
+  border:     0;
+  box-shadow: none;
+  padding:    0;
+}
+
+/* CloseButton (крестик модалки) — .m_86a44da5 (CloseButton.css:1) */
+.dashboard-view-root button.m_86a44da5 {
+  background: var(--cb-bg, transparent);
+  border:     0;
+  box-shadow: none;
+  padding:    0;
+}
+
+/* Button — .m_77c9d27d (Button.css:1)
+   ПОСЛЕ UnstyledButton → перебивает transparent для Button-элементов,
+   у которых одновременно есть оба класса. */
+.dashboard-view-root button.m_77c9d27d {
+  background:     var(--button-bg, var(--mantine-primary-color-filled));
+  border:         var(--button-bd, calc(0.0625rem * var(--mantine-scale)) solid transparent);
+  color:          var(--button-color, var(--mantine-color-white));
+  box-shadow:     none;
+  padding-block:  0;
+  padding-inline: var(--button-padding-x, var(--button-padding-x-sm));
+}
+
+/* ActionIcon — .m_8d3f4000 (ActionIcon.css:1)
+   ПОСЛЕ UnstyledButton → то же самое. */
+.dashboard-view-root button.m_8d3f4000 {
+  background: var(--ai-bg, var(--mantine-primary-color-filled));
+  border:     var(--ai-bd, calc(0.0625rem * var(--mantine-scale)) solid transparent);
+  color:      var(--ai-color, var(--mantine-color-white));
+  box-shadow: none;
+  padding:    0;
+}
+
+/* Input-элемент (TextInput / Select / DatePickerInput) — .m_8fb7ebe7 (Input.css:141)
+   Специфичность (0,2,0) — выше Obsidian (0,1,1) без привязки к тегу. */
+.dashboard-view-root .m_8fb7ebe7 {
+  background-color: var(--input-bg);
+  border:           calc(0.0625rem * var(--mantine-scale)) solid var(--input-bd);
+  color:            var(--input-color);
+  box-shadow:       none;
+}
+
+/* ─── Скрытые радио-инпуты SegmentedControl (.m_1714d588) и Chip (.m_bde07329) ──
+   Obsidian's input styles (height/width/opacity) могут делать их видимыми и
+   ломать расчёт позиции floating indicator. Фиксим с той же специфичностью
+   (0,2,0) что и .m_8fb7ebe7 выше. */
+.dashboard-view-root input.m_1714d588,
+.dashboard-view-root input.m_bde07329 {
+  width:      0;
+  height:     0;
+  position:   absolute;
+  opacity:    0;
+  padding:    0;
+  margin:     0;
+  border:     0;
+  appearance: none;
+}
+
+/* ─── Кнопки Calendar ─────────────────────────────────────────────────────────── */
+
+/* Calendar day — .m_396ce5cb (dates/styles.css:29)
+   Obsidian's button styles могут перебивать width/height заданные через --day-size.
+   Сохраняем точные размеры ячеек; display:inline-flex уже стоит в классе,
+   но Obsidian может его перекрыть. */
+.dashboard-view-root button.m_396ce5cb {
+  width:            var(--day-size, var(--day-size-sm));
+  height:           var(--day-size, var(--day-size-sm));
+  min-width:        unset;
+  min-height:       unset;
+  display:          inline-flex;
+  justify-content:  center;
+  align-items:      center;
+  padding:          0;
+  background-color: transparent;
+  border:           0;
+  box-shadow:       none;
+  line-height:      1;
+}
+
+/* Calendar header arrow (.m_2351eeb0) и month-label (.m_f6645d97) */
+.dashboard-view-root button.m_2351eeb0,
+.dashboard-view-root button.m_f6645d97 {
+  height:     var(--dch-control-size);
+  display:    flex;
+  align-items: center;
+  justify-content: center;
+  padding:    0;
+  background: transparent;
+  border:     0;
+  box-shadow: none;
+}
+
+.dashboard-view-root a {
+  color:           inherit;
+  text-decoration: none;
+}
+
+.dashboard-view-root svg {
+  display:    block;
+  flex-shrink: 0;
+}
+
+.dashboard-view-root p {
+  margin: 0;
+}
+
+.dashboard-view-root ul,
+.dashboard-view-root ol,
+.dashboard-view-root li {
+  list-style: none;
+  margin:     0;
+  padding:    0;
 }
 
 
@@ -8435,46 +8478,37 @@ fieldset:disabled .m_c9ade57f:where([data-inverted]),
 }
 
 
-.root_abe1a4 {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-  min-height: 100%;
-  max-width: 960px;
-  margin-inline: auto;
-  padding: var(--space-6) var(--space-6) 64px;
+.root_180c08 {
+  position: relative;
+  transition: opacity 0.15s_180c08 ease-out;
 }
 
-@media (max-width: 599px) {
-  .root_abe1a4 {
-    gap: var(--space-4);
-    padding: var(--space-4) var(--space-4) var(--space-8);
-  }
+.root_dragging_180c08 {
+  opacity: 0.5_180c08;
 }
 
-.topbar_abe1a4 {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  padding-inline: 2px;
-}
-
-.topbar_actions_abe1a4 {
+.handle_180c08 {
+  position: absolute;
+  right: var(--space-2);
+  top: var(--space-2);
+  z-index: 10;
   display: flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  color: var(--mantine-color-dark-2);
+  cursor: grab;
+  transition: background 0.15s_180c08 ease-out, color 0.15s_180c08 ease-out;
 }
 
-.blocks_abe1a4 {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
+.handle_180c08:hover {
+  background: var(--mantine-color-dark-5);
+  color: var(--mantine-color-dark-0);
 }
 
-@media (max-width: 599px) {
-  .blocks_abe1a4 { gap: var(--space-4); }
+.handle_180c08:active {
+  cursor: grabbing;
 }
 
 
@@ -9030,148 +9064,6 @@ fieldset:disabled .m_c9ade57f:where([data-inverted]),
 }
 
 
-.header_6a0d1a {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  padding: 18px var(--space-6) var(--space-4);
-  border-bottom: 1px solid var(--mantine-color-dark-4);
-}
-
-@media (max-width: 599px) {
-  .header_6a0d1a { padding-inline: var(--space-4); padding-top: var(--space-4); }
-}
-
-.header_top_6a0d1a {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4) var(--space-4);
-}
-
-.header_title_6a0d1a {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.title_text_6a0d1a {
-  font-size: var(--mantine-font-size-sm);
-  font-weight: 600;
-  color: var(--mantine-color-dark-0);
-}
-
-.content_6a0d1a {
-  padding: var(--space-6);
-}
-
-@media (max-width: 599px) {
-  .content_6a0d1a { padding: var(--space-4); }
-}
-
-.tracker_grid_6a0d1a {
-  display: grid;
-  grid-template-columns: minmax(0, 380px) 1fr;
-  gap: var(--space-6);
-}
-
-@media (max-width: 700px) {
-  .tracker_grid_6a0d1a { grid-template-columns: 1fr; }
-}
-
-.stats_col_6a0d1a {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  min-width: 0;
-}
-
-
-.grid_02ebad {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-4);
-}
-
-.card_02ebad {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  background: var(--mantine-color-dark-6);
-  border: 1px solid var(--mantine-color-dark-4);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
-}
-
-.card_header_02ebad {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-}
-
-.label_02ebad {
-  font-size: var(--mantine-font-size-xs);
-  font-weight: 500;
-  color: var(--mantine-color-dark-2);
-}
-
-.value_02ebad {
-  font-size: 1.5rem_02ebad;
-  font-weight: 600;
-  line-height: 1;
-  color: var(--mantine-color-dark-0);
-}
-
-.value_green_02ebad  { color: var(--mantine-color-green-4); }
-.value_orange_02ebad { color: #f97316; }
-.value_amber_02ebad  { color: var(--mantine-color-amber-4); }
-
-.sub_02ebad {
-  font-size: var(--mantine-font-size-xs);
-  color: var(--mantine-color-dark-2);
-}
-
-
-.root_compact_98cbd2 { height: 4px; }
-.root_default_98cbd2 { height: 8px; }
-
-
-.root_180c08 {
-  position: relative;
-  transition: opacity 0.15s_180c08 ease-out;
-}
-
-.root_dragging_180c08 {
-  opacity: 0.5_180c08;
-}
-
-.handle_180c08 {
-  position: absolute;
-  right: var(--space-2);
-  top: var(--space-2);
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-1);
-  border-radius: var(--radius-sm);
-  color: var(--mantine-color-dark-2);
-  cursor: grab;
-  transition: background 0.15s_180c08 ease-out, color 0.15s_180c08 ease-out;
-}
-
-.handle_180c08:hover {
-  background: var(--mantine-color-dark-5);
-  color: var(--mantine-color-dark-0);
-}
-
-.handle_180c08:active {
-  cursor: grabbing;
-}
-
-
 .header_912cbe {
   display: flex;
   align-items: center;
@@ -9425,94 +9317,111 @@ fieldset:disabled .m_c9ade57f:where([data-inverted]),
 }
 
 
-.root_421d9c { position: relative; }
+.root_compact_98cbd2 { height: 4px; }
+.root_default_98cbd2 { height: 8px; }
 
-.level_back_421d9c {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px var(--space-2) 0;
-}
 
-.level_back_label_421d9c {
-  font-size: var(--mantine-font-size-xs);
-  color: var(--mantine-color-dark-2);
-}
-
-/* Context menu */
-.ctx_menu_421d9c {
-  position: fixed;
-  z-index: 9999;
-  min-width: 160px;
-  background: var(--mantine-color-dark-6);
-  border: 1px solid var(--mantine-color-dark-4);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
-  padding: 4px;
+.header_6a0d1a {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-4);
+  padding: 18px var(--space-6) var(--space-4);
+  border-bottom: 1px solid var(--mantine-color-dark-4);
 }
 
-.ctx_item_421d9c {
+@media (max-width: 599px) {
+  .header_6a0d1a { padding-inline: var(--space-4); padding-top: var(--space-4); }
+}
+
+.header_top_6a0d1a {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4) var(--space-4);
+}
+
+.header_title_6a0d1a {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  width: 100%;
-  padding: 6px 10px;
-  border: none;
-  background: transparent;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  text-align: left;
+}
+
+.title_text_6a0d1a {
   font-size: var(--mantine-font-size-sm);
-  color: var(--mantine-color-dark-1);
-  transition: background 0.15s_421d9c ease-out;
+  font-weight: 600;
+  color: var(--mantine-color-dark-0);
 }
 
-.ctx_item_421d9c:hover {
-  background: var(--mantine-color-dark-5);
+.content_6a0d1a {
+  padding: var(--space-6);
 }
 
-.ctx_item_danger_421d9c {
-  color: var(--mantine-color-red-4);
+@media (max-width: 599px) {
+  .content_6a0d1a { padding: var(--space-4); }
 }
 
-.dot_reported_421d9c { background: rgba(34,197,94,0.55_421d9c); }
-.dot_missed_421d9c   { background: rgba(239,68,68,0.45_421d9c); }
+.tracker_grid_6a0d1a {
+  display: grid;
+  grid-template-columns: minmax(0, 380px) 1fr;
+  gap: var(--space-6);
+}
 
-.legend_421d9c {
+@media (max-width: 700px) {
+  .tracker_grid_6a0d1a { grid-template-columns: 1fr; }
+}
+
+.stats_col_6a0d1a {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+
+.grid_02ebad {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.card_02ebad {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  background: var(--mantine-color-dark-6);
+  border: 1px solid var(--mantine-color-dark-4);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+}
+
+.card_header_02ebad {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
-  padding: 0 var(--space-4) var(--space-1);
+  gap: var(--space-2);
+}
+
+.label_02ebad {
   font-size: var(--mantine-font-size-xs);
+  font-weight: 500;
   color: var(--mantine-color-dark-2);
 }
 
-.legend_items_421d9c {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
+.value_02ebad {
+  font-size: 1.5rem_02ebad;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--mantine-color-dark-0);
 }
 
-.legend_item_421d9c {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
+.value_green_02ebad  { color: var(--mantine-color-green-4); }
+.value_orange_02ebad { color: #f97316; }
+.value_amber_02ebad  { color: var(--mantine-color-amber-4); }
 
-.legend_dot_421d9c {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.since_421d9c {
-  white-space: nowrap;
-  color: var(--mantine-color-dark-3);
+.sub_02ebad {
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-dark-2);
 }
 
 
@@ -9581,37 +9490,142 @@ fieldset:disabled .m_c9ade57f:where([data-inverted]),
 }
 
 
-.root_ad1235 {
+.root_421d9c { position: relative; }
+
+.picker_header_421d9c {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  padding: var(--space-2) var(--space-2) var(--space-4);
 }
 
-.label_ad1235 {
+.picker_year_421d9c {
+  flex: 1;
+  text-align: center;
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+  color: var(--mantine-color-dark-0);
+}
+
+.picker_year_btn_421d9c {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--mantine-color-dark-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s_421d9c ease-out;
+}
+
+.picker_year_btn_421d9c:hover:not(:disabled) { background: var(--mantine-color-dark-5); color: var(--mantine-color-dark-0); }
+.picker_year_btn_421d9c:disabled { opacity: 0.3_421d9c; cursor: default; }
+
+.month_grid_421d9c {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 0 var(--space-2) var(--space-2);
+}
+
+.month_cell_421d9c {
+  height: 40px;
+  border: 1px solid var(--mantine-color-dark-4);
+  background: var(--mantine-color-dark-6);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--mantine-font-size-sm);
+  color: var(--mantine-color-dark-1);
+  transition: background 0.15s_421d9c ease-out, color 0.15s_421d9c ease-out;
+}
+
+.month_cell_421d9c:hover:not(:disabled) { background: var(--mantine-color-dark-5); color: var(--mantine-color-dark-0); }
+.month_cell_421d9c:disabled { opacity: 0.3_421d9c; cursor: default; }
+.month_cell_active_421d9c {
+  background: var(--mantine-primary-color-light) !important;
+  border-color: var(--mantine-color-blue-5);
+  color: var(--mantine-color-blue-4) !important;
+}
+
+/* Context menu */
+.ctx_menu_421d9c {
+  position: fixed;
+  z-index: 9999;
+  min-width: 160px;
+  background: var(--mantine-color-dark-6);
+  border: 1px solid var(--mantine-color-dark-4);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ctx_item_421d9c {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: left;
+  font-size: var(--mantine-font-size-sm);
+  color: var(--mantine-color-dark-1);
+  transition: background 0.15s_421d9c ease-out;
+}
+
+.ctx_item_421d9c:hover {
+  background: var(--mantine-color-dark-5);
+}
+
+.ctx_item_danger_421d9c {
+  color: var(--mantine-color-red-4);
+}
+
+.dot_reported_421d9c { background: rgba(34,197,94,0.70_421d9c); }
+.dot_missed_421d9c   { background: rgba(239,68,68,0.60_421d9c); }
+
+.legend_421d9c {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: 0 var(--space-4) var(--space-1);
   font-size: var(--mantine-font-size-xs);
   color: var(--mantine-color-dark-2);
 }
 
-/* Override Mantine DatePickerInput to look like ghost button */
-.picker_ad1235 :global(.mantine-DatePickerInput-input_ad1235) {
-  background: transparent;
-  border: none;
-  color: var(--mantine-color-dark-0);
-  font-size: var(--mantine-font-size-xs);
-  cursor: pointer;
-  padding-inline: var(--space-2);
-  height: 28px;
-  min-height: 28px;
-  transition: background 0.15s_ad1235 ease-out;
+.legend_items_421d9c {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
 }
 
-.picker_ad1235 :global(.mantine-DatePickerInput-input_ad1235:hover) {
-  background: var(--mantine-color-dark-5);
+.legend_item_421d9c {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.picker_ad1235 :global(.mantine-DatePickerInput-input_ad1235:focus) {
-  outline: 2px solid var(--mantine-color-blue-5);
-  outline-offset: 1px;
+.legend_dot_421d9c {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.since_421d9c {
+  white-space: nowrap;
+  color: var(--mantine-color-dark-3);
 }
 
 
@@ -9686,4 +9700,38 @@ fieldset:disabled .m_c9ade57f:where([data-inverted]),
   gap: var(--space-2);
   padding-top: var(--space-4);
   border-top: 1px solid var(--mantine-color-dark-4);
+}
+
+
+.root_ad1235 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.label_ad1235 {
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-dark-2);
+}
+
+/* Override Mantine DatePickerInput to look like ghost button */
+.picker_ad1235 :global(.mantine-DatePickerInput-input_ad1235) {
+  background: transparent;
+  border: none;
+  color: var(--mantine-color-dark-0);
+  font-size: var(--mantine-font-size-xs);
+  cursor: pointer;
+  padding-inline: var(--space-2);
+  height: 28px;
+  min-height: 28px;
+  transition: background 0.15s_ad1235 ease-out;
+}
+
+.picker_ad1235 :global(.mantine-DatePickerInput-input_ad1235:hover) {
+  background: var(--mantine-color-dark-5);
+}
+
+.picker_ad1235 :global(.mantine-DatePickerInput-input_ad1235:focus) {
+  outline: 2px solid var(--mantine-color-blue-5);
+  outline-offset: 1px;
 }

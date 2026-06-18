@@ -75,16 +75,54 @@ export default function CalendarHeatmap({ days, since, onCreateReport, onOpenRep
     }
   }
 
-  return (
-    <div className={styles.root}>
-      {calLevel !== 'month' && (
-        <div className={styles.level_back}>
-          <ActionIcon variant="subtle" size="sm" onClick={() => setCalLevel('month')} aria-label="Назад к дням">
+  const pickerYear  = displayMonth.getFullYear()
+  const MONTHS_SHORT = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек']
+
+  if (calLevel !== 'month') {
+    return (
+      <div className={styles.root}>
+        <div className={styles.picker_header}>
+          <ActionIcon variant="subtle" size="sm" onClick={() => setCalLevel('month')} aria-label="Назад">
             <ChevronLeft size={14} />
           </ActionIcon>
-          <span className={styles.level_back_label}>Назад</span>
+          <button
+            className={styles.picker_year_btn}
+            onClick={() => setDisplayMonth(d => new Date(d.getFullYear() - 1, d.getMonth(), 1))}
+            aria-label="Предыдущий год"
+          >‹</button>
+          <span className={styles.picker_year}>{pickerYear}</span>
+          <button
+            className={styles.picker_year_btn}
+            onClick={() => {
+              const next = new Date(displayMonth.getFullYear() + 1, displayMonth.getMonth(), 1)
+              if (next <= now) setDisplayMonth(next)
+            }}
+            aria-label="Следующий год"
+            disabled={pickerYear >= now.getFullYear()}
+          >›</button>
         </div>
-      )}
+        <div className={styles.month_grid}>
+          {MONTHS_SHORT.map((name, i) => {
+            const isDisabled = new Date(pickerYear, i, 1) > now
+            const isCurrent  = i === displayMonth.getMonth() && pickerYear === displayMonth.getFullYear()
+            return (
+              <button
+                key={i}
+                className={`${styles.month_cell}${isCurrent ? ` ${styles.month_cell_active}` : ''}`}
+                disabled={isDisabled}
+                onClick={() => { setDisplayMonth(new Date(pickerYear, i, 1)); setCalLevel('month') }}
+              >
+                {name}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className={styles.root}>
       <Calendar
         date={displayMonth}
         onDateChange={setDisplayMonth}
@@ -97,8 +135,6 @@ export default function CalendarHeatmap({ days, since, onCreateReport, onOpenRep
           month:          { width: '100%', borderCollapse: 'separate', borderSpacing: '2px' },
           day:            { width: '100%', height: 'auto', aspectRatio: '1', fontSize: '11px' },
           weekday:        { fontSize: '10px' },
-          monthsList:     { width: '100%', borderCollapse: 'separate', borderSpacing: '4px' },
-          pickerControl:  { width: '100%', height: 36, fontSize: 'var(--mantine-font-size-sm)' },
         }}
         getDayProps={date => {
           const iso      = toISO(date)
@@ -115,9 +151,9 @@ export default function CalendarHeatmap({ days, since, onCreateReport, onOpenRep
             style: {
               ...(!isFuture ? { cursor: 'pointer' } : {}),
               ...(reported
-                ? { background: 'rgba(34,197,94,0.22)', color: 'var(--mantine-color-green-3)', borderRadius: 'var(--radius-sm)' }
+                ? { background: 'rgba(34,197,94,0.32)', color: 'var(--mantine-color-green-2)', borderRadius: 'var(--radius-sm)' }
                 : missed
-                ? { background: 'rgba(239,68,68,0.18)', color: 'var(--mantine-color-red-4)', borderRadius: 'var(--radius-sm)' }
+                ? { background: 'rgba(239,68,68,0.28)', color: 'var(--mantine-color-red-3)', borderRadius: 'var(--radius-sm)' }
                 : {}),
             },
           }
@@ -125,7 +161,7 @@ export default function CalendarHeatmap({ days, since, onCreateReport, onOpenRep
         renderDay={date => <span>{date.getDate()}</span>}
       />
 
-      {calLevel === 'month' && <div className={styles.legend}>
+      <div className={styles.legend}>
         <div className={styles.legend_items}>
           <span className={styles.legend_item}>
             <span className={`${styles.legend_dot} ${styles.dot_reported}`} />
@@ -137,7 +173,7 @@ export default function CalendarHeatmap({ days, since, onCreateReport, onOpenRep
           </span>
         </div>
         <span className={styles.since}>с {fmtShort(since)}</span>
-      </div>}
+      </div>
 
       {ctxMenu && createPortal(
         <div
