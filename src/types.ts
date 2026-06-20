@@ -7,6 +7,12 @@ export interface HistoryDay {
   filePath?: string   // vault-relative path to the note
 }
 
+export type RenderMarkdown = (
+  container: HTMLElement,
+  markdown: string,
+  sourcePath: string,
+) => void | (() => void)
+
 export interface TrackerStats {
   streak:           number
   bestStreak:       number

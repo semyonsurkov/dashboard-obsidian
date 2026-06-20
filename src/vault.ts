@@ -109,26 +109,14 @@ export async function readDateTracker(app: App, folderPath: string): Promise<His
     try {
       const content = await app.vault.cachedRead(child)
       const lines = content.split('\n')
-      let inFrontmatter = false, pastFrontmatter = false, inBody = false
-      for (const line of lines) {
-        const trimmed = line.trim()
-        if (!pastFrontmatter && trimmed === '---') {
-          if (!inFrontmatter) { inFrontmatter = true; continue }
-          inFrontmatter = false; pastFrontmatter = true; continue
-        }
-        if (inFrontmatter) continue
-        if (trimmed.startsWith('#')) { inBody = true; continue }
-        if (inBody && trimmed && !trimmed.startsWith('#')) {
-          text = trimmed
-            .replace(/\*\*([^*]+)\*\*/g, '$1')
-            .replace(/\*([^*]+)\*/g, '$1')
-            .replace(/`([^`]+)`/g, '$1')
-            .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-            .replace(/^[-*+]\s+/, '')
-            .replace(/^\d+\.\s*/, '')
-          break
-        }
+      let bodyStart = 0
+
+      if (lines[0]?.trim() === '---') {
+        const frontmatterEnd = lines.findIndex((line, index) => index > 0 && line.trim() === '---')
+        if (frontmatterEnd !== -1) bodyStart = frontmatterEnd + 1
       }
+
+      text = lines.slice(bodyStart).join('\n').trim()
     } catch {
       // leave text empty if read fails
     }

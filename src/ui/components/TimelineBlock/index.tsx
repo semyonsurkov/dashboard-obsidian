@@ -1,9 +1,9 @@
 import { useState, useMemo, useRef, useEffect, type MouseEvent } from 'react'
 import { createPortal } from 'react-dom'
-import { CalendarDays, CheckCircle, XCircle, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react'
+import { CalendarDays, CheckCircle, XCircle, ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Card, ActionIcon, SegmentedControl, UnstyledButton } from '@mantine/core'
 import { groupByMonth } from '../../../stats'
-import type { HistoryDay, Preset } from '../../../types'
+import type { HistoryDay, Preset, RenderMarkdown } from '../../../types'
 import styles from './styles.module.css'
 
 const MONTHS_NOM = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь']
@@ -29,9 +29,66 @@ interface DayRowProps {
   entry:           HistoryDay
   onOpenByDate?:   (date: string) => void
   onContextMenu?:  (e: MouseEvent<HTMLDivElement>, date: string, filePath: string | undefined, reported: boolean) => void
+  onRenderMarkdown?: RenderMarkdown
 }
 
-function DayRow({ entry, onOpenByDate, onContextMenu }: DayRowProps) {
+function MarkdownBody({ entry, onRenderMarkdown }: {
+  entry: HistoryDay
+  onRenderMarkdown?: RenderMarkdown
+}) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [expanded, setExpanded]   = useState(false)
+  const [overflows, setOverflows] = useState(
+    !onRenderMarkdown && (entry.text.length > 160 || entry.text.includes('\n'))
+  )
+
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container || !onRenderMarkdown) return
+
+    container.replaceChildren()
+    setExpanded(false)
+    const cleanup = onRenderMarkdown(container, entry.text, entry.filePath ?? '')
+
+    const timer = setTimeout(() => {
+      if (containerRef.current) {
+        setOverflows(containerRef.current.scrollHeight > containerRef.current.clientHeight + 2)
+      }
+    }, 0)
+
+    return () => {
+      clearTimeout(timer)
+      if (typeof cleanup === 'function') cleanup()
+    }
+  }, [entry.filePath, entry.text, onRenderMarkdown])
+
+  return (
+    <>
+      <div
+        ref={containerRef}
+        className={`${styles.day_markdown}${expanded ? ` ${styles.day_markdown_expanded}` : ''}`}
+        onClick={e => e.stopPropagation()}
+        onKeyDown={e => e.stopPropagation()}
+      >
+        {!onRenderMarkdown && entry.text}
+      </div>
+      {overflows && (
+        <button
+          type="button"
+          className={styles.expand_button}
+          aria-expanded={expanded}
+          onClick={e => { e.stopPropagation(); setExpanded(v => !v) }}
+          onKeyDown={e => e.stopPropagation()}
+        >
+          {expanded ? 'Свернуть' : 'Развернуть'}
+          <ChevronDown size={12} aria-hidden className={expanded ? styles.expand_icon_open : undefined} />
+        </button>
+      )}
+    </>
+  )
+}
+
+function DayRow({ entry, onOpenByDate, onContextMenu, onRenderMarkdown }: DayRowProps) {
   const [y, m, d] = entry.date.split('-').map(Number)
   const label     = `${d} ${MONTHS_GEN[m - 1]}`
   const dow       = DOW[new Date(y, m - 1, d).getDay()]
@@ -66,9 +123,9 @@ function DayRow({ entry, onOpenByDate, onContextMenu }: DayRowProps) {
             <span className={styles.day_dow}>{dow}</span>
           </div>
           {entry.text && (
-            <p className={styles.day_text}>
-              {entry.text.slice(0, 160)}{entry.text.length > 160 ? '…' : ''}
-            </p>
+            <div className={styles.day_content}>
+              <MarkdownBody entry={entry} onRenderMarkdown={onRenderMarkdown} />
+            </div>
           )}
         </div>
       </div>
@@ -102,9 +159,10 @@ interface Props {
   onOpenByDate?:   (date: string) => void
   onOpenReport?:   (date: string, filePath: string) => void
   onDeleteReport?: (date: string, filePath: string) => void
+  onRenderMarkdown?: RenderMarkdown
 }
 
-export default function TimelineBlock({ sourceDays, onOpenByDate, onOpenReport, onDeleteReport }: Props) {
+export default function TimelineBlock({ sourceDays, onOpenByDate, onOpenReport, onDeleteReport, onRenderMarkdown }: Props) {
   const [preset, setPreset]           = useState<Preset>('month')
   const [newestFirst, setNewestFirst] = useState(true)
   const [ctxMenu, setCtxMenu]         = useState<CtxState | null>(null)
@@ -270,14 +328,14 @@ export default function TimelineBlock({ sourceDays, onOpenByDate, onOpenReport, 
                     </div>
                   </div>
                   {groupDays.map(entry => (
-                    <DayRow key={entry.date} entry={entry} onOpenByDate={onOpenByDate} onContextMenu={handleCtxMenu} />
+                    <DayRow key={entry.date} entry={entry} onOpenByDate={onOpenByDate} onContextMenu={handleCtxMenu} onRenderMarkdown={onRenderMarkdown} />
                   ))}
                 </div>
               )
             })
           ) : (
             displayed.map(entry => (
-              <DayRow key={entry.date} entry={entry} onOpenByDate={onOpenByDate} onContextMenu={handleCtxMenu} />
+              <DayRow key={entry.date} entry={entry} onOpenByDate={onOpenByDate} onContextMenu={handleCtxMenu} onRenderMarkdown={onRenderMarkdown} />
             ))
           )}
         </div>

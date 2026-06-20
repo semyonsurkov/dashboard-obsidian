@@ -1,7 +1,7 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { X, Columns3 } from 'lucide-react'
 import { Card, ActionIcon } from '@mantine/core'
-import type { Tracker } from '../../../types'
+import type { Tracker, RenderMarkdown } from '../../../types'
 import type { SprintInfo } from '../../../stats'
 import styles from './styles.module.css'
 
@@ -16,14 +16,35 @@ function fmtDay(iso: string) { const [, m, d] = iso.split('-').map(Number); retu
 
 interface DayCell { date: string; dow: number }
 
-interface Props {
-  sprint:          SprintInfo
-  trackers:        Tracker[]
-  onOpenReport?:   (date: string, filePath: string, trackerId: string) => void
-  onCreateReport?: (date: string, trackerId: string) => void
+function MdText({ text, filePath, onRenderMarkdown }: {
+  text: string
+  filePath?: string
+  onRenderMarkdown?: RenderMarkdown
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el || !onRenderMarkdown) return
+    el.replaceChildren()
+    const cleanup = onRenderMarkdown(el, text, filePath ?? '')
+    return () => { if (typeof cleanup === 'function') cleanup() }
+  }, [text, filePath, onRenderMarkdown])
+  return (
+    <div ref={ref} className={styles.detail_text}>
+      {!onRenderMarkdown && text}
+    </div>
+  )
 }
 
-export default function SprintBody({ sprint, trackers, onOpenReport, onCreateReport }: Props) {
+interface Props {
+  sprint:             SprintInfo
+  trackers:           Tracker[]
+  onOpenReport?:      (date: string, filePath: string, trackerId: string) => void
+  onCreateReport?:    (date: string, trackerId: string) => void
+  onRenderMarkdown?:  RenderMarkdown
+}
+
+export default function SprintBody({ sprint, trackers, onOpenReport, onCreateReport, onRenderMarkdown }: Props) {
   const today = toISO(new Date())
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
 
@@ -119,7 +140,7 @@ export default function SprintBody({ sprint, trackers, onOpenReport, onCreateRep
                   )}
                 </div>
               </div>
-              {reported && text && <p className={styles.detail_text}>{text}</p>}
+              {reported && text && <MdText text={text} filePath={filePath} onRenderMarkdown={onRenderMarkdown} />}
             </div>
           )
         })}

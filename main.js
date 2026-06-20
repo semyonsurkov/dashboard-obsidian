@@ -52823,40 +52823,40 @@ function SprintHero({
     ] })
   ] });
 }
-const header$2 = "_header_f0lmx_1";
-const header_title$2 = "_header_title_f0lmx_13";
-const content$2 = "_content_f0lmx_19";
-const rollup = "_rollup_f0lmx_31";
-const rollup_badge = "_rollup_badge_f0lmx_37";
-const grid$2 = "_grid_f0lmx_47";
-const day = "_day_f0lmx_57";
-const day_clickable = "_day_clickable_f0lmx_69";
-const day_today = "_day_today_f0lmx_78";
-const day_future = "_day_future_f0lmx_82";
-const day_selected = "_day_selected_f0lmx_86";
-const day_header = "_day_header_f0lmx_91";
-const day_dow$1 = "_day_dow_f0lmx_98";
-const day_num = "_day_num_f0lmx_103";
-const day_dots = "_day_dots_f0lmx_109";
-const dot = "_dot_f0lmx_114";
-const dot_green$1 = "_dot_green_f0lmx_120";
-const dot_red$1 = "_dot_red_f0lmx_121";
-const dot_off = "_dot_off_f0lmx_122";
-const dot_future = "_dot_future_f0lmx_123";
-const detail = "_detail_f0lmx_126";
-const detail_header = "_detail_header_f0lmx_133";
-const detail_title = "_detail_title_f0lmx_141";
-const detail_tracker = "_detail_tracker_f0lmx_147";
-const detail_tracker_meta = "_detail_tracker_meta_f0lmx_157";
-const tracker_dot = "_tracker_dot_f0lmx_163";
-const detail_tracker_name = "_detail_tracker_name_f0lmx_170";
-const detail_miss_label = "_detail_miss_label_f0lmx_176";
-const detail_off_label = "_detail_off_label_f0lmx_182";
-const detail_text = "_detail_text_f0lmx_188";
-const detail_note_inline = "_detail_note_inline_f0lmx_206";
-const detail_actions = "_detail_actions_f0lmx_212";
-const detail_btn = "_detail_btn_f0lmx_216";
-const detail_btn_create = "_detail_btn_create_f0lmx_232";
+const header$2 = "_header_1jp56_1";
+const header_title$2 = "_header_title_1jp56_13";
+const content$2 = "_content_1jp56_19";
+const rollup = "_rollup_1jp56_31";
+const rollup_badge = "_rollup_badge_1jp56_37";
+const grid$2 = "_grid_1jp56_47";
+const day = "_day_1jp56_57";
+const day_clickable = "_day_clickable_1jp56_69";
+const day_today = "_day_today_1jp56_78";
+const day_future = "_day_future_1jp56_82";
+const day_selected = "_day_selected_1jp56_86";
+const day_header = "_day_header_1jp56_91";
+const day_dow$1 = "_day_dow_1jp56_98";
+const day_num = "_day_num_1jp56_103";
+const day_dots = "_day_dots_1jp56_109";
+const dot = "_dot_1jp56_114";
+const dot_green$1 = "_dot_green_1jp56_120";
+const dot_red$1 = "_dot_red_1jp56_121";
+const dot_off = "_dot_off_1jp56_122";
+const dot_future = "_dot_future_1jp56_123";
+const detail = "_detail_1jp56_126";
+const detail_header = "_detail_header_1jp56_133";
+const detail_title = "_detail_title_1jp56_141";
+const detail_tracker = "_detail_tracker_1jp56_147";
+const detail_tracker_meta = "_detail_tracker_meta_1jp56_157";
+const tracker_dot = "_tracker_dot_1jp56_163";
+const detail_tracker_name = "_detail_tracker_name_1jp56_170";
+const detail_miss_label = "_detail_miss_label_1jp56_176";
+const detail_off_label = "_detail_off_label_1jp56_182";
+const detail_text = "_detail_text_1jp56_188";
+const detail_note_inline = "_detail_note_inline_1jp56_226";
+const detail_actions = "_detail_actions_1jp56_232";
+const detail_btn = "_detail_btn_1jp56_236";
+const detail_btn_create = "_detail_btn_create_1jp56_252";
 const styles$a = {
   header: header$2,
   header_title: header_title$2,
@@ -52903,7 +52903,20 @@ function fmtDay(iso) {
   const [, m, d] = iso.split("-").map(Number);
   return `${d} ${MONTHS_GEN$4[m - 1]}`;
 }
-function SprintBody({ sprint, trackers, onOpenReport, onCreateReport }) {
+function MdText({ text, filePath, onRenderMarkdown }) {
+  const ref = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    const el = ref.current;
+    if (!el || !onRenderMarkdown) return;
+    el.replaceChildren();
+    const cleanup = onRenderMarkdown(el, text, filePath ?? "");
+    return () => {
+      if (typeof cleanup === "function") cleanup();
+    };
+  }, [text, filePath, onRenderMarkdown]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref, className: styles$a.detail_text, children: !onRenderMarkdown && text });
+}
+function SprintBody({ sprint, trackers, onOpenReport, onCreateReport, onRenderMarkdown }) {
   const today = toISO$3(/* @__PURE__ */ new Date());
   const [selectedDate, setSelectedDate] = reactExports.useState(null);
   const sprintDays = reactExports.useMemo(() => {
@@ -52990,7 +53003,7 @@ function SprintBody({ sprint, trackers, onOpenReport, onCreateReport }) {
               )
             ] })
           ] }),
-          reported && text && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: styles$a.detail_text, children: text })
+          reported && text && /* @__PURE__ */ jsxRuntimeExports.jsx(MdText, { text, filePath, onRenderMarkdown })
         ] }, t.id);
       })
     ] });
@@ -57068,38 +57081,42 @@ function TrackerBlock({
     ] }) : null })
   ] });
 }
-const header = "_header_1updo_1";
-const header_title = "_header_title_1updo_13";
-const content = "_content_1updo_19";
-const toolbar = "_toolbar_1updo_30";
-const month_nav = "_month_nav_1updo_38";
-const month_label = "_month_label_1updo_48";
-const stats_grid = "_stats_grid_1updo_56";
-const stat_card = "_stat_card_1updo_66";
-const stat_card_text = "_stat_card_text_1updo_76";
-const stat_value = "_stat_value_1updo_78";
-const stat_sub = "_stat_sub_1updo_84";
-const sort_row = "_sort_row_1updo_89";
-const list = "_list_1updo_98";
-const month_group = "_month_group_1updo_106";
-const month_heading_wrap = "_month_heading_wrap_1updo_108";
-const month_heading = "_month_heading_1updo_108";
-const month_count = "_month_count_1updo_134";
-const day_row = "_day_row_1updo_140";
-const day_row_clickable = "_day_row_clickable_1updo_151";
-const day_reported = "_day_reported_1updo_162";
-const day_meta = "_day_meta_1updo_169";
-const day_dot = "_day_dot_1updo_175";
-const dot_green = "_dot_green_1updo_182";
-const dot_red = "_dot_red_1updo_183";
-const day_date = "_day_date_1updo_185";
-const day_dow = "_day_dow_1updo_191";
-const day_missed_label = "_day_missed_label_1updo_196";
-const day_missed_name = "_day_missed_name_1updo_201";
-const ctx_menu = "_ctx_menu_1updo_207";
-const ctx_item = "_ctx_item_1updo_221";
-const ctx_item_danger = "_ctx_item_danger_1updo_238";
-const day_text = "_day_text_1updo_240";
+const header = "_header_1t7hx_1";
+const header_title = "_header_title_1t7hx_13";
+const content = "_content_1t7hx_19";
+const toolbar = "_toolbar_1t7hx_30";
+const month_nav = "_month_nav_1t7hx_38";
+const month_label = "_month_label_1t7hx_48";
+const stats_grid = "_stats_grid_1t7hx_56";
+const stat_card = "_stat_card_1t7hx_66";
+const stat_card_text = "_stat_card_text_1t7hx_76";
+const stat_value = "_stat_value_1t7hx_78";
+const stat_sub = "_stat_sub_1t7hx_84";
+const sort_row = "_sort_row_1t7hx_89";
+const list = "_list_1t7hx_98";
+const month_group = "_month_group_1t7hx_106";
+const month_heading_wrap = "_month_heading_wrap_1t7hx_108";
+const month_heading = "_month_heading_1t7hx_108";
+const month_count = "_month_count_1t7hx_134";
+const day_row = "_day_row_1t7hx_140";
+const day_row_clickable = "_day_row_clickable_1t7hx_151";
+const day_reported = "_day_reported_1t7hx_162";
+const day_meta = "_day_meta_1t7hx_169";
+const day_dot = "_day_dot_1t7hx_175";
+const dot_green = "_dot_green_1t7hx_182";
+const dot_red = "_dot_red_1t7hx_183";
+const day_date = "_day_date_1t7hx_185";
+const day_dow = "_day_dow_1t7hx_191";
+const day_missed_label = "_day_missed_label_1t7hx_196";
+const day_missed_name = "_day_missed_name_1t7hx_201";
+const ctx_menu = "_ctx_menu_1t7hx_207";
+const ctx_item = "_ctx_item_1t7hx_221";
+const ctx_item_danger = "_ctx_item_danger_1t7hx_238";
+const day_content = "_day_content_1t7hx_240";
+const day_markdown = "_day_markdown_1t7hx_246";
+const day_markdown_expanded = "_day_markdown_expanded_1t7hx_256";
+const expand_button = "_expand_button_1t7hx_311";
+const expand_icon_open = "_expand_icon_open_1t7hx_338";
 const styles$3 = {
   header,
   header_title,
@@ -57132,7 +57149,11 @@ const styles$3 = {
   ctx_menu,
   ctx_item,
   ctx_item_danger,
-  day_text
+  day_content,
+  day_markdown,
+  day_markdown_expanded,
+  expand_button,
+  expand_icon_open
 };
 const MONTHS_NOM = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
 const MONTHS_GEN$1 = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
@@ -57154,7 +57175,59 @@ function fmtShort(iso) {
   const [, m, d] = iso.split("-").map(Number);
   return `${d} ${MONTHS_GEN$1[m - 1]}`;
 }
-function DayRow({ entry, onOpenByDate, onContextMenu }) {
+function MarkdownBody({ entry, onRenderMarkdown }) {
+  const containerRef = reactExports.useRef(null);
+  const [expanded, setExpanded] = reactExports.useState(false);
+  const [overflows, setOverflows] = reactExports.useState(
+    !onRenderMarkdown && (entry.text.length > 160 || entry.text.includes("\n"))
+  );
+  reactExports.useEffect(() => {
+    const container = containerRef.current;
+    if (!container || !onRenderMarkdown) return;
+    container.replaceChildren();
+    setExpanded(false);
+    const cleanup = onRenderMarkdown(container, entry.text, entry.filePath ?? "");
+    const timer = setTimeout(() => {
+      if (containerRef.current) {
+        setOverflows(containerRef.current.scrollHeight > containerRef.current.clientHeight + 2);
+      }
+    }, 0);
+    return () => {
+      clearTimeout(timer);
+      if (typeof cleanup === "function") cleanup();
+    };
+  }, [entry.filePath, entry.text, onRenderMarkdown]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        ref: containerRef,
+        className: `${styles$3.day_markdown}${expanded ? ` ${styles$3.day_markdown_expanded}` : ""}`,
+        onClick: (e) => e.stopPropagation(),
+        onKeyDown: (e) => e.stopPropagation(),
+        children: !onRenderMarkdown && entry.text
+      }
+    ),
+    overflows && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        type: "button",
+        className: styles$3.expand_button,
+        "aria-expanded": expanded,
+        onClick: (e) => {
+          e.stopPropagation();
+          setExpanded((v) => !v);
+        },
+        onKeyDown: (e) => e.stopPropagation(),
+        children: [
+          expanded ? "Свернуть" : "Развернуть",
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { size: 12, "aria-hidden": true, className: expanded ? styles$3.expand_icon_open : void 0 })
+        ]
+      }
+    )
+  ] });
+}
+function DayRow({ entry, onOpenByDate, onContextMenu, onRenderMarkdown }) {
   const [y, m, d] = entry.date.split("-").map(Number);
   const label2 = `${d} ${MONTHS_GEN$1[m - 1]}`;
   const dow = DOW[new Date(y, m - 1, d).getDay()];
@@ -57190,10 +57263,7 @@ function DayRow({ entry, onOpenByDate, onContextMenu }) {
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$3.day_date, children: label2 }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: styles$3.day_dow, children: dow })
           ] }),
-          entry.text && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: styles$3.day_text, children: [
-            entry.text.slice(0, 160),
-            entry.text.length > 160 ? "…" : ""
-          ] })
+          entry.text && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$3.day_content, children: /* @__PURE__ */ jsxRuntimeExports.jsx(MarkdownBody, { entry, onRenderMarkdown }) })
         ] })
       }
     );
@@ -57217,7 +57287,7 @@ function DayRow({ entry, onOpenByDate, onContextMenu }) {
     }
   );
 }
-function TimelineBlock({ sourceDays, onOpenByDate, onOpenReport, onDeleteReport }) {
+function TimelineBlock({ sourceDays, onOpenByDate, onOpenReport, onDeleteReport, onRenderMarkdown }) {
   const [preset, setPreset] = reactExports.useState("month");
   const [newestFirst, setNewestFirst] = reactExports.useState(true);
   const [ctxMenu, setCtxMenu] = reactExports.useState(null);
@@ -57383,9 +57453,9 @@ function TimelineBlock({ sourceDays, onOpenByDate, onOpenReport, onDeleteReport 
                 group.days.length
               ] })
             ] }) }),
-            groupDays.map((entry) => /* @__PURE__ */ jsxRuntimeExports.jsx(DayRow, { entry, onOpenByDate, onContextMenu: handleCtxMenu }, entry.date))
+            groupDays.map((entry) => /* @__PURE__ */ jsxRuntimeExports.jsx(DayRow, { entry, onOpenByDate, onContextMenu: handleCtxMenu, onRenderMarkdown }, entry.date))
           ] }, group.key);
-        }) : displayed.map((entry) => /* @__PURE__ */ jsxRuntimeExports.jsx(DayRow, { entry, onOpenByDate, onContextMenu: handleCtxMenu }, entry.date)) })
+        }) : displayed.map((entry) => /* @__PURE__ */ jsxRuntimeExports.jsx(DayRow, { entry, onOpenByDate, onContextMenu: handleCtxMenu, onRenderMarkdown }, entry.date)) })
       ] })
     ] }),
     ctxMenu && reactDomExports.createPortal(
@@ -57507,7 +57577,8 @@ function DashboardApp({
   onOpenSettings,
   onOrderChange,
   onOpenReport,
-  onDeleteReport
+  onDeleteReport,
+  onRenderMarkdown
 }) {
   const [editMode, setEditMode] = reactExports.useState(false);
   const [mainOrder, setMainOrder] = reactExports.useState(settings.mainBlockOrder ?? ["tracker", "history"]);
@@ -57610,7 +57681,8 @@ function DashboardApp({
         sourceDays: activeDays,
         onOpenByDate: (date2) => handleCreateReport(date2, activeTrackerId),
         onOpenReport: (date2, fp) => onOpenReport == null ? void 0 : onOpenReport(date2, fp, activeTrackerId),
-        onDeleteReport: (date2, fp) => onDeleteReport == null ? void 0 : onDeleteReport(date2, fp, activeTrackerId)
+        onDeleteReport: (date2, fp) => onDeleteReport == null ? void 0 : onDeleteReport(date2, fp, activeTrackerId),
+        onRenderMarkdown
       }
     )
   };
@@ -57661,7 +57733,8 @@ function DashboardApp({
         sprint,
         trackers,
         onOpenReport: (date2, fp, trackerId) => onOpenReport == null ? void 0 : onOpenReport(date2, fp, trackerId),
-        onCreateReport: (date2, trackerId) => handleCreateReport(date2, trackerId)
+        onCreateReport: (date2, trackerId) => handleCreateReport(date2, trackerId),
+        onRenderMarkdown
       }
     ),
     /* @__PURE__ */ jsxRuntimeExports.jsx(DndContext, { sensors, collisionDetection: closestCenter, onDragEnd: handleMainDragEnd, children: /* @__PURE__ */ jsxRuntimeExports.jsx(SortableContext, { items: mainOrder, strategy: verticalListSortingStrategy, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles.blocks, children: mainOrder.map((id) => /* @__PURE__ */ jsxRuntimeExports.jsx(SortableItem, { id, editMode, children: blocks2[id] }, id)) }) }) })
@@ -58079,6 +58152,7 @@ function getAllFolderPaths(app) {
   return app.vault.getAllLoadedFiles().filter((f) => f instanceof obsidian.TFolder && f.path !== "" && f.path !== "/").map((f) => f.path).sort();
 }
 async function readDateTracker(app, folderPath) {
+  var _a;
   const folder = app.vault.getAbstractFileByPath(folderPath);
   if (!(folder instanceof obsidian.TFolder)) return [];
   const DATE_RE = /^(\d{2})-(\d{2})-(\d{4})\.md$/;
@@ -58093,28 +58167,12 @@ async function readDateTracker(app, folderPath) {
     try {
       const content2 = await app.vault.cachedRead(child);
       const lines = content2.split("\n");
-      let inFrontmatter = false, pastFrontmatter = false, inBody = false;
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!pastFrontmatter && trimmed === "---") {
-          if (!inFrontmatter) {
-            inFrontmatter = true;
-            continue;
-          }
-          inFrontmatter = false;
-          pastFrontmatter = true;
-          continue;
-        }
-        if (inFrontmatter) continue;
-        if (trimmed.startsWith("#")) {
-          inBody = true;
-          continue;
-        }
-        if (inBody && trimmed && !trimmed.startsWith("#")) {
-          text = trimmed.replace(/\*\*([^*]+)\*\*/g, "$1").replace(/\*([^*]+)\*/g, "$1").replace(/`([^`]+)`/g, "$1").replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").replace(/^[-*+]\s+/, "").replace(/^\d+\.\s*/, "");
-          break;
-        }
+      let bodyStart = 0;
+      if (((_a = lines[0]) == null ? void 0 : _a.trim()) === "---") {
+        const frontmatterEnd = lines.findIndex((line, index2) => index2 > 0 && line.trim() === "---");
+        if (frontmatterEnd !== -1) bodyStart = frontmatterEnd + 1;
       }
+      text = lines.slice(bodyStart).join("\n").trim();
     } catch {
     }
     days.push({ date: iso, reported: true, text, filePath: child.path });
@@ -58266,6 +58324,12 @@ class DashboardView extends obsidian.ItemView {
             if (file instanceof obsidian.TFile) {
               await this.app.fileManager.trashFile(file);
             }
+          },
+          onRenderMarkdown: (container, markdown, sourcePath) => {
+            const component = new obsidian.Component();
+            component.load();
+            void obsidian.MarkdownRenderer.render(this.app, markdown, container, sourcePath, component);
+            return () => component.unload();
           },
           onNewProject: async (name, folder, deadline) => {
             const id = `project-${Date.now()}`;

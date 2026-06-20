@@ -1,4 +1,4 @@
-import { Notice, Plugin, ItemView, WorkspaceLeaf, TFile } from 'obsidian'
+import { Component, MarkdownRenderer, Notice, Plugin, ItemView, WorkspaceLeaf, TFile } from 'obsidian'
 import { createRoot, type Root } from 'react-dom/client'
 import { createElement } from 'react'
 import { DashboardApp } from './ui/App'
@@ -118,6 +118,13 @@ class DashboardView extends ItemView {
           if (file instanceof TFile) {
             await this.app.fileManager.trashFile(file)
           }
+        },
+
+        onRenderMarkdown: (container: HTMLElement, markdown: string, sourcePath: string) => {
+          const component = new Component()
+          component.load()
+          void MarkdownRenderer.render(this.app, markdown, container, sourcePath, component)
+          return () => component.unload()
         },
 
         onNewProject: async (name: string, folder: string, deadline?: string) => {

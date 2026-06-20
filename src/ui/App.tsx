@@ -11,7 +11,7 @@ import { GripVertical, NotebookPen, Briefcase, Settings } from 'lucide-react'
 import { Button, ActionIcon } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { sprintByOffset } from '../stats'
-import type { Tracker, Project, TrackerId, BlockId, HistoryDay } from '../types'
+import type { Tracker, Project, TrackerId, BlockId, HistoryDay, RenderMarkdown } from '../types'
 import type { DashboardData } from '../vault'
 import type { DashboardSettings } from '../settings'
 import SprintHero    from './components/SprintHero'
@@ -39,6 +39,7 @@ interface Props {
   onOrderChange?:   (main: BlockId[]) => void
   onOpenReport?:    (date: string, filePath: string, trackerId: string) => void
   onDeleteReport?:  (date: string, filePath: string, trackerId: string) => void
+  onRenderMarkdown?: RenderMarkdown
 }
 
 // ─── App ──────────────────────────────────────────────────────────────────────
@@ -47,6 +48,7 @@ export function DashboardApp({
   data, today, settings,
   onCreateSprint, onOpenNote, onCreateReport,
   onNewProject, onProjectUpdate, onOpenSettings, onOrderChange, onOpenReport, onDeleteReport,
+  onRenderMarkdown,
 }: Props) {
   const [editMode, setEditMode]               = useState(false)
   const [mainOrder, setMainOrder]             = useState<BlockId[]>((settings.mainBlockOrder as BlockId[]) ?? ['tracker', 'history'])
@@ -147,6 +149,7 @@ export function DashboardApp({
         onOpenByDate={date => handleCreateReport(date, activeTrackerId)}
         onOpenReport={(date, fp) => onOpenReport?.(date, fp, activeTrackerId)}
         onDeleteReport={(date, fp) => onDeleteReport?.(date, fp, activeTrackerId)}
+        onRenderMarkdown={onRenderMarkdown}
       />
     ),
   }
@@ -193,6 +196,7 @@ export function DashboardApp({
         trackers={trackers}
         onOpenReport={(date, fp, trackerId) => onOpenReport?.(date, fp, trackerId)}
         onCreateReport={(date, trackerId) => handleCreateReport(date, trackerId)}
+        onRenderMarkdown={onRenderMarkdown}
       />
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleMainDragEnd}>

@@ -237,15 +237,102 @@
 
 .ctx_item_danger { color: var(--mantine-color-red-4); }
 
-.day_text {
-  margin: 0;
-  margin-top: 6px;
+.day_content {
+  margin-top: 8px;
   padding-left: var(--space-4);
-  font-size: var(--mantine-font-size-xs);
-  line-height: 1.5;
-  color: var(--mantine-color-dark-2);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  min-width: 0;
 }
+
+.day_markdown {
+  position: relative;
+  max-height: 156px;
+  overflow: hidden;
+  font-size: var(--mantine-font-size-xs);
+  line-height: 1.45;
+  color: var(--mantine-color-dark-2);
+  white-space: normal;
+}
+
+.day_markdown_expanded {
+  max-height: none;
+  overflow: visible;
+}
+
+.day_markdown :global(.markdown-preview-view),
+.day_markdown :global(.markdown-rendered) {
+  padding: 0 !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+}
+
+.day_markdown > :global(*) {
+  margin-block: 0 8px !important;
+}
+
+.day_markdown :global(h1),
+.day_markdown :global(h2),
+.day_markdown :global(h3),
+.day_markdown :global(h4),
+.day_markdown :global(p),
+.day_markdown :global(ul),
+.day_markdown :global(ol),
+.day_markdown :global(pre),
+.day_markdown :global(blockquote) {
+  margin-block: 0 6px !important;
+}
+
+.day_markdown :global(h1),
+.day_markdown :global(h2),
+.day_markdown :global(h3),
+.day_markdown :global(h4) {
+  color: var(--mantine-color-dark-0);
+  font-size: var(--mantine-font-size-xs) !important;
+  line-height: 1.4 !important;
+  font-weight: 650 !important;
+  padding: 0 !important;
+}
+
+.day_markdown :global(ul),
+.day_markdown :global(ol) {
+  padding-inline-start: 20px !important;
+}
+
+.day_markdown :global(li) {
+  margin-block: 2px !important;
+}
+
+.day_markdown :global(p:last-child),
+.day_markdown :global(ul:last-child),
+.day_markdown :global(ol:last-child),
+.day_markdown > :global(*:last-child) {
+  margin-bottom: 0 !important;
+}
+
+.expand_button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: fit-content !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  margin: 8px 0 0 !important;
+  padding: 4px 9px !important;
+  border: 1px solid var(--mantine-color-dark-4) !important;
+  border-radius: var(--radius-md) !important;
+  background: var(--mantine-color-dark-6) !important;
+  box-shadow: none !important;
+  color: var(--mantine-color-dark-1) !important;
+  font: inherit !important;
+  font-size: var(--mantine-font-size-xs) !important;
+  line-height: 1 !important;
+  cursor: pointer;
+}
+
+.expand_button:hover {
+  border-color: var(--mantine-color-dark-3) !important;
+  background: var(--mantine-color-dark-5) !important;
+  color: var(--mantine-color-dark-0) !important;
+}
+
+.expand_icon_open { transform: rotate(180deg); }
